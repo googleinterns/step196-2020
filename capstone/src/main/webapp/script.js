@@ -102,4 +102,9 @@ function createMap() {
   );
 }
 
+function displayPanel() {
+    document.getElementById("map").style.width = "75%"; 
+    document.getElementById("panel").style.display = "block";
+}
+
 window.onload = createMap;

@@ -14,7 +14,7 @@
       <form action="" method="">
         <input type="checkbox" name="small-business" value="small">
         <label for="small-businesses">Small Businesses</label><br>
-        <input type="checkbox" name="black-owned-business" value="black-ownded">
+        <input type="checkbox" name="black-owned-business" value="black-owned">
         <label for="black-owned-business"> Black-owned Businesses</label><br>
         <input type="submit" value="Submit">
       </form>
@@ -22,10 +22,11 @@
 
     <div class="content">
         <div id="panel">
-        <p> Contains the information about a specific marker </p>
+        <p id="restaurant-info"> Will contain the information about a specific marker </p>
         </div>
 
         <div id="map"></div>
+        <button onclick="displayPanel()">Show Panel</button>
     </div>
   </body>
 </html>
