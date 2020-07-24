@@ -2,13 +2,13 @@
 <html>
   <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>My Portfolio</title>
     <link rel="stylesheet" href="style.css">
     <script src="script.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5C9lfHXZK0KnxRhO462vInbE-hoGCUrQ"></script>
   </head>
   <body>
-    <div id="map"></div>
     
     <div id="filter-container">
       <form action="" method="">
@@ -18,6 +18,14 @@
         <label for="black-owned-business"> Black-owned Businesses</label><br>
         <input type="submit" value="Submit">
       </form>
+    </div>
+
+    <div class="content">
+        <div id="panel">
+        <p> Contains the information about a specific marker </p>
+        </div>
+
+        <div id="map"></div>
     </div>
   </body>
 </html>
