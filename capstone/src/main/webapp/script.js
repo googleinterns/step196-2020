@@ -17,7 +17,7 @@ function createMap() {
   const map = new google.maps.Map(
   document.getElementById('map'), {
     center: {lat: 40.7128, lng: -74.0060},
-    zoom: 11,
+    zoom: 15,
     styles: [
       {elementType: 'geometry', stylers: [{color: '#242f3e'}]},
       {elementType: 'labels.text.stroke', stylers: [{color: '#242f3e'}]},
@@ -100,6 +100,55 @@ function createMap() {
       ]
     }
   );
+
+  setMarkers(map);
 }
 
 window.onload = createMap;
+
+// Data for the markers consisting of a name, a LatLng and a zIndex for the
+// order in which these markers should display on top of each other.
+var restaurants = [
+  {
+    "name": 'Tiny\'s & The Bar Upstairs', 
+    "latitude": 40.716778, 
+    "longitude": -74.00822, 
+    "zIndex": 1
+  },
+  {
+    "name": 'Max', 
+    "latitude": 40.71673, 
+    "longitude": -74.00828, 
+    "zIndex": 2
+  },
+  {
+    "name": 'Brooklyn Chop House', 
+    "latitude": 40.711334, 
+    "longitude":  -74.00632, 
+    "zIndex": 3
+  },
+];
+
+function setMarkers(map) {
+  // Adds markers to the map.
+  for (let restaurant of restaurants) {
+    var marker = new google.maps.Marker({
+        map: map,
+        draggable: true,
+        animation: google.maps.Animation.DROP,
+        position: {lat: restaurant.latitude, lng: restaurant.longitude},
+        zIndex: restaurant.zIndex
+    });
+    marker.addListener('click', toggleBounce);
+    
+    marker.setMap(map);
+  }
+}
+
+function toggleBounce() {
+  if (marker.getAnimation() !== null) {
+    marker.setAnimation(null);
+  } else {
+    marker.setAnimation(google.maps.Animation.BOUNCE);
+  }
+}
