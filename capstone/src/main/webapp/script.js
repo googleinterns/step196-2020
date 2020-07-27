@@ -159,5 +159,3 @@ function displayPanel(name) {
   document.getElementById("panel").style.display = "block";
   document.getElementById("restaurant-info").innerHTML = name;
 }
-
-window.onload = createMap;

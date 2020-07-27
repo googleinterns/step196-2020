@@ -30,3 +30,7 @@
     width: 100%;
   }
 }
+
+.checkbox-inline input:checked~label {
+  color: cornflowerblue;
+}
