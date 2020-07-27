@@ -140,6 +140,7 @@ function setMarkers(map) {
         zIndex: restaurant.zIndex
     });
     marker.addListener('click', toggleBounce);
+    marker.addListener('click', displayPanel(restaurant.name));
     
     marker.setMap(map);
   }
@@ -151,4 +152,10 @@ function toggleBounce() {
   } else {
     marker.setAnimation(google.maps.Animation.BOUNCE);
   }
+}
+
+function displayPanel(name) {
+  document.getElementById("map").style.width = "75%"; 
+  document.getElementById("panel").style.display = "block";
+  document.getElementById("restaurant-info").innerHTML = name;
 }
