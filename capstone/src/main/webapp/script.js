@@ -155,9 +155,9 @@ function toggleBounce() {
 }
 
 function displayPanel(name) {
-    document.getElementById("map").style.width = "75%"; 
-    document.getElementById("panel").style.display = "block";
-    document.getElementById("restaurant-info").innerHTML = name;
+  document.getElementById("map").style.width = "75%"; 
+  document.getElementById("panel").style.display = "block";
+  document.getElementById("restaurant-info").innerHTML = name;
 }
 
 window.onload = createMap;
