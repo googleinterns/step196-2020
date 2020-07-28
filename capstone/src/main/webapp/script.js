@@ -12,11 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+window.addEventListener('DOMContentLoaded', (event) => {
+  if (document.getElementById('map')) {
+    createMap();
+  }
+});
+
+var map;
+var center = new google.maps.LatLng(40.7128, -74.0060);
+
 /** Creates a map and adds it to the page. */
 function createMap() {
-  const map = new google.maps.Map(
-  document.getElementById('map'), {
-    center: {lat: 40.7128, lng: -74.0060},
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: center,
     zoom: 15,
     styles: [
       {elementType: 'geometry', stylers: [{color: '#242f3e'}]},
@@ -97,61 +105,42 @@ function createMap() {
           elementType: 'labels.text.stroke',
           stylers: [{color: '#17263c'}]
       }
-      ]
+    ]
+  });
+  getSearchResults();
+}
+
+function getSearchResults() {
+  var request = {
+    location: center,
+    radius: 10000,
+    types: ["restaurant", "food"]
+  };
+  service = new google.maps.places.PlacesService(map);
+  service.nearbySearch(request, callback);
+}
+
+function callback(results, status) {
+  if (status == google.maps.places.PlacesServiceStatus.OK) {
+    for (var i = 0; i < results.length; i++) {
+      // TODO: change condition to check if matches filter
+      if (true) {
+        setMarker(results[i]);
+      }
     }
-  );
-
-  setMarkers(map);
-}
-
-window.onload = createMap;
-
-// Data for the markers consisting of a name, a LatLng and a zIndex for the
-// order in which these markers should display on top of each other.
-var restaurants = [
-  {
-    "name": 'Tiny\'s & The Bar Upstairs', 
-    "latitude": 40.716778, 
-    "longitude": -74.00822, 
-    "zIndex": 1
-  },
-  {
-    "name": 'Max', 
-    "latitude": 40.71673, 
-    "longitude": -74.00828, 
-    "zIndex": 2
-  },
-  {
-    "name": 'Brooklyn Chop House', 
-    "latitude": 40.711334, 
-    "longitude":  -74.00632, 
-    "zIndex": 3
-  },
-];
-
-function setMarkers(map) {
-  // Adds markers to the map.
-  for (let restaurant of restaurants) {
-    var marker = new google.maps.Marker({
-        map: map,
-        draggable: true,
-        animation: google.maps.Animation.DROP,
-        position: {lat: restaurant.latitude, lng: restaurant.longitude},
-        zIndex: restaurant.zIndex
-    });
-    marker.addListener('click', toggleBounce);
-    marker.addListener('click', displayPanel(restaurant.name));
-    
-    marker.setMap(map);
   }
 }
 
-function toggleBounce() {
-  if (marker.getAnimation() !== null) {
-    marker.setAnimation(null);
-  } else {
-    marker.setAnimation(google.maps.Animation.BOUNCE);
-  }
+function setMarker(place) {
+  console.log(place);
+  const marker = new google.maps.Marker({
+    map: map,
+    position: place.geometry.location,
+    animation: google.maps.Animation.DROP,
+  });
+  google.maps.event.addListener(marker, "click", () => {
+    displayPanel(place.name);
+  });
 }
 
 function displayPanel(name) {
