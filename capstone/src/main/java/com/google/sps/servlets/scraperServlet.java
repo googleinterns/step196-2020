@@ -43,7 +43,6 @@ public class scraperServlet extends HttpServlet {
       String restaurantNameSelector = "div > h4 > a";
       Elements restaurantNameElements = page.select(restaurantNameSelector);
 
-
       for (Element restaurantName : restaurantNameElements) {
         restaurantNames.add(restaurantName.text());
       }
