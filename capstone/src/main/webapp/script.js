@@ -18,11 +18,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
   }
 });
 
-var map;
-var center = new google.maps.LatLng(40.7128, -74.0060);
+const map;
+const center;
 
 /** Creates a map and adds it to the page. */
 function createMap() {
+  center = new google.maps.LatLng(40.7128, -74.0060);
   map = new google.maps.Map(document.getElementById('map'), {
     center: center,
     zoom: 15,
