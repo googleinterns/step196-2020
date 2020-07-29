@@ -18,8 +18,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
   }
 });
 
-const map;
-const center;
+var map;
+var center;
 
 /** Creates a map and adds it to the page. */
 function createMap() {
