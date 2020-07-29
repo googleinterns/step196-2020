@@ -47,8 +47,7 @@ public class scraperServlet extends HttpServlet {
         restaurantNames.add(restaurantName.text());
       }
     }
-    
-    System.out.println(restaurantNames);
+ 
     String restaurantNamesJson = new Gson().toJson(restaurantNames);
     response.setContentType("application/json;");
     response.getWriter().println(restaurantNamesJson);
