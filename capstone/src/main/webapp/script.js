@@ -145,7 +145,17 @@ function setMarker(place) {
 }
 
 function displayPanel(name) {
-  document.getElementById("map").style.width = "75%"; 
+  document.getElementById("map").style.width = "75%";
   document.getElementById("panel").style.display = "block";
   document.getElementById("restaurant-info").innerHTML = name;
 }
+
+function fetchBusinessNames() {
+  fetch('/businessNames').then(response => response.json()).then((restaurantNames) => {
+    for(let name of restaurantNames) {
+      console.log(name);
+    }
+  });
+}
+
+getSmallBizNames();
