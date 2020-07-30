@@ -25,8 +25,26 @@ let _map;
 let _center;
 let _showSmallBusiness = false;
 let _showBlackOwnedBusiness = false;
+let scrapedSmallBusinesses = new Set();
+let scrapedBlackBusinesses = new Set();
 const SMALL = 'small';
 const BLACK_OWNED = 'black-owned';
+
+function fetchBusinessNames() {
+  fetch('/businessNames').then(response => response.json()).then((restaurantNames) => {
+    for(let name of restaurantNames) {
+      scrapedSmallBusinesses.add(name);
+    }
+  });
+
+  fetch('/black-owned-restaurants-data').then(response => response.json()).then((restaurantNames) => {
+    for(let name of restaurantNames) {
+      scrapedBlackBusinesses.add(name);
+    }
+  });
+}
+
+fetchBusinessNames();
 
 /** Creates a map and adds it to the page. */
 function createMap() {
@@ -130,9 +148,13 @@ function getSearchResults() {
 function callback(results, status) {
   if (status == google.maps.places.PlacesServiceStatus.OK) {
     for (var i = 0; i < results.length; i++) {
-      // TODO(#15): change condition to check if matches filter
-      if (true) {
+      if (_showSmallBusiness && scrapedSmallBusinesses.has(results[i])) {
         setMarker(results[i]);
+        continue;
+      }
+      if(_showBlackOwnedBusiness && scrapedBlackBusiness.has(results[i])) {
+        setMarker(results[i]);
+        continue;
       }
     }
   }
@@ -175,13 +197,3 @@ function getInputFilters() {
     getSearchResults();
   });
 }
-
-function fetchBusinessNames() {
-  fetch('/businessNames').then(response => response.json()).then((restaurantNames) => {
-    for(let name of restaurantNames) {
-      console.log(name);
-    }
-  });
-}
-
-getSmallBizNames();
