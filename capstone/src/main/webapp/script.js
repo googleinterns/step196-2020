@@ -110,21 +110,21 @@ window.onload = createMap;
 // order in which these markers should display on top of each other.
 var restaurants = [
   {
-    "name": 'Tiny\'s & The Bar Upstairs', 
-    "latitude": 40.716778, 
-    "longitude": -74.00822, 
+    "name": 'Tiny\'s & The Bar Upstairs',
+    "latitude": 40.716778,
+    "longitude": -74.00822,
     "zIndex": 1
   },
   {
-    "name": 'Max', 
-    "latitude": 40.71673, 
-    "longitude": -74.00828, 
+    "name": 'Max',
+    "latitude": 40.71673,
+    "longitude": -74.00828,
     "zIndex": 2
   },
   {
-    "name": 'Brooklyn Chop House', 
-    "latitude": 40.711334, 
-    "longitude":  -74.00632, 
+    "name": 'Brooklyn Chop House',
+    "latitude": 40.711334,
+    "longitude":  -74.00632,
     "zIndex": 3
   },
 ];
@@ -141,7 +141,7 @@ function setMarkers(map) {
     });
     marker.addListener('click', toggleBounce);
     marker.addListener('click', displayPanel(restaurant.name));
-    
+
     marker.setMap(map);
   }
 }
@@ -155,7 +155,17 @@ function toggleBounce() {
 }
 
 function displayPanel(name) {
-  document.getElementById("map").style.width = "75%"; 
+  document.getElementById("map").style.width = "75%";
   document.getElementById("panel").style.display = "block";
   document.getElementById("restaurant-info").innerHTML = name;
 }
+
+function fetchBusinessNames() {
+  fetch('/businessNames').then(response => response.json()).then((restaurantNames) => {
+    for(let name of restaurantNames) {
+      console.log(name);
+    }
+  });
+}
+
+getSmallBizNames();
