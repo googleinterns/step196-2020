@@ -23,8 +23,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 var map;
 var center = new google.maps.LatLng(40.7128, -74.0060);
-var showSmallBusiness = false;
-var showBlackOwnedBusiness = false;
+let _showSmallBusiness = false;
+let _showBlackOwnedBusiness = false;
 
 /** Creates a map and adds it to the page. */
 function createMap() {
@@ -133,8 +133,8 @@ function callback(results, status) {
       }
     }
   }
-  showSmallBusiness = false;
-  showBlackOwnedBusiness = false;
+  _showSmallBusiness = false;
+  _showBlackOwnedBusiness = false;
 }
 
 function setMarker(place) {
@@ -161,10 +161,10 @@ function getInputFilters() {
     Array.from(form.querySelectorAll("input")).forEach(function(filterInput) {
       if(filterInput.checked) { 
         if (filterInput.value == 'small'){ 
-          showSmallBusiness = true; 
+          _showSmallBusiness = true; 
         }
         if (filterInput.value == 'black-owned'){ 
-          showBlackOwnedBusiness = true; 
+          _showBlackOwnedBusiness = true; 
         }
       } 
     });
