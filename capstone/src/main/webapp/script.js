@@ -157,6 +157,7 @@ function displayPanel(name) {
 function getInputFilters() {
   document.querySelector("button").addEventListener('click', function(event) {
     event.preventDefault();
+    // TODO: clear all markers on map each time new search query is submitted
     const form = document.querySelector("form");
     Array.from(form.querySelectorAll("input")).forEach(function(filterInput) {
       if(filterInput.checked) { 
