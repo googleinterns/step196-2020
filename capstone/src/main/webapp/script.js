@@ -21,8 +21,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
   }
 });
 
-var map;
-var center = new google.maps.LatLng(40.7128, -74.0060); // NY City Hall
+let _map;
+let _center;
 let _showSmallBusiness = false;
 let _showBlackOwnedBusiness = false;
 const SMALL = 'small';
@@ -30,8 +30,9 @@ const BLACK_OWNED = 'black-owned';
 
 /** Creates a map and adds it to the page. */
 function createMap() {
-  map = new google.maps.Map(document.getElementById('map'), {
-    center: center,
+  _center = new google.maps.LatLng(40.7128, -74.0060);
+  _map = new google.maps.Map(document.getElementById('map'), {
+    center: _center,
     zoom: 15,
     styles: [
       {elementType: 'geometry', stylers: [{color: '#242f3e'}]},
@@ -118,11 +119,11 @@ function createMap() {
 
 function getSearchResults() {
   var request = {
-    location: center,
+    location: _center,
     radius: 10000,
     types: ["restaurant", "food"]
   };
-  service = new google.maps.places.PlacesService(map);
+  service = new google.maps.places.PlacesService(_map);
   service.nearbySearch(request, callback);
 }
 
@@ -141,7 +142,7 @@ function callback(results, status) {
 
 function setMarker(place) {
   const marker = new google.maps.Marker({
-    map: map,
+    map: _map,
     position: place.geometry.location,
     animation: google.maps.Animation.DROP,
   });
@@ -151,7 +152,7 @@ function setMarker(place) {
 }
 
 function displayPanel(name) {
-  document.getElementById("map").style.width = "75%"; 
+  document.getElementById("map").style.width = "75%";
   document.getElementById("panel").style.display = "block";
   document.getElementById("restaurant-info").innerHTML = name;
 }
@@ -174,3 +175,13 @@ function getInputFilters() {
     getSearchResults();
   });
 }
+
+function fetchBusinessNames() {
+  fetch('/businessNames').then(response => response.json()).then((restaurantNames) => {
+    for(let name of restaurantNames) {
+      console.log(name);
+    }
+  });
+}
+
+getSmallBizNames();
