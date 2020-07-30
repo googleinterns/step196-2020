@@ -27,7 +27,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 /** Servlet that returns some example content. TODO: modify this file to handle comments data */
-@WebServlet("/gimmeSmallBizNames")
+@WebServlet("/businessNames")
 public class scraperServlet extends HttpServlet {
 
   @Override
@@ -47,7 +47,7 @@ public class scraperServlet extends HttpServlet {
         restaurantNames.add(restaurantName.text());
       }
     }
- 
+
     String restaurantNamesJson = new Gson().toJson(restaurantNames);
     response.setContentType("application/json;");
     response.getWriter().println(restaurantNamesJson);
