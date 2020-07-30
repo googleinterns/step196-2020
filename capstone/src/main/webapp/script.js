@@ -22,9 +22,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
 });
 
 var map;
-var center = new google.maps.LatLng(40.7128, -74.0060);
+var center = new google.maps.LatLng(40.7128, -74.0060); // NY City Hall
 let _showSmallBusiness = false;
 let _showBlackOwnedBusiness = false;
+const SMALL = 'small';
+const BLACK_OWNED = 'black-owned';
 
 /** Creates a map and adds it to the page. */
 function createMap() {
@@ -161,10 +163,10 @@ function getInputFilters() {
     const form = document.querySelector("form");
     Array.from(form.querySelectorAll("input")).forEach(function(filterInput) {
       if(filterInput.checked) { 
-        if (filterInput.value == 'small'){ 
+        if (filterInput.value == SMALL){ 
           _showSmallBusiness = true; 
         }
-        if (filterInput.value == 'black-owned'){ 
+        if (filterInput.value == BLACK_OWNED){ 
           _showBlackOwnedBusiness = true; 
         }
       } 
