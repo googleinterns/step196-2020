@@ -124,7 +124,7 @@ function getSearchResults() {
 function callback(results, status) {
   if (status == google.maps.places.PlacesServiceStatus.OK) {
     for (var i = 0; i < results.length; i++) {
-      // TODO: change condition to check if matches filter
+      // TODO(#15): change condition to check if matches filter
       if (true) {
         setMarker(results[i]);
       }
