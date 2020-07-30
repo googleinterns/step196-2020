@@ -16,10 +16,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
   if (document.getElementById('map')) {
     createMap();
   }
+  if (document.getElementById('filters-form')) {
+    getInputFilters();
+  }
 });
 
 let _map;
 let _center;
+let _showSmallBusiness = false;
+let _showBlackOwnedBusiness = false;
+const SMALL = 'small';
+const BLACK_OWNED = 'black-owned';
 
 /** Creates a map and adds it to the page. */
 function createMap() {
@@ -108,7 +115,6 @@ function createMap() {
       }
     ]
   });
-  getSearchResults();
 }
 
 function getSearchResults() {
@@ -130,10 +136,11 @@ function callback(results, status) {
       }
     }
   }
+  _showSmallBusiness = false;
+  _showBlackOwnedBusiness = false;
 }
 
 function setMarker(place) {
-  console.log(place);
   const marker = new google.maps.Marker({
     map: _map,
     position: place.geometry.location,
@@ -148,6 +155,25 @@ function displayPanel(name) {
   document.getElementById("map").style.width = "75%";
   document.getElementById("panel").style.display = "block";
   document.getElementById("restaurant-info").innerHTML = name;
+}
+
+function getInputFilters() {
+  document.querySelector("button").addEventListener('click', function(event) {
+    event.preventDefault();
+    // TODO(#14): clear all markers on map each time new search query is submitted
+    const form = document.querySelector("form");
+    Array.from(form.querySelectorAll("input")).forEach(function(filterInput) {
+      if(filterInput.checked) { 
+        if (filterInput.value == SMALL){ 
+          _showSmallBusiness = true; 
+        }
+        if (filterInput.value == BLACK_OWNED){ 
+          _showBlackOwnedBusiness = true; 
+        }
+      } 
+    });
+    getSearchResults();
+  });
 }
 
 function fetchBusinessNames() {
