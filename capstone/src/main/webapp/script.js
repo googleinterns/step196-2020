@@ -21,6 +21,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
   }
 });
 
+/** user, at location _center, searches a query with search string _keyword and selected filters _showSmallBusiness and _showBlackOwnedBusiness 
+    places matching user's query will be returned on _map 
+ */
 let _map;
 let _center;
 let _showSmallBusiness = false;
