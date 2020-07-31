@@ -159,3 +159,13 @@ function displayPanel(name) {
   document.getElementById("panel").style.display = "block";
   document.getElementById("restaurant-info").innerHTML = name;
 }
+
+function getSmallBizNames() {
+  fetch('/gimmeSmallBizNames').then(response => response.json()).then((restaurantNames) => {
+    for(let name of restaurantNames) {
+      console.log(name);
+    }
+  });
+}
+
+getSmallBizNames();
