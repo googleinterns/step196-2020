@@ -118,6 +118,9 @@ function createMap() {
 }
 
 function getSearchResults() {
+  document.getElementById("map").style.width = "75%"; 
+  document.getElementById("panel").style.display = "block";
+  document.getElementById("restaurant-results").innerHTML = "";
   var request = {
     location: _center,
     radius: 10000,
@@ -142,19 +145,27 @@ function callback(results, status) {
 
 function setMarker(place) {
   const marker = new google.maps.Marker({
-    map: _map,
+    map: map,
     position: place.geometry.location,
     animation: google.maps.Animation.DROP,
   });
-  google.maps.event.addListener(marker, "click", () => {
-    displayPanel(place.name);
-  });
+  addToDisplayPanel(place.name);
 }
-
-function displayPanel(name) {
-  document.getElementById("map").style.width = "75%";
-  document.getElementById("panel").style.display = "block";
-  document.getElementById("restaurant-info").innerHTML = name;
+ 
+function addToDisplayPanel(name) {
+  const locationElement = document.getElementById("restaurant-results");
+  locationElement.appendChild(createLocationElement(name));
+}
+ 
+function createLocationElement(placeName) {
+  const locElement = document.createElement('p');
+  locElement.className = 'place';
+ 
+  const mainElement = document.createElement('span');
+  mainElement.innerText = placeName;
+ 
+  locElement.appendChild(mainElement);
+  return locElement;
 }
 
 function getInputFilters() {
