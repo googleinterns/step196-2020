@@ -220,3 +220,7 @@ function getInputFilters() {
     getSearchResults();
   });
 }
+
+function login() {
+  window.location = '/login';
+}
