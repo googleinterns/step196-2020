@@ -149,23 +149,54 @@ function setMarker(place) {
     position: place.geometry.location,
     animation: google.maps.Animation.DROP,
   });
-  addToDisplayPanel(place.name);
+  addToDisplayPanel(place);
 }
  
-function addToDisplayPanel(name) {
+function addToDisplayPanel(place) {
   const locationElement = document.getElementById("restaurant-results");
-  locationElement.appendChild(createLocationElement(name));
+  locationElement.appendChild(createLocationElement(place));
+  locationElement.appendChild(createAdditionalInfo(place));
+}
+
+function displayAdditionalInfo() {
+  const coll = document.getElementsByClassName("collapsible");
+
+  for (let i = 0; i < coll.length; i++) {
+    coll[i].addEventListener("click", function() {
+      this.classList.toggle("active");
+      const content = this.nextElementSibling;
+      if (content.style.display === "block") {
+        content.style.display = "none";
+      } else {
+        content.style.display = "block";
+      }
+    });
+  }
 }
  
-function createLocationElement(placeName) {
-  const locElement = document.createElement('p');
-  locElement.className = 'place';
- 
-  const mainElement = document.createElement('span');
-  mainElement.innerText = placeName;
- 
-  locElement.appendChild(mainElement);
-  return locElement;
+function createLocationElement(place) {
+  const mainElement = document.createElement('button');
+  mainElement.className = "collapsible";
+  mainElement.innerHTML = place.name;
+
+  return mainElement;
+}
+
+function createAdditionalInfo(place) {
+  const moreinfo = document.createElement('div');
+  moreinfo.className = "info";
+  const website = document.createElement('p');
+  website.innerHTML = "Website: " + place.website + "<br>" + "Opening Hours: " + place.opening_hours;
+
+  moreinfo.appendChild(website);
+  displayAdditionalInfo();
+  
+  return moreinfo;
+}
+
+function closePanel() {
+  document.getElementById("panel").style.display = "none";
+  document.getElementById("map").style.width = "100%";
 }
 
 function getInputFilters() {

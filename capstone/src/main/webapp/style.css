@@ -24,6 +24,30 @@
   display: table;
 }
 
+#panel a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #818181;
+  display: block;
+  transition: 0.3s;
+}
+
+.closebtn {
+  position: relative;
+  top: 0;
+  float: right;
+  font-size: 36px;
+}
+
+.info {
+  display: none;
+}
+
+.collapsible {
+  width: 100%;
+}
+
 /* Responsive layout - makes the panel and the map stack on top of each other instead of next to each other */
 @media screen and (max-width: 600px) {
   #panel, #map {
