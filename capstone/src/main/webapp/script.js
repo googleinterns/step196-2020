@@ -216,15 +216,16 @@ function createLocationElement(place) {
 }
 
 function createAdditionalInfo(place) {
-  const moreinfo = document.createElement('div');
-  moreinfo.className = "info";
-  const website = document.createElement('p');
-  website.innerHTML = "Website: " + place.website + "<br>" + "Opening Hours: " + place.opening_hours;
+  const informationContainer = document.createElement('div');
+  informationContainer.className = "info";
 
-  moreinfo.appendChild(website);
+  const information = document.createElement('p');
+  information.innerHTML = "Rating: " + place.rating + "<br>" + "Price: " + place.price_level;
+
+  informationContainer.appendChild(information);
   displayAdditionalInfo();
   
-  return moreinfo;
+  return informationContainer;
 }
 
 function closePanel() {
