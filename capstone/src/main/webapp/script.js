@@ -143,6 +143,7 @@ function getSearchResults() {
   document.getElementById("map").style.width = "75%"; 
   document.getElementById("panel").style.display = "block";
   document.getElementById("restaurant-results").innerHTML = "";
+
   let request = {
     location: _center,
     radius: 10000,
