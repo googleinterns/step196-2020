@@ -21,12 +21,34 @@ window.addEventListener('DOMContentLoaded', (event) => {
   }
 });
 
+/** user, at location _center, searches a query with search string _keyword and selected filters _showSmallBusiness and _showBlackOwnedBusiness 
+    places matching user's query will be returned on _map 
+ */
 let _map;
 let _center;
 let _showSmallBusiness = false;
 let _showBlackOwnedBusiness = false;
+let _scrapedSmallBusinesses = new Set();
+let _scrapedBlackBusinesses = new Set();
+let _keyword;
 const SMALL = 'small';
 const BLACK_OWNED = 'black-owned';
+
+function fetchBusinessNames() {
+  fetch('/business-names').then(response => response.json()).then((restaurantNames) => {
+    for(let name of restaurantNames) {
+      _scrapedSmallBusinesses.add(name);
+    }
+  });
+
+  fetch('/black-owned-restaurants-data').then(response => response.json()).then((restaurantNames) => {
+    for(let name of restaurantNames) {
+      _scrapedBlackBusinesses.add(name);
+    }
+  });
+}
+
+fetchBusinessNames();
 
 /** Creates a map and adds it to the page. */
 function createMap() {
@@ -121,9 +143,12 @@ function getSearchResults() {
   document.getElementById("map").style.width = "75%"; 
   document.getElementById("panel").style.display = "block";
   document.getElementById("restaurant-results").innerHTML = "";
-  var request = {
+
+  let request = {
     location: _center,
     radius: 10000,
+    rankBy: google.maps.places.RankBy.PROMINENCE,
+    keyword: _keyword,
     types: ["restaurant", "food"]
   };
   service = new google.maps.places.PlacesService(_map);
@@ -133,9 +158,17 @@ function getSearchResults() {
 function callback(results, status) {
   if (status == google.maps.places.PlacesServiceStatus.OK) {
     for (var i = 0; i < results.length; i++) {
-      // TODO(#15): change condition to check if matches filter
-      if (true) {
+      if (!_showSmallBusiness && !_showBlackOwnedBusiness) {
         setMarker(results[i]);
+        continue;
+      }
+      if (_showSmallBusiness && _scrapedSmallBusinesses.has(results[i].name)) {
+        setMarker(results[i]);
+        continue;
+      }
+      if (_showBlackOwnedBusiness && _scrapedBlackBusinesses.has(results[i].name)) {
+        setMarker(results[i]);
+        continue;
       }
     }
   }
@@ -204,6 +237,7 @@ function getInputFilters() {
     event.preventDefault();
     // TODO(#14): clear all markers on map each time new search query is submitted
     const form = document.querySelector("form");
+    _keyword = document.getElementById("search").value;
     Array.from(form.querySelectorAll("input")).forEach(function(filterInput) {
       if(filterInput.checked) { 
         if (filterInput.value == SMALL){ 
@@ -217,13 +251,3 @@ function getInputFilters() {
     getSearchResults();
   });
 }
-
-function fetchBusinessNames() {
-  fetch('/businessNames').then(response => response.json()).then((restaurantNames) => {
-    for(let name of restaurantNames) {
-      console.log(name);
-    }
-  });
-}
-
-getSmallBizNames();
