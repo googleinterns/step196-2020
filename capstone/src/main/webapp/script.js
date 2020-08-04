@@ -154,11 +154,15 @@ function getSearchResults() {
 function callback(results, status) {
   if (status == google.maps.places.PlacesServiceStatus.OK) {
     for (var i = 0; i < results.length; i++) {
-      if (_showSmallBusiness && _scrapedSmallBusinesses.has(results[i])) {
+      if (!_showSmallBusiness && !_showBlackOwnedBusiness) {
         setMarker(results[i]);
         continue;
       }
-      if(_showBlackOwnedBusiness && _scrapedBlackBusiness.has(results[i])) {
+      if (_showSmallBusiness && _scrapedSmallBusinesses.has(results[i].name)) {
+        setMarker(results[i]);
+        continue;
+      }
+      if (_showBlackOwnedBusiness && _scrapedBlackBusinesses.has(results[i].name)) {
         setMarker(results[i]);
         continue;
       }
