@@ -27,7 +27,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 /** Servlet that returns some example content. TODO: modify this file to handle comments data */
-@WebServlet("/businessNames")
+@WebServlet("/business-names")
 public class scraperServlet extends HttpServlet {
 
   @Override

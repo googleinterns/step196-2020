@@ -28,9 +28,27 @@ let _map;
 let _center;
 let _showSmallBusiness = false;
 let _showBlackOwnedBusiness = false;
+let _scrapedSmallBusinesses = new Set();
+let _scrapedBlackBusinesses = new Set();
 let _keyword;
 const SMALL = 'small';
 const BLACK_OWNED = 'black-owned';
+
+function fetchBusinessNames() {
+  fetch('/business-names').then(response => response.json()).then((restaurantNames) => {
+    for(let name of restaurantNames) {
+      _scrapedSmallBusinesses.add(name);
+    }
+  });
+
+  fetch('/black-owned-restaurants-data').then(response => response.json()).then((restaurantNames) => {
+    for(let name of restaurantNames) {
+      _scrapedBlackBusinesses.add(name);
+    }
+  });
+}
+
+fetchBusinessNames();
 
 /** Creates a map and adds it to the page. */
 function createMap() {
@@ -125,7 +143,7 @@ function getSearchResults() {
   document.getElementById("map").style.width = "75%"; 
   document.getElementById("panel").style.display = "block";
   document.getElementById("restaurant-results").innerHTML = "";
-  
+
   let request = {
     location: _center,
     radius: 10000,
@@ -139,10 +157,18 @@ function getSearchResults() {
 
 function callback(results, status) {
   if (status == google.maps.places.PlacesServiceStatus.OK) {
-    for (let i = 0; i < results.length; i++) {
-      // TODO(#15): change condition to check if matches filter
-      if (true) {
+    for (var i = 0; i < results.length; i++) {
+      if (!_showSmallBusiness && !_showBlackOwnedBusiness) {
         setMarker(results[i]);
+        continue;
+      }
+      if (_showSmallBusiness && _scrapedSmallBusinesses.has(results[i].name)) {
+        setMarker(results[i]);
+        continue;
+      }
+      if (_showBlackOwnedBusiness && _scrapedBlackBusinesses.has(results[i].name)) {
+        setMarker(results[i]);
+        continue;
       }
     }
   }
@@ -194,13 +220,3 @@ function getInputFilters() {
     getSearchResults();
   });
 }
-
-function fetchBusinessNames() {
-  fetch('/businessNames').then(response => response.json()).then((restaurantNames) => {
-    for(let name of restaurantNames) {
-      console.log(name);
-    }
-  });
-}
-
-getSmallBizNames();
