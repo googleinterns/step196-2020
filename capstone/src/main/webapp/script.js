@@ -189,6 +189,7 @@ function addToDisplayPanel(place) {
   const locationElement = document.getElementById("restaurant-results");
   locationElement.appendChild(createLocationElement(place));
   locationElement.appendChild(createAdditionalInfo(place));
+  displayAdditionalInfo();
 }
 
 function displayAdditionalInfo() {
@@ -201,6 +202,7 @@ function displayAdditionalInfo() {
       if (content.style.display === "block") {
         content.style.display = "none";
       } else {
+        console.log("hey");
         content.style.display = "block";
       }
     });
@@ -222,11 +224,16 @@ function createAdditionalInfo(place) {
   const information = document.createElement('p');
   information.innerHTML = "Rating: " + place.rating + "<br>" + "Price: " + place.price_level;
 
-  informationContainer.appendChild(information);
-  displayAdditionalInfo();
+  const editsLink = document.createElement('a');
+  editsLink.setAttribute("href", "feedback.html");
+  editsLink.innerHTML = "Suggest edits?";
+
+  informationContainer.appendChild(information); 
+  informationContainer.appendChild(editsLink);
   
   return informationContainer;
 }
+
 
 function closePanel() {
   document.getElementById("panel").style.display = "none";
