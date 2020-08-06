@@ -1,12 +1,23 @@
 function fetchLoginStatus() {
-  fetch('/login').then(response => response.text()).then((loginStatus) => {
-    //Because loginStatus will return either the logout / login message
-    //we can just check the length of return message to ascertain if
-    //we are logged in or out
-    if(loginStatus.length < 100) {
-      window.location = "/login.html";
+  fetch("/login").then(response => response.json()).then((loginStatus) => {
+    const redirectUrl = document.createElement('a');
+    redirectUrl.setAttribute('href', loginStatus.url);
+    if (loginStatus.status) {
+      // if logged in, go to maps page
+      window.location = "/main.html";
+      // TODO: create logout button on page
     }
-  });
+    else {
+      // if not logged in, go to login page
+      document.getElementById("login-button").addEventListener("click", function(){
+        location = loginStatus.url; // Navigate to new page
+      });
+    }
+  })
 }
 
-window.addEventListener('load', fetchLoginStatus);
+window.addEventListener('DOMContentLoaded', (event) => {
+  if (document.getElementById("login-button")) {
+    fetchLoginStatus();
+  }
+});
