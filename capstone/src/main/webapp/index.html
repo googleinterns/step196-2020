@@ -2,46 +2,19 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>My Portfolio</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Home Page</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDNbt9SH6F9IdHXMpdm9fTjZQZUXz9DkSE&libraries=places"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
     <script src="script.js"></script>
+    <script src="loginAuth.js"></script>
   </head>
   <body>
-    <div id="filter-container">
-      <form id="filters-form">
-        <p>Suggested Filters: 
-        <label class="checkbox-inline">
-          <input type="checkbox" name="small-business" value="small">
-          <label for="small-businesses">Small Businesses</label><br>
-        </label>
-        <label class="checkbox-inline">
-          <input type="checkbox" name="black-owned-business" value="black-owned">
-          <label for="black-owned-business"> Black-owned Businesses</label><br>
-        </label>
-        <label class="checkbox-inline">
-          <input type="text" id="search" placeholder="Search Google Maps">
-          <button type="submit"><i class="fa fa-search"></i></button>
-        </label>
-      </form>
-    </div>
-
-    <!-- will remove this button later, currently used for testing NLP -->
-    <button type="button" onclick="getReviews()">debug</button>
-
-    <div class="content">
-      <div id="panel" class="result-panel">
-        <a href="javascript:void(0)" class="closebtn" onclick="closePanel()">×</a>
-        <h2>Results</h2>
-        <p id="restaurant-results"></p>
+    <div id="content">
+      <div class="titlecontainer">
+        <span class="homepage-header-1">Nom Nom</span>
+        <span class="homepage-header-2">Let's find some good eats!</span>
+        <button class="button login-button" id="login-button">Leggo!</button>
       </div>
-
-      <div id="map"></div>
     </div>
   </body>
 </html>
