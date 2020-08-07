@@ -202,7 +202,6 @@ function displayAdditionalInfo() {
       if (content.style.display === "block") {
         content.style.display = "none";
       } else {
-        console.log("hey");
         content.style.display = "block";
       }
     });
@@ -257,5 +256,29 @@ function getInputFilters() {
       } 
     });
     getSearchResults();
+  });
+}
+
+/** post request params to send a POST request using fetch() */
+const requestParamPOST = {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+}
+
+function getReviews() {
+  // TODO(#33): integrate with actual reviews of businesses
+  const review = "Really good pizza, nice wine, reasonable prices and great music.";
+  getBusinessTags(review);
+}
+
+/** send POST request to Cloud Natural Language API for entity recognition */
+function getBusinessTags(review) {
+  const url = '/nlp-business-tags?review=' + review;
+  fetch(url, requestParamPOST).then(response => response.json()).then((tags) => {
+    const businessTags = tags;
+  }).catch(err => {
+    console.log("Error reading data " + err);
   });
 }
