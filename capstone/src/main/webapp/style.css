@@ -13,7 +13,7 @@
 #map {
   background-color: grey;
   float: left;
-  height: 700px;
+  height: 100vh;
   width: 100%;
 }
 
@@ -24,28 +24,53 @@
   display: table;
 }
 
-#panel a {
-  padding: 8px 8px 8px 32px;
-  text-decoration: none;
-  font-size: 25px;
+.closebtn {
   color: #818181;
   display: block;
+  float: right;
+  font-size: 36px;
+  padding: 8px 8px 8px 32px;
+  position: relative;
+  text-decoration: none;
+  top: 0;
   transition: 0.3s;
 }
 
-.closebtn {
-  position: relative;
-  top: 0;
+.collapsible {
+  background-color: rgb(146, 146, 146);
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 15px;
+  outline: none;
+  padding: 18px;
+  text-align: left;
+  width: 100%;
+}
+
+.active,
+.collapsible:hover {
+  background-color: rgb(121, 121, 121);
+}
+
+.collapsible::after {
+  color: white;
+  content: '\002B';
   float: right;
-  font-size: 36px;
+  font-weight: bold;
+  margin-left: 5px;
+}
+
+.active::after {
+  content: "\2212";
 }
 
 .info {
-  display: none;
-}
-
-.collapsible {
-  width: 100%;
+  background-color: #f1f1f1;
+  max-height: 0;
+  overflow: hidden;
+  padding: 0 18px;
+  transition: max-height 0.2s ease-out;
 }
 
 /* Responsive layout - makes the panel and the map stack on top of each other instead of next to each other */

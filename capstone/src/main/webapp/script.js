@@ -207,7 +207,6 @@ function addToDisplayPanel(place) {
   const locationElement = document.getElementById('restaurant-results');
   locationElement.appendChild(createLocationElement(place));
   locationElement.appendChild(createAdditionalInfo(place));
-  displayAdditionalInfo();
 }
 
 /** Toggles on and off additional info upon click */
@@ -218,10 +217,10 @@ function displayAdditionalInfo() {
     coll[i].addEventListener('click', function() {
       this.classList.toggle('active');
       const content = this.nextElementSibling;
-      if (content.style.display === 'block') {
-        content.style.display = 'none';
+      if (content.style.maxHeight) {
+        content.style.maxHeight = null;
       } else {
-        content.style.display = 'block';
+        content.style.maxHeight = content.scrollHeight + 'px';
       }
     });
   }
@@ -236,6 +235,8 @@ function createLocationElement(place) {
   const mainElement = document.createElement('button');
   mainElement.className = 'collapsible';
   mainElement.innerHTML = place.name;
+
+  displayAdditionalInfo();
 
   return mainElement;
 }
@@ -259,6 +260,8 @@ function createAdditionalInfo(place) {
 
   informationContainer.appendChild(information);
   informationContainer.appendChild(editsLink);
+
+  displayAdditionalInfo();
 
   return informationContainer;
 }
