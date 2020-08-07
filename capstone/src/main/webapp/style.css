@@ -5,7 +5,7 @@
 #panel {
   display: none;
   float: left;
-  height: 700px; 
+  height: 700px;
   padding: 20px;
   width: 25%;
 }
@@ -18,7 +18,7 @@
 }
 
 /* Clear floats after the columns */
-.content:after {
+.content::after {
   clear: both;
   content: "";
   display: table;
@@ -50,11 +50,12 @@
 
 /* Responsive layout - makes the panel and the map stack on top of each other instead of next to each other */
 @media screen and (max-width: 600px) {
-  #panel, #map {
+  #panel,
+  #map {
     width: 100%;
   }
 }
 
-.checkbox-inline input:checked~label {
+.checkbox-inline input:checked ~ label {
   color: cornflowerblue;
 }
