@@ -45,7 +45,7 @@ public class FeedbackServlet extends HttpServlet {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     datastore.put(feedbackEntity);
 
-    response.sendRedirect("/index.html");
+    response.sendRedirect("/main.html");
   }
 
 
