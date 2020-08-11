@@ -21,28 +21,28 @@ window.addEventListener('DOMContentLoaded', (event) => {
   }
 });
 
-/** user, at location _center, searches a query with search string _keyword and selected filters _showSmallBusiness and _showBlackOwnedBusiness 
-    places matching user's query will be returned on _map 
+/** user, at location _center, searches a query with search string _keyword and selected filters _showSmallBusiness and _showBlackOwnedBusiness
+    places matching user's query will be returned on _map
  */
 let _map;
 let _center;
 let _showSmallBusiness = false;
 let _showBlackOwnedBusiness = false;
-let _scrapedSmallBusinesses = new Set();
-let _scrapedBlackBusinesses = new Set();
+const _scrapedSmallBusinesses = new Set();
+const _scrapedBlackBusinesses = new Set();
 let _keyword;
 const SMALL = 'small';
 const BLACK_OWNED = 'black-owned';
 
 function fetchBusinessNames() {
-  fetch('/business-names').then(response => response.json()).then((restaurantNames) => {
-    for(let name of restaurantNames) {
+  fetch('/business-names').then((response) => response.json()).then((restaurantNames) => {
+    for (const name of restaurantNames) {
       _scrapedSmallBusinesses.add(name);
     }
   });
 
-  fetch('/black-owned-restaurants-data').then(response => response.json()).then((restaurantNames) => {
-    for(let name of restaurantNames) {
+  fetch('/black-owned-restaurants-data').then((response) => response.json()).then((restaurantNames) => {
+    for (const name of restaurantNames) {
       _scrapedBlackBusinesses.add(name);
     }
   });
@@ -61,95 +61,95 @@ function createMap() {
       {elementType: 'labels.text.stroke', stylers: [{color: '#242f3e'}]},
       {elementType: 'labels.text.fill', stylers: [{color: '#746855'}]},
       {
-          featureType: 'administrative.locality',
-          elementType: 'labels.text.fill',
-          stylers: [{color: '#d59563'}]
+        featureType: 'administrative.locality',
+        elementType: 'labels.text.fill',
+        stylers: [{color: '#d59563'}],
       },
       {
-          featureType: 'poi',
-          elementType: 'labels.text.fill',
-          stylers: [{color: '#d59563'}]
+        featureType: 'poi',
+        elementType: 'labels.text.fill',
+        stylers: [{color: '#d59563'}],
       },
       {
-          featureType: 'poi.park',
-          elementType: 'geometry',
-          stylers: [{color: '#263c3f'}]
+        featureType: 'poi.park',
+        elementType: 'geometry',
+        stylers: [{color: '#263c3f'}],
       },
       {
-          featureType: 'poi.park',
-          elementType: 'labels.text.fill',
-          stylers: [{color: '#6b9a76'}]
+        featureType: 'poi.park',
+        elementType: 'labels.text.fill',
+        stylers: [{color: '#6b9a76'}],
       },
       {
-          featureType: 'road',
-          elementType: 'geometry',
-          stylers: [{color: '#38414e'}]
+        featureType: 'road',
+        elementType: 'geometry',
+        stylers: [{color: '#38414e'}],
       },
       {
-          featureType: 'road',
-          elementType: 'geometry.stroke',
-          stylers: [{color: '#212a37'}]
+        featureType: 'road',
+        elementType: 'geometry.stroke',
+        stylers: [{color: '#212a37'}],
       },
       {
-          featureType: 'road',
-          elementType: 'labels.text.fill',
-          stylers: [{color: '#9ca5b3'}]
+        featureType: 'road',
+        elementType: 'labels.text.fill',
+        stylers: [{color: '#9ca5b3'}],
       },
       {
-          featureType: 'road.highway',
-          elementType: 'geometry',
-          stylers: [{color: '#746855'}]
+        featureType: 'road.highway',
+        elementType: 'geometry',
+        stylers: [{color: '#746855'}],
       },
       {
-          featureType: 'road.highway',
-          elementType: 'geometry.stroke',
-          stylers: [{color: '#1f2835'}]
+        featureType: 'road.highway',
+        elementType: 'geometry.stroke',
+        stylers: [{color: '#1f2835'}],
       },
       {
-          featureType: 'road.highway',
-          elementType: 'labels.text.fill',
-          stylers: [{color: '#f3d19c'}]
+        featureType: 'road.highway',
+        elementType: 'labels.text.fill',
+        stylers: [{color: '#f3d19c'}],
       },
       {
-          featureType: 'transit',
-          elementType: 'geometry',
-          stylers: [{color: '#2f3948'}]
+        featureType: 'transit',
+        elementType: 'geometry',
+        stylers: [{color: '#2f3948'}],
       },
       {
-          featureType: 'transit.station',
-          elementType: 'labels.text.fill',
-          stylers: [{color: '#d59563'}]
+        featureType: 'transit.station',
+        elementType: 'labels.text.fill',
+        stylers: [{color: '#d59563'}],
       },
       {
-          featureType: 'water',
-          elementType: 'geometry',
-          stylers: [{color: '#17263c'}]
+        featureType: 'water',
+        elementType: 'geometry',
+        stylers: [{color: '#17263c'}],
       },
       {
-          featureType: 'water',
-          elementType: 'labels.text.fill',
-          stylers: [{color: '#515c6d'}]
+        featureType: 'water',
+        elementType: 'labels.text.fill',
+        stylers: [{color: '#515c6d'}],
       },
       {
-          featureType: 'water',
-          elementType: 'labels.text.stroke',
-          stylers: [{color: '#17263c'}]
-      }
-    ]
+        featureType: 'water',
+        elementType: 'labels.text.stroke',
+        stylers: [{color: '#17263c'}],
+      },
+    ],
   });
 }
 
 function getSearchResults() {
-  document.getElementById("map").style.width = "75%"; 
-  document.getElementById("panel").style.display = "block";
-  document.getElementById("restaurant-results").innerHTML = "";
+  document.getElementById('map').style.width = '75%';
+  document.getElementById('panel').style.display = 'block';
+  document.getElementById('restaurant-results').innerHTML = '';
 
-  let request = {
+  const request = {
     location: _center,
     radius: 10000,
     rankBy: google.maps.places.RankBy.PROMINENCE,
     keyword: _keyword,
-    types: ["restaurant", "food"]
+    types: ['restaurant', 'food'],
   };
   service = new google.maps.places.PlacesService(_map);
   service.nearbySearch(request, callback);
@@ -157,7 +157,7 @@ function getSearchResults() {
 
 function callback(results, status) {
   if (status == google.maps.places.PlacesServiceStatus.OK) {
-    for (var i = 0; i < results.length; i++) {
+    for (let i = 0; i < results.length; i++) {
       if (!_showSmallBusiness && !_showBlackOwnedBusiness) {
         setMarker(results[i]);
         continue;
@@ -182,41 +182,103 @@ function setMarker(place) {
     position: place.geometry.location,
     animation: google.maps.Animation.DROP,
   });
-  addToDisplayPanel(place.name);
+  addToDisplayPanel(place);
 }
- 
-function addToDisplayPanel(name) {
-  const locationElement = document.getElementById("restaurant-results");
-  locationElement.appendChild(createLocationElement(name));
+
+function addToDisplayPanel(place) {
+  const locationElement = document.getElementById('restaurant-results');
+  locationElement.appendChild(createLocationElement(place));
+  locationElement.appendChild(createAdditionalInfo(place));
+  displayAdditionalInfo();
 }
- 
-function createLocationElement(placeName) {
-  const locElement = document.createElement('p');
-  locElement.className = 'place';
- 
-  const mainElement = document.createElement('span');
-  mainElement.innerText = placeName;
- 
-  locElement.appendChild(mainElement);
-  return locElement;
+
+function displayAdditionalInfo() {
+  const coll = document.getElementsByClassName('collapsible');
+
+  for (let i = 0; i < coll.length; i++) {
+    coll[i].addEventListener('click', function() {
+      this.classList.toggle('active');
+      const content = this.nextElementSibling;
+      if (content.style.display === 'block') {
+        content.style.display = 'none';
+      } else {
+        content.style.display = 'block';
+      }
+    });
+  }
+}
+
+function createLocationElement(place) {
+  const mainElement = document.createElement('button');
+  mainElement.className = 'collapsible';
+  mainElement.innerHTML = place.name;
+
+  return mainElement;
+}
+
+function createAdditionalInfo(place) {
+  const informationContainer = document.createElement('div');
+  informationContainer.className = 'info';
+
+  const information = document.createElement('p');
+  information.innerHTML = 'Rating: ' + place.rating + '<br>' + 'Price: ' + place.price_level;
+
+  const editsLink = document.createElement('a');
+  editsLink.setAttribute('href', 'feedback.html');
+  editsLink.innerHTML = 'Suggest edits?';
+
+  informationContainer.appendChild(information);
+  informationContainer.appendChild(editsLink);
+
+  return informationContainer;
+}
+
+
+function closePanel() {
+  document.getElementById('panel').style.display = 'none';
+  document.getElementById('map').style.width = '100%';
 }
 
 function getInputFilters() {
-  document.querySelector("button").addEventListener('click', function(event) {
+  document.querySelector('button').addEventListener('click', function(event) {
     event.preventDefault();
     // TODO(#14): clear all markers on map each time new search query is submitted
-    const form = document.querySelector("form");
-    _keyword = document.getElementById("search").value;
-    Array.from(form.querySelectorAll("input")).forEach(function(filterInput) {
-      if(filterInput.checked) { 
-        if (filterInput.value == SMALL){ 
-          _showSmallBusiness = true; 
+    const form = document.querySelector('form');
+    _keyword = document.getElementById('search').value;
+    Array.from(form.querySelectorAll('input')).forEach(function(filterInput) {
+      if (filterInput.checked) {
+        if (filterInput.value == SMALL) {
+          _showSmallBusiness = true;
         }
-        if (filterInput.value == BLACK_OWNED){ 
-          _showBlackOwnedBusiness = true; 
+        if (filterInput.value == BLACK_OWNED) {
+          _showBlackOwnedBusiness = true;
         }
-      } 
+      }
     });
     getSearchResults();
+  });
+}
+
+/** post request params to send a POST request using fetch() */
+const requestParamPOST = {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+};
+
+function getReviews() {
+  // TODO(#33): integrate with actual reviews of businesses
+  const review = 'Really good pizza, nice wine, reasonable prices and great music.';
+  getBusinessTags(review);
+}
+
+/** send POST request to Cloud Natural Language API for entity recognition */
+function getBusinessTags(review) {
+  const url = '/nlp-business-tags?review=' + review;
+  fetch(url, requestParamPOST).then((response) => response.json()).then((tags) => {
+    const businessTags = tags;
+  }).catch((err) => {
+    console.log('Error reading data ' + err);
   });
 }
