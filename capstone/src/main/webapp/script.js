@@ -209,8 +209,18 @@ function addToDisplayPanel(place) {
   locationElement.appendChild(createAdditionalInfo(place));
 }
 
+function random() {
+  this.classList.toggle('active');
+  const content = this.nextElementSibling;
+  if (content.style.maxHeight) {
+    content.style.maxHeight = null;
+  } else {
+    content.style.maxHeight = content.scrollHeight + 'px';
+  }
+}
+
 /** Toggles on and off additional info upon click */
-function displayAdditionalInfo() {
+function addClickHandler() {
   const coll = document.getElementsByClassName('collapsible');
 
   for (let i = 0; i < coll.length; i++) {
@@ -228,7 +238,6 @@ function displayAdditionalInfo() {
 
 /** Creates button with location name for each place
     @param {Object} place location to create button for
-
     @return {HTMLButtonElement} the created location button
  */
 function createLocationElement(place) {
@@ -236,14 +245,13 @@ function createLocationElement(place) {
   mainElement.className = 'collapsible';
   mainElement.innerHTML = place.name;
 
-  displayAdditionalInfo();
+  addClickHandler();
 
   return mainElement;
 }
 
 /** Creates div that contains all extra info about a place
     @param {Object} place place to add additional information for
-
     @return {HTMLDivElement} the added information in a div element
 */
 function createAdditionalInfo(place) {
@@ -261,7 +269,7 @@ function createAdditionalInfo(place) {
   informationContainer.appendChild(information);
   informationContainer.appendChild(editsLink);
 
-  displayAdditionalInfo();
+  addClickHandler();
 
   return informationContainer;
 }
