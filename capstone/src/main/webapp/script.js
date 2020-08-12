@@ -32,6 +32,7 @@ let _showBlackOwnedBusiness = false;
 const _scrapedSmallBusinesses = new Set();
 const _scrapedBlackBusinesses = new Set();
 let _keyword;
+let _keywordEntities;
 const SMALL = 'small';
 const BLACK_OWNED = 'black-owned';
 
@@ -185,6 +186,8 @@ function callback(results, status) {
   }
   _showSmallBusiness = false;
   _showBlackOwnedBusiness = false;
+  _keyword = "";
+  _keywordEntities = "";
 }
 
 /** Creates an animated marker for each result location
@@ -278,10 +281,19 @@ function getInputFilters() {
         if (filterInput.value == BLACK_OWNED) {
           _showBlackOwnedBusiness = true;
         }
+        // if a filter is selected, get entities of search query
+        if ((_showSmallBusiness || _showBlackOwnedBusiness) && !isStringEmpty(_keyword)) {
+          _keywordEntities = getEntities(_keyword);
+        }
       }
     });
     getSearchResults();
   });
+}
+
+/** checks if string is empty, contains only white space, or null */
+function isStringEmpty(str) {
+  return (str.length === 0 || !str.trim() || !str);
 }
 
 /** post request params to send a POST request using fetch() */
@@ -295,14 +307,14 @@ const requestParamPOST = {
 function getReviews() {
   // TODO(#33): integrate with actual reviews of businesses
   const review = 'Really good pizza, nice wine, reasonable prices and great music.';
-  getBusinessTags(review);
+  getEntities(review);
 }
 
 /** send POST request to Cloud Natural Language API for entity recognition */
-function getBusinessTags(review) {
-  const url = '/nlp-business-tags?review=' + review;
-  fetch(url, requestParamPOST).then((response) => response.json()).then((tags) => {
-    const businessTags = tags;
+function getEntities(message) {
+  const url = '/nlp-entity-recognition?message=' + message;
+  fetch(url, requestParamPOST).then((response) => response.json()).then((entities) => {
+    const businessTags = entities;
   }).catch((err) => {
     console.log('Error reading data ' + err);
   });
