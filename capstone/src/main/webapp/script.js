@@ -232,29 +232,16 @@ function setMarker(place) {
 /** Itemizes each result into the collapsible panel
 @param {Object} place location to add to results panel
  */
+function addToDisplayPanel(place) {
+  // put call to get details here and get new place before adding to panel
   const locationElement = document.getElementById('restaurant-results');
   locationElement.appendChild(createLocationElement(place));
   locationElement.appendChild(createAdditionalInfo(place));
 }
 
-/** Toggles on and off additional info upon click */
-function displayAdditionalInfo() {
-  const coll = document.getElementsByClassName('collapsible');
-
-  for (let i = 0; i < coll.length; i++) {
-    coll[i].addEventListener('click', function() {
-      this.classList.toggle('active');
-      const content = this.nextElementSibling;
-      if (content.style.maxHeight) {
-        content.style.maxHeight = null;
-      } else {
-        content.style.maxHeight = content.scrollHeight + 'px';
-      }
-    });
-  }
-}
-
 /** Creates button with location name for each place
+    Add clicker event to each button to handle open and close of
+    collapsible.
     @param {Object} place location to create button for
     @return {HTMLButtonElement} the created location button
  */
@@ -263,14 +250,21 @@ function createLocationElement(place) {
   mainElement.className = 'collapsible';
   mainElement.innerHTML = place.name;
 
-  displayAdditionalInfo();
+  mainElement.addEventListener('click', function() {
+    this.classList.toggle('active');
+    const content = this.nextElementSibling;
+    if (content.style.maxHeight) {
+      content.style.maxHeight = null;
+    } else {
+      content.style.maxHeight = content.scrollHeight + 'px';
+    }
+  });
 
   return mainElement;
 }
 
 /** Creates div that contains all extra info about a place
     @param {Object} place place to add additional information for
-
     @return {HTMLDivElement} the added information in a div element
 */
 function createAdditionalInfo(place) {
@@ -288,8 +282,6 @@ function createAdditionalInfo(place) {
   informationContainer.appendChild(information);
   informationContainer.appendChild(editsLink);
 
-  displayAdditionalInfo();
-
   return informationContainer;
 }
 
@@ -304,7 +296,6 @@ closePanel();
 /** Gets filters from checked boxess, ie. small and/or black-owned */
 function getInputFilters() {
   document.querySelector('button').addEventListener('click', function(event) {
-    event.preventDefault();
     // TODO(#14): clear all markers on map each time new
     // search query is submitted
     const form = document.querySelector('form');
