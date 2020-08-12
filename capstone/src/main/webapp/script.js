@@ -21,7 +21,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
   }
 });
 
-/** user, at location _center, searches a query with search string _keyword and selected filters _showSmallBusiness and _showBlackOwnedBusiness
+/** user, at location _center, searches a query with search string
+    _keyword and selected filters _showSmallBusiness and _showBlackOwnedBusiness
     places matching user's query will be returned on _map
  */
 let _map;
@@ -34,14 +35,17 @@ let _keyword;
 const SMALL = 'small';
 const BLACK_OWNED = 'black-owned';
 
+/** Gets business names from scraped datasets and puts in array */
 function fetchBusinessNames() {
-  fetch('/business-names').then((response) => response.json()).then((restaurantNames) => {
-    for (const name of restaurantNames) {
-      _scrapedSmallBusinesses.add(name);
-    }
-  });
+  fetch('/business-names').then((response) => response.json()).then(
+      (restaurantNames) => {
+        for (const name of restaurantNames) {
+          _scrapedSmallBusinesses.add(name);
+        }
+      });
 
-  fetch('/black-owned-restaurants-data').then((response) => response.json()).then((restaurantNames) => {
+  fetch('/black-owned-restaurants-data').then((response) =>
+    response.json()).then((restaurantNames) => {
     for (const name of restaurantNames) {
       _scrapedBlackBusinesses.add(name);
     }
@@ -139,6 +143,7 @@ function createMap() {
   });
 }
 
+/** Obtains search results from Places API */
 function getSearchResults() {
   document.getElementById('map').style.width = '75%';
   document.getElementById('panel').style.display = 'block';
@@ -155,6 +160,10 @@ function getSearchResults() {
   service.nearbySearch(request, callback);
 }
 
+/** Function for aiding calls to nearbySearch and getDetails
+    @param {any} results
+    @param {any} status
+*/
 function callback(results, status) {
   if (status == google.maps.places.PlacesServiceStatus.OK) {
     for (let i = 0; i < results.length; i++) {
@@ -162,11 +171,13 @@ function callback(results, status) {
         setMarker(results[i]);
         continue;
       }
-      if (_showSmallBusiness && _scrapedSmallBusinesses.has(results[i].name)) {
+      if (_showSmallBusiness &&
+      _scrapedSmallBusinesses.has(results[i].name)) {
         setMarker(results[i]);
         continue;
       }
-      if (_showBlackOwnedBusiness && _scrapedBlackBusinesses.has(results[i].name)) {
+      if (_showBlackOwnedBusiness &&
+      _scrapedBlackBusinesses.has(results[i].name)) {
         setMarker(results[i]);
         continue;
       }
@@ -176,52 +187,63 @@ function callback(results, status) {
   _showBlackOwnedBusiness = false;
 }
 
+/** Creates an animated marker for each result location
+   @param {Object} place location to set marker for
+ */
 function setMarker(place) {
   const marker = new google.maps.Marker({
-    map: map,
+    map: _map,
     position: place.geometry.location,
     animation: google.maps.Animation.DROP,
   });
   addToDisplayPanel(place);
 }
 
+/** Itemizes each result into the collapsible panel
+@param {Object} place location to add to results panel
+ */
 function addToDisplayPanel(place) {
+  // put call to get details here and get new place before adding to panel
   const locationElement = document.getElementById('restaurant-results');
   locationElement.appendChild(createLocationElement(place));
   locationElement.appendChild(createAdditionalInfo(place));
-  displayAdditionalInfo();
 }
 
-function displayAdditionalInfo() {
-  const coll = document.getElementsByClassName('collapsible');
-
-  for (let i = 0; i < coll.length; i++) {
-    coll[i].addEventListener('click', function() {
-      this.classList.toggle('active');
-      const content = this.nextElementSibling;
-      if (content.style.display === 'block') {
-        content.style.display = 'none';
-      } else {
-        content.style.display = 'block';
-      }
-    });
-  }
-}
-
+/** Creates button with location name for each place
+    Add clicker event to each button to handle open and close of
+    collapsible.
+    @param {Object} place location to create button for
+    @return {HTMLButtonElement} the created location button
+ */
 function createLocationElement(place) {
   const mainElement = document.createElement('button');
   mainElement.className = 'collapsible';
   mainElement.innerHTML = place.name;
 
+  mainElement.addEventListener('click', function() {
+    this.classList.toggle('active');
+    const content = this.nextElementSibling;
+    if (content.style.maxHeight) {
+      content.style.maxHeight = null;
+    } else {
+      content.style.maxHeight = content.scrollHeight + 'px';
+    }
+  });
+
   return mainElement;
 }
 
+/** Creates div that contains all extra info about a place
+    @param {Object} place place to add additional information for
+    @return {HTMLDivElement} the added information in a div element
+*/
 function createAdditionalInfo(place) {
   const informationContainer = document.createElement('div');
   informationContainer.className = 'info';
 
   const information = document.createElement('p');
-  information.innerHTML = 'Rating: ' + place.rating + '<br>' + 'Price: ' + place.price_level;
+  information.innerHTML = `Rating: ${place.rating}<br>Price:
+   ${place.price_level}`;
 
   const editsLink = document.createElement('a');
   editsLink.setAttribute('href', 'feedback.html');
@@ -233,16 +255,19 @@ function createAdditionalInfo(place) {
   return informationContainer;
 }
 
-
+/** Closes collapsible panels when the x is clicked. */
 function closePanel() {
   document.getElementById('panel').style.display = 'none';
   document.getElementById('map').style.width = '100%';
 }
 
+closePanel();
+
+/** Gets filters from checked boxess, ie. small and/or black-owned */
 function getInputFilters() {
   document.querySelector('button').addEventListener('click', function(event) {
-    event.preventDefault();
-    // TODO(#14): clear all markers on map each time new search query is submitted
+    // TODO(#14): clear all markers on map each time new
+    // search query is submitted
     const form = document.querySelector('form');
     _keyword = document.getElementById('search').value;
     Array.from(form.querySelectorAll('input')).forEach(function(filterInput) {
