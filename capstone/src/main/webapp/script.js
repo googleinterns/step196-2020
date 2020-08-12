@@ -232,8 +232,6 @@ function setMarker(place) {
 /** Itemizes each result into the collapsible panel
 @param {Object} place location to add to results panel
  */
-function addToDisplayPanel(place) {
-  // put call to get details here and get new place before adding to panel
   const locationElement = document.getElementById('restaurant-results');
   locationElement.appendChild(createLocationElement(place));
   locationElement.appendChild(createAdditionalInfo(place));
@@ -258,7 +256,6 @@ function displayAdditionalInfo() {
 
 /** Creates button with location name for each place
     @param {Object} place location to create button for
-
     @return {HTMLButtonElement} the created location button
  */
 function createLocationElement(place) {
@@ -323,5 +320,29 @@ function getInputFilters() {
       }
     });
     getSearchResults();
+  });
+}
+
+/** post request params to send a POST request using fetch() */
+const requestParamPOST = {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+};
+
+function getReviews() {
+  // TODO(#33): integrate with actual reviews of businesses
+  const review = 'Really good pizza, nice wine, reasonable prices and great music.';
+  getBusinessTags(review);
+}
+
+/** send POST request to Cloud Natural Language API for entity recognition */
+function getBusinessTags(review) {
+  const url = '/nlp-business-tags?review=' + review;
+  fetch(url, requestParamPOST).then((response) => response.json()).then((tags) => {
+    const businessTags = tags;
+  }).catch((err) => {
+    console.log('Error reading data ' + err);
   });
 }
