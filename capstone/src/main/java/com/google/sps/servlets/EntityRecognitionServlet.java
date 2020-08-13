@@ -33,15 +33,14 @@ public class EntityRecognitionServlet extends HttpServlet {
           .build();
 
       AnalyzeEntitiesResponse entitiesResponse = language.analyzeEntities(entitiesRequest);
-      // adds all entities.names to a allEntities
-      Set<String> allEntities = 
+      Set<String> allEntityNames = 
         entitiesResponse.getEntitiesList().stream()
           .map(entity -> entity.getName())
           .collect(Collectors.toSet());
 
       Gson gson = new Gson();
       response.setContentType("application/json;");
-      response.getWriter().println(gson.toJson(allEntities)); 
+      response.getWriter().println(gson.toJson(allEntityNames)); 
     }
   }
 }
