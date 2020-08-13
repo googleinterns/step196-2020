@@ -62,14 +62,14 @@ public class scraperServlet extends HttpServlet {
     String restaurantName = request.getParameter("businessName");
     boolean blackOwned = false;
     boolean smallBusiness = true;
-    //stores tags like "pizza" or "chinese"
-    //implemented as hashset for faster lookup
+    // stores tags like "pizza" or "chinese"
+    // implemented as hashset for faster lookup
     HashSet<String> tags = new HashSet<String>();
-    //because input is string regardless of actual type, we need to extract each value in list
-    //TODO: input type might change so will need to do specific character cuts
+    // because input is string regardless of actual type, we need to extract each value in list
+    // TODO: input type might change so will need to do specific character cuts
     //      as needed e.g. if inputted as list must omit '[' and ']' chars when storing
     String[] tagsAsStringValues = request.getParameter("tags").split(", ");
-    for (String tag : tagsAsStringValues){
+    for (String tag : tagsAsStringValues) {
       if (tags.contains(tag) == false) {
         tags.add(tag);
       }

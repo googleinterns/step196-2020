@@ -34,8 +34,9 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
 
   @Override
   public void init() {
-    Scanner scanner = new Scanner(getServletContext().getResourceAsStream(
-        "/WEB-INF/black-owned-restaurants.csv"));
+    Scanner scanner = 
+      new Scanner(
+        getServletContext().getResourceAsStream("/WEB-INF/black-owned-restaurants.csv"));
     while (scanner.hasNextLine()) {
       String line = scanner.nextLine();
       String[] cells = line.split(",");
@@ -60,14 +61,14 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
     String restaurantName = request.getParameter("businessName");
     boolean blackOwned = true;
     boolean smallBusiness = false;
-    //stores tags like "pizza" or "chinese"
-    //implemented as hashset for faster lookup
+    // stores tags like "pizza" or "chinese"
+    // implemented as hashset for faster lookup
     HashSet<String> tags = new HashSet<String>();
-    //because input is string regardless of actual type, we need to extract each value in list
-    //TODO: input type might change so will need to do specific character cuts
+    // because input is string regardless of actual type, we need to extract each value in list
+    // TODO: input type might change so will need to do specific character cuts
     //      as needed e.g. if inputted as list must omit '[' and ']' chars when storing
     String[] tagsAsStringValues = request.getParameter("tags").split(", ");
-    for (String tag : tagsAsStringValues){
+    for (String tag : tagsAsStringValues) {
       if (tags.contains(tag) == false) {
         tags.add(tag);
       }
