@@ -16,13 +16,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
   if (document.getElementById('map')) {
     createMap();
   }
-  if (document.getElementById('filters-form')) {
-    getInputFilters();
-  }
+//   if (document.getElementById('filters-form')) {
+//     getInputFilters();
+//   }
 });
 
 /** user, at location _center, searches a query with search string
-    _keyword and selected filters _showSmallBusiness and _showBlackOwnedBusiness
+    keyword and selected filters _showSmallBusiness and _showBlackOwnedBusiness
     places matching user's query will be returned on _map
  */
 let _map;
@@ -31,8 +31,6 @@ let _showSmallBusiness = false;
 let _showBlackOwnedBusiness = false;
 const _scrapedSmallBusinesses = new Set();
 const _scrapedBlackBusinesses = new Set();
-let _keyword;
-let _keywordEntities;
 const SMALL = 'small';
 const BLACK_OWNED = 'black-owned';
 
@@ -145,7 +143,7 @@ function createMap() {
 }
 
 /** Obtains search results from Places API */
-function getSearchResults() {
+function getPlacesSearchResults(keyword) {
   document.getElementById('map').style.width = '75%';
   document.getElementById('panel').style.display = 'block';
   document.getElementById('restaurant-results').innerHTML = '';
@@ -154,7 +152,7 @@ function getSearchResults() {
     location: _center,
     radius: 10000,
     rankBy: google.maps.places.RankBy.PROMINENCE,
-    keyword: _keyword,
+    keyword: keyword,
     types: ['restaurant', 'food'],
   };
   service = new google.maps.places.PlacesService(_map);
@@ -186,8 +184,6 @@ function callback(results, status) {
   }
   _showSmallBusiness = false;
   _showBlackOwnedBusiness = false;
-  _keyword = "";
-  _keywordEntities = "";
 }
 
 /** Creates an animated marker for each result location
@@ -264,31 +260,30 @@ function closePanel() {
   document.getElementById('map').style.width = '100%';
 }
 
-closePanel();
 
-/** Gets filters from checked boxess, ie. small and/or black-owned */
+/** Gets filters from checked boxess, ie. small or black-owned */
 function getInputFilters() {
-  document.querySelector('button').addEventListener('click', function(event) {
-    // TODO(#14): clear all markers on map each time new
-    // search query is submitted
-    const form = document.querySelector('form');
-    _keyword = document.getElementById('search').value;
-    Array.from(form.querySelectorAll('input')).forEach(function(filterInput) {
-      if (filterInput.checked) {
-        if (filterInput.value == SMALL) {
-          _showSmallBusiness = true;
-        }
-        if (filterInput.value == BLACK_OWNED) {
-          _showBlackOwnedBusiness = true;
-        }
-        // if a filter is selected, get entities of search query
-        if ((_showSmallBusiness || _showBlackOwnedBusiness) && !isStringEmpty(_keyword)) {
-          _keywordEntities = getEntities(_keyword);
-        }
-      }
-    });
-    getSearchResults();
-  });
+  // TODO(#14): clear all markers on map each time new
+  keyword = document.getElementById('search').value;
+  const selectedFilters = document.getElementById('filter-input').value;
+  
+  if (selectedFilters == SMALL) {
+    _showSmallBusiness = true;
+  }
+  else if (selectedFilters == BLACK_OWNED) {
+    _showBlackOwnedBusiness = true;
+  }
+
+  // if a filter is selected, do manual search, else do Nearby Search w Places API
+  if (_showSmallBusiness || _showBlackOwnedBusiness) {
+    if (!isStringEmpty(keyword)) {
+      const keywordEntities = getEntities(keyword);
+      //TODO(#47): manual search
+    } 
+  }
+  else {
+    getPlacesSearchResults(keyword);
+  }
 }
 
 /** checks if string is empty, contains only white space, or null */
