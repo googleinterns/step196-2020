@@ -14,10 +14,13 @@
 
 package com.google.sps.servlets;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
 import com.google.gson.Gson;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.lang.String;
+import java.util.*;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -51,7 +54,7 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
     String json = gson.toJson(restaurantNames);
     response.getWriter().println(json);
   }
-
+ 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String restaurantName = request.getParameter("businessName");
@@ -59,7 +62,16 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
     boolean smallBusiness = false;
     //stores tags like "pizza" or "chinese"
     //implemented as hashset for faster lookup
-    HashSet<String> tags = request.getParameter("tags");
+    HashSet<String> tags = new HashSet<String>();
+    //because input is string regardless of actual type, we need to extract each value in list
+    //TODO: input type might change so will need to do specific character cuts
+    //      as needed e.g. if inputted as list must omit '[' and ']' chars when storing
+    String[] tagsAsStringValues = request.getParameter("tags").split(", ");
+    for (String tag : tagsAsStringValues){
+      if (tags.contains(tag) == false) {
+        tags.add(tag);
+      }
+    }
 
     Entity restaurantEntity = new Entity("Restaurant");
     restaurantEntity.setProperty("name", restaurantName);
