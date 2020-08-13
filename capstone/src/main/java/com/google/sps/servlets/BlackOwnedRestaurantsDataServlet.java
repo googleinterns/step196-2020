@@ -51,4 +51,24 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
     String json = gson.toJson(restaurantNames);
     response.getWriter().println(json);
   }
+
+  @Override
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    String restaurantName = request.getParameter("businessName");
+    boolean blackOwned = true;
+    boolean smallBusiness = false;
+    //stores tags like "pizza" or "chinese"
+    //implemented as hashset for faster lookup
+    HashSet<String> tags = request.getParameter("tags");
+
+    Entity restaurantEntity = new Entity("Restaurant");
+    restaurantEntity.setProperty("name", restaurantName);
+    restaurantEntity.setProperty("blackOwned", blackOwned);
+    restaurantEntity.setProperty("smallBusiness", smallBusiness);
+    restaurantEntity.setProperty("tags", tags);
+
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    datastore.put(restaurantEntity);
+    response.sendRedirect("/login.html");
+  }
 }
