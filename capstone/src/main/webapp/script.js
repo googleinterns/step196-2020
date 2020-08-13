@@ -297,24 +297,30 @@ function isStringEmpty(str) {
 }
 
 /** post request params to send a POST request using fetch() */
-const requestParamPOST = {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-};
+// const requestParamPOST = {
+//   method: 'POST',
+//   headers: {
+//     'Content-Type': 'application/json',
+//   },
+// };
 
-function getReviews() {
+async function getReviewsEntities(reviews) {
   // TODO(#33): integrate with actual reviews of businesses
-  const review = 'Really good pizza, nice wine, reasonable prices and great music.';
-  getEntities(review);
+  const reviewsEntities = await getEntities(reviews);
+  return reviewsEntities;
 }
 
 /** send POST request to Cloud Natural Language API for entity recognition */
-function getEntities(message) {
-  const url = '/nlp-entity-recognition?message=' + message;
-  fetch(url, requestParamPOST).then((response) => response.json()).then((entities) => {
-    const businessTags = entities;
+function getEntities(messages) {
+  const url = '/nlp-entity-recognition?messages=' + messages;
+  const requestParamPOST = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  };
+  return fetch(url, requestParamPOST).then((response) => response.json()).then((entities) => {
+    return entities;
   }).catch((err) => {
     console.log('Error reading data ' + err);
   });
