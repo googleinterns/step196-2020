@@ -53,3 +53,4 @@ public class scraperServlet extends HttpServlet {
     response.getWriter().println(restaurantNamesJson);
   }
 }
+
