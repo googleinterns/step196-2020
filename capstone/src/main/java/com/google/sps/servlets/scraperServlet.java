@@ -86,3 +86,4 @@ public class scraperServlet extends HttpServlet {
     response.sendRedirect("/login.html");
   }
 }
+
