@@ -33,7 +33,7 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
 
   @Override
   public void init() {
-    Scanner scanner = 
+    Scanner scanner =
         new Scanner(
             getServletContext().getResourceAsStream("/WEB-INF/black-owned-restaurants.csv"));
     while (scanner.hasNextLine()) {
@@ -54,7 +54,7 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
     String json = gson.toJson(restaurantNames);
     response.getWriter().println(json);
   }
- 
+
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String restaurantName = request.getParameter("businessName");

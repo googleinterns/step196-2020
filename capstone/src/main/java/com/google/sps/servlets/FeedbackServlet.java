@@ -51,7 +51,7 @@ public class FeedbackServlet extends HttpServlet {
 
   /**
     * @return the request parameter, or the default value if the parameter was not specified by the
-    *         client
+    *     client
     */
   private String getParameter(HttpServletRequest request, String paramName, String defaultValue) {
     String value = request.getParameter(paramName);

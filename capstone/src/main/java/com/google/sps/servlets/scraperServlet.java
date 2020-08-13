@@ -55,7 +55,7 @@ public class scraperServlet extends HttpServlet {
     response.setContentType("application/json;");
     response.getWriter().println(restaurantNamesJson);
   }
- 
+
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String restaurantName = request.getParameter("businessName");
