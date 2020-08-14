@@ -19,7 +19,6 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.gson.Gson;
 import java.io.IOException;
-import java.lang.String;
 import java.util.*;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -35,9 +34,9 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
 
   @Override
   public void init() {
-    Scanner scanner = 
-        new Scanner(getServletContext().getResourceAsStream(
-            "/WEB-INF/black-owned-restaurants.csv"));
+    Scanner scanner =
+        new Scanner(
+            getServletContext().getResourceAsStream("/WEB-INF/black-owned-restaurants.csv"));
     while (scanner.hasNextLine()) {
       String line = scanner.nextLine();
       String[] cells = line.split(",");
