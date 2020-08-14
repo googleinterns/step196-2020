@@ -19,7 +19,9 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.gson.Gson;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Scanner;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -68,9 +70,7 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
     //      as needed e.g. if inputted as list must omit '[' and ']' chars when storing
     String[] tagsAsStringValues = request.getParameter("tags").split(", ");
     for (String tag : tagsAsStringValues) {
-      if (tags.contains(tag) == false) {
-        tags.add(tag);
-      }
+      tags.add(tag);
     }
 
     Entity restaurantEntity = new Entity("Restaurant");
