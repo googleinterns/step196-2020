@@ -31,6 +31,8 @@ let _showSmallBusiness = false;
 let _showBlackOwnedBusiness = false;
 const _scrapedSmallBusinesses = new Set();
 const _scrapedBlackBusinesses = new Set();
+const _detailedSmallBusinesses = new Set();
+const _detailedBlackOwned = new Set();
 let _keyword;
 let _keywordEntities;
 const SMALL = 'small';
@@ -41,6 +43,7 @@ function fetchBusinessNames() {
   fetch('/business-names').then((response) => response.json()).then(
       (restaurantNames) => {
         for (const name of restaurantNames) {
+          getPlaceDetails(name, _detailedSmallBusinesses);
           _scrapedSmallBusinesses.add(name);
         }
       });
@@ -48,8 +51,9 @@ function fetchBusinessNames() {
   fetch('/black-owned-restaurants-data').then((response) =>
     response.json()).then((restaurantNames) => {
     for (const name of restaurantNames) {
+      getPlaceDetails(name, _detailedBlackOwned);
       _scrapedBlackBusinesses.add(name);
-    }
+    } 
   });
 }
 
@@ -141,6 +145,32 @@ function createMap() {
         stylers: [{color: '#17263c'}],
       },
     ],
+  });
+}
+
+function getPlaceDetails(name, set) {
+  let location;
+  const searchRequest = {
+    query: name,
+    fields: ['name', 'geometry', 'place_id'],
+  };
+ 
+  service = new google.maps.places.PlacesService(_map);
+  service.findPlaceFromQuery(searchRequest, (results, status) => {
+    if (status === google.maps.places.PlacesServiceStatus.OK) {
+      location = results[0];
+
+      const detailsRequest = {
+        placeId: location.place_id,
+        fields: ['name', 'formatted_address', 'opening_hours', 'photo', 'geometry',
+        'website', 'formatted_phone_number', 'review', 'rating', 'price_level']
+      };
+      service.getDetails(detailsRequest, (place, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+          set.add(place);
+        }
+      });
+    }
   });
 }
 
