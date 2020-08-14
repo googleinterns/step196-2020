@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
 /** Returns black owned restaurants data as a JSON object */
 @WebServlet("/black-owned-restaurants-data")
 public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
