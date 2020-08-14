@@ -53,7 +53,7 @@ function fetchBusinessNames() {
     for (const name of restaurantNames) {
       getPlaceDetails(name, _detailedBlackOwned);
       _scrapedBlackBusinesses.add(name);
-    } 
+    }
   });
 }
 
@@ -154,7 +154,7 @@ function getPlaceDetails(name, set) {
     query: name,
     fields: ['name', 'geometry', 'place_id'],
   };
- 
+
   service = new google.maps.places.PlacesService(_map);
   service.findPlaceFromQuery(searchRequest, (results, status) => {
     if (status === google.maps.places.PlacesServiceStatus.OK) {
@@ -163,7 +163,7 @@ function getPlaceDetails(name, set) {
       const detailsRequest = {
         placeId: location.place_id,
         fields: ['name', 'formatted_address', 'opening_hours', 'photo', 'geometry',
-        'website', 'formatted_phone_number', 'review', 'rating', 'price_level']
+          'website', 'formatted_phone_number', 'review', 'rating', 'price_level'],
       };
       service.getDetails(detailsRequest, (place, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK) {
@@ -216,8 +216,8 @@ function callback(results, status) {
   }
   _showSmallBusiness = false;
   _showBlackOwnedBusiness = false;
-  _keyword = "";
-  _keywordEntities = "";
+  _keyword = '';
+  _keywordEntities = '';
 }
 
 /** Creates an animated marker for each result location
@@ -326,14 +326,6 @@ function isStringEmpty(str) {
   return (str.length === 0 || !str.trim() || !str);
 }
 
-/** post request params to send a POST request using fetch() */
-// const requestParamPOST = {
-//   method: 'POST',
-//   headers: {
-//     'Content-Type': 'application/json',
-//   },
-// };
-
 async function getReviewsEntities(reviews) {
   // TODO(#33): integrate with actual reviews of businesses
   const reviewsEntities = await getEntities(reviews);
@@ -347,7 +339,7 @@ function getEntities(messages) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-    }
+    },
   };
   return fetch(url, requestParamPOST).then((response) => response.json()).then((entities) => {
     return entities;
