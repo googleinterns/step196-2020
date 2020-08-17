@@ -16,6 +16,7 @@ package com.google.sps.servlets;
 
 import java.io.IOException;
 import com.google.gson.Gson;
+import com.google.maps.model.PlaceDetails;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -26,9 +27,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-/** Servlet that returns some example content. TODO: modify this file to handle comments data */
 @WebServlet("/business-names")
 public class scraperServlet extends HttpServlet {
+  
+  private ArrayList<PlaceDetails> detailedPlaces = new ArrayList<>();
+  private GettingDetails details = new GettingDetails();
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -44,6 +47,9 @@ public class scraperServlet extends HttpServlet {
       Elements restaurantNameElements = page.select(restaurantNameSelector);
 
       for (Element restaurantName : restaurantNameElements) {
+        String name = restaurantName.text(); 
+        details.request(detailedPlaces, name);
+
         restaurantNames.add(restaurantName.text());
       }
     }

@@ -31,8 +31,6 @@ let _showSmallBusiness = false;
 let _showBlackOwnedBusiness = false;
 const _scrapedSmallBusinesses = new Set();
 const _scrapedBlackBusinesses = new Set();
-const _detailedSmallBusinesses = new Set();
-const _detailedBlackOwned = new Set();
 let _keyword;
 const SMALL = 'small';
 const BLACK_OWNED = 'black-owned';
@@ -42,7 +40,6 @@ function fetchBusinessNames() {
   fetch('/business-names').then((response) => response.json()).then(
       (restaurantNames) => {
         for (const name of restaurantNames) {
-          getPlaceDetails(name, _detailedSmallBusinesses);
           _scrapedSmallBusinesses.add(name);
         }
       });
@@ -50,11 +47,9 @@ function fetchBusinessNames() {
   fetch('/black-owned-restaurants-data').then((response) =>
     response.json()).then((restaurantNames) => {
     for (const name of restaurantNames) {
-      getPlaceDetails(name, _detailedBlackOwned);
       _scrapedBlackBusinesses.add(name);
-    } 
+    }
   });
-  console.log(_detailedSmallBusinesses);
 }
 
 fetchBusinessNames();
@@ -145,32 +140,6 @@ function createMap() {
         stylers: [{color: '#17263c'}],
       },
     ],
-  });
-}
-
-function getPlaceDetails(name, set) {
-  let location;
-  const searchRequest = {
-    query: name,
-    fields: ['name', 'geometry', 'place_id'],
-  };
- 
-  service = new google.maps.places.PlacesService(_map);
-  service.findPlaceFromQuery(searchRequest, (results, status) => {
-    if (status === google.maps.places.PlacesServiceStatus.OK) {
-      location = results[0];
-
-      const detailsRequest = {
-        placeId: location.place_id,
-        fields: ['name', 'formatted_address', 'opening_hours', 'photo', 'geometry',
-        'website', 'formatted_phone_number', 'review', 'rating', 'price_level']
-      };
-      service.getDetails(detailsRequest, (place, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK) {
-          set.add(place);
-        } 
-      });
-    }
   });
 }
 
@@ -273,20 +242,8 @@ function createAdditionalInfo(place) {
   informationContainer.className = 'info';
 
   const information = document.createElement('p');
-
-  const detailsRequest = {
-    placeId: place.place_id,
-    fields: ['name', 'formatted_address', 'opening_hours', 'photo', 'geometry',
-    'website', 'formatted_phone_number', 'review', 'rating', 'price_level']
-  };
-  service.getDetails(detailsRequest, (place, status) => {
-    if (status === google.maps.places.PlacesServiceStatus.OK) {
-      information.innerHTML = `Address: ${place.formatted_address}<br>Open Hours: ${place.opening_hours.weekday_text}<br>Phone: ${place.formatted_phone_number}<br>Rating: 
-      ${place.rating}<br>Price: ${place.price_level}<br>Website: ${place.website}`;
-    } else {
-      console.log(status);
-    }
-  });
+  information.innerHTML = `Rating: ${place.rating}<br>Price:
+   ${place.price_level}`;
 
   const editsLink = document.createElement('a');
   editsLink.setAttribute('href', 'feedback.html');
@@ -336,18 +293,22 @@ const requestParamPOST = {
   },
 };
 
+/** Obtains Reviews -- hardcoded examples for now */
 function getReviews() {
   // TODO(#33): integrate with actual reviews of businesses
-  const review = 'Really good pizza, nice wine, reasonable prices and great music.';
+  const review =
+    'Really good pizza, nice wine, reasonable prices and great music.';
   getBusinessTags(review);
 }
 
-/** send POST request to Cloud Natural Language API for entity recognition */
+/** send POST request to Cloud Natural Language API for entity recognition
+    @param {String} review review to be analyzed*/
 function getBusinessTags(review) {
   const url = '/nlp-business-tags?review=' + review;
-  fetch(url, requestParamPOST).then((response) => response.json()).then((tags) => {
-    const businessTags = tags;
-  }).catch((err) => {
+  fetch(url, requestParamPOST).then((response) => response.json()).then(
+      (tags) => {
+        const businessTags = tags;
+      }).catch((err) => {
     console.log('Error reading data ' + err);
   });
 }
