@@ -48,7 +48,7 @@ function fetchBusinessNames() {
     for (const name of restaurantNames) {
       getPlaceDetails(name, _detailedBlackOwned);
       _scrapedBlackBusinesses.add(name);
-    } 
+    }
   });
 }
 
@@ -149,7 +149,7 @@ function getPlaceDetails(name, set) {
     query: name,
     fields: ['name', 'geometry', 'place_id'],
   };
- 
+
   service = new google.maps.places.PlacesService(_map);
   service.findPlaceFromQuery(searchRequest, (results, status) => {
     if (status === google.maps.places.PlacesServiceStatus.OK) {
@@ -158,7 +158,7 @@ function getPlaceDetails(name, set) {
       const detailsRequest = {
         placeId: location.place_id,
         fields: ['name', 'formatted_address', 'opening_hours', 'photo', 'geometry',
-        'website', 'formatted_phone_number', 'review', 'rating', 'price_level']
+          'website', 'formatted_phone_number', 'review', 'rating', 'price_level'],
       };
       service.getDetails(detailsRequest, (place, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK) {
@@ -293,11 +293,10 @@ function getInputFilters() {
   // TODO(#14): clear all markers on map each time new
   keyword = document.getElementById('search').value;
   const selectedFilters = document.getElementById('filter-input').value;
-  
+
   if (selectedFilters == SMALL) {
     _showSmallBusiness = true;
-  }
-  else if (selectedFilters == BLACK_OWNED) {
+  } else if (selectedFilters == BLACK_OWNED) {
     _showBlackOwnedBusiness = true;
   }
 
@@ -305,10 +304,9 @@ function getInputFilters() {
   if (_showSmallBusiness || _showBlackOwnedBusiness) {
     if (!isStringEmpty(keyword)) {
       const keywordEntities = getEntities(keyword);
-      //TODO(#47): manual search
-    } 
-  }
-  else {
+      // TODO(#47): manual search
+    }
+  } else {
     getPlacesSearchResults(keyword);
   }
 }
@@ -339,7 +337,7 @@ function getEntities(messages) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-    }
+    },
   };
   return fetch(url, requestParamPOST).then((response) => response.json()).then((entities) => {
     return entities;
