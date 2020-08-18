@@ -21,8 +21,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
 /** user, at location _center, searches a query with search string
     keyword and selected filters _showSmallBusiness and _showBlackOwnedBusiness
     places matching user's query will be returned on _map
+    and stored in _markersArray
  */
 let _map;
+let _markersArray = [];
 let _center;
 let _showSmallBusiness = false;
 let _showBlackOwnedBusiness = false;
@@ -223,6 +225,15 @@ function setMarker(place) {
     animation: google.maps.Animation.DROP,
   });
   addToDisplayPanel(place);
+  _markersArray.push(marker);
+}
+
+/** Clears all markers on map */
+function clearMarkers() {
+  for (var i = 0; i < _markersArray.length; i++ ) {
+    _markersArray[i].setMap(null);
+  }
+  _markersArray.length = 0;
 }
 
 /** Itemizes each result into the collapsible panel
@@ -287,10 +298,10 @@ function closePanel() {
   document.getElementById('map').style.width = '100%';
 }
 
-
-/** Gets filters from checked boxess, ie. small or black-owned */
+/** Clears all exisiting markers on map 
+    and gets filters from checked boxes, ie. small or black-owned */
 async function getInputFilters() {
-  // TODO(#14): clear all markers on map each time new
+  clearMarkers();
   keyword = document.getElementById('search').value;
   const selectedFilters = document.getElementById('filter-input').value;
 
