@@ -23,10 +23,8 @@ import com.google.maps.model.PlacesSearchResult;
 
 public final class GettingDetails {  
 
-  protected GeoApiContext context = 
-    new GeoApiContext.Builder(new GaeRequestHandler.Builder())
-      .apiKey("<API Key here>")
-      .build();
+  protected GeoApiContext context =
+      new GeoApiContext.Builder(new GaeRequestHandler.Builder()).apiKey("<API Key here>").build();
 
   public PlaceDetails getDetails(String placeId) {
     PlaceDetails place = new PlaceDetails();
@@ -41,12 +39,11 @@ public final class GettingDetails {
   public PlaceDetails request(String placeName) {
     PlaceDetails place = new PlaceDetails();
     try {
-      PlacesSearchResult[] results = 
-        PlacesApi.findPlaceFromText(
-            context, placeName, FindPlaceFromTextRequest.InputType.TEXT_QUERY)
-        .await()
-        .candidates;
-
+      PlacesSearchResult[] results =
+          PlacesApi.findPlaceFromText(
+                  context, placeName, FindPlaceFromTextRequest.InputType.TEXT_QUERY)
+              .await()
+              .candidates;
       String placeID = results[0].placeId;
       place = getDetails(placeID);
       
