@@ -51,7 +51,7 @@ function fetchBusinessNames() {
     response.json()).then((restaurantNames) => {
     for (const name of restaurantNames) {
       _scrapedBlackBusinesses.add(name);
-    } 
+    }
   });
 }
 
@@ -146,6 +146,35 @@ function createMap() {
   });
 }
 
+<<<<<<< HEAD
+=======
+function getPlaceDetails(name, set) {
+  let location;
+  const searchRequest = {
+    query: name,
+    fields: ['name', 'geometry', 'place_id'],
+  };
+
+  service = new google.maps.places.PlacesService(_map);
+  service.findPlaceFromQuery(searchRequest, (results, status) => {
+    if (status === google.maps.places.PlacesServiceStatus.OK) {
+      location = results[0];
+
+      const detailsRequest = {
+        placeId: location.place_id,
+        fields: ['name', 'formatted_address', 'opening_hours', 'photo', 'geometry',
+          'website', 'formatted_phone_number', 'review', 'rating', 'price_level'],
+      };
+      service.getDetails(detailsRequest, (place, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+          set.add(place);
+        }
+      });
+    }
+  });
+}
+
+>>>>>>> 415987a0b1434fbde014e0bae1e71f09eac5a293
 /** Obtains search results from Places API */
 function getSearchResults() {
   document.getElementById('map').style.width = '75%';
@@ -189,8 +218,8 @@ function callback(results, status) {
   }
   _showSmallBusiness = false;
   _showBlackOwnedBusiness = false;
-  _keyword = "";
-  _keywordEntities = "";
+  _keyword = '';
+  _keywordEntities = '';
 }
 
 /** Creates an animated marker for each result location
@@ -302,6 +331,7 @@ function isStringEmpty(str) {
   return (str.length === 0 || !str.trim() || !str);
 }
 
+<<<<<<< HEAD
 /** post request params to send a POST request using fetch() */
 const requestParamPOST = {
   method: 'POST',
@@ -326,6 +356,26 @@ function getBusinessTags(review) {
       (tags) => {
         const businessTags = tags;
       }).catch((err) => {
+=======
+async function getReviewsEntities(reviews) {
+  // TODO(#33): integrate with actual reviews of businesses
+  const reviewsEntities = await getEntities(reviews);
+  return reviewsEntities;
+}
+
+/** send POST request to Cloud Natural Language API for entity recognition */
+function getEntities(messages) {
+  const url = '/nlp-entity-recognition?messages=' + messages;
+  const requestParamPOST = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+  return fetch(url, requestParamPOST).then((response) => response.json()).then((entities) => {
+    return entities;
+  }).catch((err) => {
+>>>>>>> 415987a0b1434fbde014e0bae1e71f09eac5a293
     console.log('Error reading data ' + err);
   });
 }
