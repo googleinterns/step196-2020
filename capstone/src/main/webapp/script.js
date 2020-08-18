@@ -183,7 +183,7 @@ function getPlacesSearchResults(keyword) {
     types: ['restaurant', 'food'],
   };
   service = new google.maps.places.PlacesService(_map);
-  service.nearbySearch(request, callback);
+  return service.nearbySearch(request, callback);
 }
 
 /** Function for aiding calls to nearbySearch and getDetails
@@ -289,7 +289,7 @@ function closePanel() {
 
 
 /** Gets filters from checked boxess, ie. small or black-owned */
-function getInputFilters() {
+async function getInputFilters() {
   // TODO(#14): clear all markers on map each time new
   keyword = document.getElementById('search').value;
   const selectedFilters = document.getElementById('filter-input').value;
@@ -307,22 +307,15 @@ function getInputFilters() {
       // TODO(#47): manual search
     }
   } else {
-    getPlacesSearchResults(keyword);
+    await getPlacesSearchResults(keyword);
   }
+  document.getElementById('search-button').disabled = false;
 }
 
 /** checks if string is empty, contains only white space, or null */
 function isStringEmpty(str) {
   return (str.length === 0 || !str.trim() || !str);
 }
-
-/** post request params to send a POST request using fetch() */
-// const requestParamPOST = {
-//   method: 'POST',
-//   headers: {
-//     'Content-Type': 'application/json',
-//   },
-// };
 
 async function getReviewsEntities(reviews) {
   // TODO(#33): integrate with actual reviews of businesses
