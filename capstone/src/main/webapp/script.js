@@ -316,14 +316,6 @@ function isStringEmpty(str) {
   return (str.length === 0 || !str.trim() || !str);
 }
 
-/** post request params to send a POST request using fetch() */
-// const requestParamPOST = {
-//   method: 'POST',
-//   headers: {
-//     'Content-Type': 'application/json',
-//   },
-// };
-
 async function getReviewsEntities(reviews) {
   // TODO(#33): integrate with actual reviews of businesses
   const reviewsEntities = await getEntities(reviews);

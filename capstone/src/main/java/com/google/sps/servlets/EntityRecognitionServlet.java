@@ -33,7 +33,7 @@ public class EntityRecognitionServlet extends HttpServlet {
               .build();
 
       AnalyzeEntitiesResponse entitiesResponse = language.analyzeEntities(entitiesRequest);
-      Set<String> allEntityNames = 
+      Set<String> allEntityNames =
           entitiesResponse.getEntitiesList().stream()
               .map(entity -> entity.getName())
               .collect(Collectors.toSet());
