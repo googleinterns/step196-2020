@@ -43,7 +43,6 @@ function fetchBusinessNames() {
   fetch('/business-names').then((response) => response.json()).then(
       (restaurantNames) => {
         for (const name of restaurantNames) {
-          getPlaceDetails(name, _detailedSmallBusinesses);
           _scrapedSmallBusinesses.add(name);
         }
       });
@@ -51,7 +50,6 @@ function fetchBusinessNames() {
   fetch('/black-owned-restaurants-data').then((response) =>
     response.json()).then((restaurantNames) => {
     for (const name of restaurantNames) {
-      getPlaceDetails(name, _detailedBlackOwned);
       _scrapedBlackBusinesses.add(name);
     } 
   });
@@ -148,32 +146,6 @@ function createMap() {
   });
 }
 
-function getPlaceDetails(name, set) {
-  let location;
-  const searchRequest = {
-    query: name,
-    fields: ['name', 'geometry', 'place_id'],
-  };
- 
-  service = new google.maps.places.PlacesService(_map);
-  service.findPlaceFromQuery(searchRequest, (results, status) => {
-    if (status === google.maps.places.PlacesServiceStatus.OK) {
-      location = results[0];
-
-      const detailsRequest = {
-        placeId: location.place_id,
-        fields: ['name', 'formatted_address', 'opening_hours', 'photo', 'geometry',
-        'website', 'formatted_phone_number', 'review', 'rating', 'price_level']
-      };
-      service.getDetails(detailsRequest, (place, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK) {
-          set.add(place);
-        }
-      });
-    }
-  });
-}
-
 /** Obtains search results from Places API */
 function getSearchResults() {
   document.getElementById('map').style.width = '75%';
@@ -199,6 +171,7 @@ function callback(results, status) {
   if (status == google.maps.places.PlacesServiceStatus.OK) {
     for (let i = 0; i < results.length; i++) {
       if (!_showSmallBusiness && !_showBlackOwnedBusiness) {
+        // put fetch here 
         setMarker(results[i]);
         continue;
       }
@@ -236,10 +209,12 @@ function setMarker(place) {
 @param {Object} place location to add to results panel
  */
 function addToDisplayPanel(place) {
-  // put call to get details here and get new place before adding to panel
-  const locationElement = document.getElementById('restaurant-results');
-  locationElement.appendChild(createLocationElement(place));
-  locationElement.appendChild(createAdditionalInfo(place));
+  fetch('/get-details?placeId=' + place.place_id).then(response => response.json()).then((place) => {
+    // put call to get details here and get new place before adding to panel
+    const locationElement = document.getElementById('restaurant-results');
+    locationElement.appendChild(createLocationElement(place));
+    locationElement.appendChild(createAdditionalInfo(place));
+  });
 }
 
 /** Creates button with location name for each place
@@ -275,8 +250,8 @@ function createAdditionalInfo(place) {
   informationContainer.className = 'info';
 
   const information = document.createElement('p');
-  information.innerHTML = `Rating: ${place.rating}<br>Price:
-   ${place.price_level}`;
+  information.innerHTML = `Address: ${place.formattedAddress}<br>Phone Number: ${place.formattedPhoneNumber}<br>Rating: ${place.rating}<br>Price:
+   ${place.priceLevel}<br>Website: ${place.website}`;
 
   const editsLink = document.createElement('a');
   editsLink.setAttribute('href', 'feedback.html');
