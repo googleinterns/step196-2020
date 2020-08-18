@@ -63,7 +63,6 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
     boolean blackOwned = true;
     boolean smallBusiness = false;
     // stores tags like "pizza" or "chinese"
-    // implemented as hashset for faster lookup
     HashSet<String> tags = new HashSet<String>();
     // because input is string regardless of actual type, we need to extract each value in list
     // TODO: input type might change so will need to do specific character cuts
