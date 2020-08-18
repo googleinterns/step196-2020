@@ -14,13 +14,14 @@
 
 package com.google.sps.servlets;
 
-import java.io.IOException;
+
 import com.google.gson.Gson;
 import com.google.maps.model.PlaceDetails;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.ArrayList;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -47,10 +48,10 @@ public class scraperServlet extends HttpServlet {
       Elements restaurantNameElements = page.select(restaurantNameSelector);
 
       for (Element restaurantName : restaurantNameElements) {
-        String name = restaurantName.text(); 
-        details.request(detailedPlaces, name);
+        String name = restaurantName.text();
+        detailedPlaces.add(details.request(name));
 
-        restaurantNames.add(restaurantName.text());
+        restaurantNames.add(name);
       }
     }
 

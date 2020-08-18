@@ -18,13 +18,7 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
-import com.google.maps.GaeRequestHandler;
-import com.google.maps.GeoApiContext;
-import com.google.maps.FindPlaceFromTextRequest;
-import com.google.maps.model.FindPlaceFromText;
-import com.google.maps.PlacesApi;
 import com.google.maps.model.PlaceDetails;
-import com.google.maps.model.PlacesSearchResult;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -41,16 +35,15 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
 
   @Override
   public void init() {
-    Scanner scanner = new Scanner(getServletContext().getResourceAsStream(
-        "/WEB-INF/black-owned-restaurants.csv"));
-    int i = 0;
+    Scanner scanner =
+      new Scanner(
+        getServletContext().getResourceAsStream("/WEB-INF/black-owned-restaurants.csv"));
     while (scanner.hasNextLine()) {
-      if (i >= 10) break;
       String line = scanner.nextLine();
       String[] cells = line.split(",");
 
       String name = String.valueOf(cells[0]);
-      details.request(detailedPlaces, name);
+      detailedPlaces.add(details.request(name));
 
       blackRestaurants.add(name);
     }

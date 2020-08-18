@@ -14,24 +14,19 @@
 
 package com.google.sps.servlets;
 
-import com.google.gson.Gson;
-import java.util.ArrayList;
 import com.google.maps.GaeRequestHandler;
 import com.google.maps.GeoApiContext;
 import com.google.maps.FindPlaceFromTextRequest;
-import com.google.maps.model.FindPlaceFromText;
 import com.google.maps.PlacesApi;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResult;
-/**
-* The FindingMeetingQuery is a container class that is able to find available meeting times for a particular requested meeting
-*/
 
 public final class GettingDetails {  
 
-  protected GeoApiContext context = new GeoApiContext.Builder(new GaeRequestHandler.Builder())
-    .apiKey("AIzaSyBmOq13SbE4zw0O6DDk05xmC2urtSfd_gk")
-    .build();
+  protected GeoApiContext context = 
+    new GeoApiContext.Builder(new GaeRequestHandler.Builder())
+      .apiKey("<API Key here>")
+      .build();
 
   public PlaceDetails getDetails(String placeId) {
     PlaceDetails place = new PlaceDetails();
@@ -43,19 +38,21 @@ public final class GettingDetails {
     return place;
   }
 
-  public void request(ArrayList<PlaceDetails> detailsList, String placeName) {
+  public PlaceDetails request(String placeName) {
+    PlaceDetails place = new PlaceDetails();
     try {
-        PlacesSearchResult[] results = PlacesApi
-        .findPlaceFromText(context, placeName, FindPlaceFromTextRequest.InputType.TEXT_QUERY)
+      PlacesSearchResult[] results = 
+        PlacesApi.findPlaceFromText(
+            context, placeName, FindPlaceFromTextRequest.InputType.TEXT_QUERY)
         .await()
         .candidates;
 
-        String placeID = results[0].placeId;
-        PlaceDetails place = getDetails(placeID);
-        detailsList.add(place);
+      String placeID = results[0].placeId;
+      place = getDetails(placeID);
       
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return place;
   }
 }
