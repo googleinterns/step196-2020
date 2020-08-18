@@ -173,7 +173,7 @@ function getPlaceDetails(name, set) {
 
 /** Obtains search results from Places API
     @param {any} keyword search query keyword
-    @return top 20 places matching search results */
+    @return {Promise} top 20 places matching search results */
 function getPlacesSearchResults(keyword) {
   document.getElementById('map').style.width = '75%';
   document.getElementById('panel').style.display = 'block';
@@ -325,7 +325,7 @@ async function getInputFilters() {
   document.getElementById('search-button').disabled = false;
 }
 
-/** @param str input string to check
+/** @param {String} str input string to check
     @return {boolean} if str is empty, contains only white space, or null */
 function isStringEmpty(str) {
   return (str.length === 0 || !str.trim() || !str);
@@ -337,9 +337,9 @@ async function getReviewsEntities(reviews) {
   return reviewsEntities;
 }
 
-/** send POST request to Cloud Natural Language API for entity recognition 
-    @param messages message to passed into NLP API
-    @return Promise of entities from messages
+/** send POST request to Cloud Natural Language API for entity recognition
+    @param {String} messages message to passed into NLP API
+    @return {Promise} entities from messages
 */
 function getEntities(messages) {
   const url = '/nlp-entity-recognition?messages=' + messages;
@@ -350,9 +350,9 @@ function getEntities(messages) {
     },
   };
   return fetch(url, requestParamPOST).then((response) => response.json())
-  .then((entities) => {
-    return entities;
-  }).catch((err) => {
-    console.log('Error reading data ' + err);
-  });
+      .then((entities) => {
+        return entities;
+      }).catch((err) => {
+        console.log('Error reading data ' + err);
+      });
 }
