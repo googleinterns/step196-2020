@@ -21,8 +21,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
 /** user, at location _center, searches a query with search string
     keyword and selected filters _showSmallBusiness and _showBlackOwnedBusiness
     places matching user's query will be returned on _map
+    and stored in _markersArray
  */
 let _map;
+const _markersArray = [];
 let _center;
 let _showSmallBusiness = false;
 let _showBlackOwnedBusiness = false;
@@ -169,7 +171,9 @@ function getPlaceDetails(name, set) {
   });
 }
 
-/** Obtains search results from Places API */
+/** Obtains search results from Places API
+    @param {any} keyword search query keyword
+    @return top 20 places matching search results */
 function getPlacesSearchResults(keyword) {
   document.getElementById('map').style.width = '75%';
   document.getElementById('panel').style.display = 'block';
@@ -183,7 +187,7 @@ function getPlacesSearchResults(keyword) {
     types: ['restaurant', 'food'],
   };
   service = new google.maps.places.PlacesService(_map);
-  service.nearbySearch(request, callback);
+  return service.nearbySearch(request, callback);
 }
 
 /** Function for aiding calls to nearbySearch and getDetails
@@ -223,6 +227,15 @@ function setMarker(place) {
     animation: google.maps.Animation.DROP,
   });
   addToDisplayPanel(place);
+  _markersArray.push(marker);
+}
+
+/** Clears all markers on map */
+function clearMarkers() {
+  for (let i = 0; i < _markersArray.length; i++ ) {
+    _markersArray[i].setMap(null);
+  }
+  _markersArray.length = 0;
 }
 
 /** Itemizes each result into the collapsible panel
@@ -287,10 +300,10 @@ function closePanel() {
   document.getElementById('map').style.width = '100%';
 }
 
-
-/** Gets filters from checked boxess, ie. small or black-owned */
-function getInputFilters() {
-  // TODO(#14): clear all markers on map each time new
+/** Clears all exisiting markers on map
+    and gets filters from checked boxes, ie. small or black-owned */
+async function getInputFilters() {
+  clearMarkers();
   keyword = document.getElementById('search').value;
   const selectedFilters = document.getElementById('filter-input').value;
 
@@ -300,18 +313,20 @@ function getInputFilters() {
     _showBlackOwnedBusiness = true;
   }
 
-  // if a filter is selected, do manual search, else do Nearby Search w Places API
+  // do manual search if filter is selected, else do Nearby Search w Places API
   if (_showSmallBusiness || _showBlackOwnedBusiness) {
     if (!isStringEmpty(keyword)) {
       const keywordEntities = getEntities(keyword);
       // TODO(#47): manual search
     }
   } else {
-    getPlacesSearchResults(keyword);
+    await getPlacesSearchResults(keyword);
   }
+  document.getElementById('search-button').disabled = false;
 }
 
-/** checks if string is empty, contains only white space, or null */
+/** @param str input string to check
+    @return {boolean} if str is empty, contains only white space, or null */
 function isStringEmpty(str) {
   return (str.length === 0 || !str.trim() || !str);
 }
@@ -322,7 +337,10 @@ async function getReviewsEntities(reviews) {
   return reviewsEntities;
 }
 
-/** send POST request to Cloud Natural Language API for entity recognition */
+/** send POST request to Cloud Natural Language API for entity recognition 
+    @param messages message to passed into NLP API
+    @return Promise of entities from messages
+*/
 function getEntities(messages) {
   const url = '/nlp-entity-recognition?messages=' + messages;
   const requestParamPOST = {
@@ -331,7 +349,8 @@ function getEntities(messages) {
       'Content-Type': 'application/json',
     },
   };
-  return fetch(url, requestParamPOST).then((response) => response.json()).then((entities) => {
+  return fetch(url, requestParamPOST).then((response) => response.json())
+  .then((entities) => {
     return entities;
   }).catch((err) => {
     console.log('Error reading data ' + err);

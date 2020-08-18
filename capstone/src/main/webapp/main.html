@@ -13,7 +13,7 @@
   </head>
   <body>
     <div class="filter-container">
-      <form id="filters-form">
+      <form id="filters-form" onsubmit="return false">
         <div class="dropdown">
           <select id="filter-input">
             <option value="default">Suggested Filters</option>
@@ -22,7 +22,7 @@
           </select>
         </div>
         <input type="text" id="search" placeholder="Search Google Maps">
-        <button onclick="getInputFilters()"><i class="fa fa-search"></i></button>
+        <button id="search-button" onclick="getInputFilters(); this.disabled = true;"><i class="fa fa-search"></i></button>
       </form>
     </div>
 
