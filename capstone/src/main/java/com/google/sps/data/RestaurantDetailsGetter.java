@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.servlets;
+package com.google.sps.data;
 
 import com.google.maps.GaeRequestHandler;
 import com.google.maps.GeoApiContext;
@@ -21,10 +21,10 @@ import com.google.maps.PlacesApi;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResult;
 
-public final class GettingDetails {  
+public final class RestaurantDetailsGetter {  
 
   protected GeoApiContext context =
-      new GeoApiContext.Builder(new GaeRequestHandler.Builder()).apiKey("<API Key here>").build();
+      new GeoApiContext.Builder(new GaeRequestHandler.Builder()).apiKey("AIzaSyBmOq13SbE4zw0O6DDk05xmC2urtSfd_gk").build();
 
   public PlaceDetails getDetails(String placeId) {
     PlaceDetails place = new PlaceDetails();

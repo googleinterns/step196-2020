@@ -22,25 +22,25 @@ import java.util.Set;
 public class EntityRecognitionServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    String message = request.getParameter("message");
+    String messages = request.getParameter("messages");
     try (LanguageServiceClient language = LanguageServiceClient.create()) {
       Document doc = 
-        Document.newBuilder().setContent(message).setType(Document.Type.PLAIN_TEXT).build();
+          Document.newBuilder().setContent(messages).setType(Document.Type.PLAIN_TEXT).build();
       AnalyzeEntitiesRequest entitiesRequest =
-        AnalyzeEntitiesRequest.newBuilder()
-          .setDocument(doc)
-          .setEncodingType(EncodingType.UTF16)
-          .build();
+          AnalyzeEntitiesRequest.newBuilder()
+              .setDocument(doc)
+              .setEncodingType(EncodingType.UTF16)
+              .build();
 
       AnalyzeEntitiesResponse entitiesResponse = language.analyzeEntities(entitiesRequest);
-      Set<String> allEntityNames = 
-        entitiesResponse.getEntitiesList().stream()
-          .map(entity -> entity.getName())
-          .collect(Collectors.toSet());
+      Set<String> allEntityNames =
+          entitiesResponse.getEntitiesList().stream()
+              .map(entity -> entity.getName())
+              .collect(Collectors.toSet());
 
       Gson gson = new Gson();
       response.setContentType("application/json;");
-      response.getWriter().println(gson.toJson(allEntityNames)); 
+      response.getWriter().println(gson.toJson(allEntityNames));
     }
   }
 }

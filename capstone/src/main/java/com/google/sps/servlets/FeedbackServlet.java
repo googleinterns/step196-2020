@@ -48,13 +48,11 @@ public class FeedbackServlet extends HttpServlet {
     response.sendRedirect("/main.html");
   }
 
-
- /**
-   * @return the request parameter, or the default value if the parameter was not specified by the
+   /* @return the request parameter, or the default value if the parameter was not specified by the
    *     client
    */
   private String getParameter(HttpServletRequest request, String paramName, String defaultValue) {
     String value = request.getParameter(paramName);
-      return value || defaultValue;
+    return value.isEmpty() ? defaultValue : value;
   }
 }

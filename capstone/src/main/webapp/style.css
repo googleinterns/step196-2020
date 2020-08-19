@@ -81,10 +81,6 @@
   }
 }
 
-.checkbox-inline input:checked ~ label {
-  color: cornflowerblue;
-}
-
 .titlecontainer {
   text-align: center;
   position: absolute;
@@ -170,4 +166,21 @@
   100% {
     transform: scale(1);
   }
+}
+
+.filter-container {
+  margin: 6px auto 0;
+}
+
+#filters-form {
+  display: flex;
+  justify-content: center;
+}
+
+#search {
+  font-size: 1.2em;
+}
+
+#filter-input {
+  font-size: 1.2em;
 }
