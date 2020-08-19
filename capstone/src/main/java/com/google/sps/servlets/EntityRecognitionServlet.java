@@ -24,8 +24,8 @@ public class EntityRecognitionServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String messages = request.getParameter("messages");
     try (LanguageServiceClient language = LanguageServiceClient.create()) {
-      Document doc =
-        Document.newBuilder().setContent(messages).setType(Document.Type.PLAIN_TEXT).build();
+      Document doc = 
+          Document.newBuilder().setContent(messages).setType(Document.Type.PLAIN_TEXT).build();
       AnalyzeEntitiesRequest entitiesRequest =
           AnalyzeEntitiesRequest.newBuilder()
               .setDocument(doc)
