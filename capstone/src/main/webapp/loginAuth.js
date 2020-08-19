@@ -25,8 +25,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
   }
 });
 
-function showButton() {
-  document.getElementById("login-button").style.display = "inline";
-}
-
-setTimeout("showButton()", 3000);
+/**
+ Only shows button after title animation finished
+ */
+setTimeout(function() {
+  document.getElementById('login-button').style.display = 'inline';
+}, 3000);

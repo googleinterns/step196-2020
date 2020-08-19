@@ -1,4 +1,4 @@
-html { 
+html {
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -25,6 +25,7 @@ html {
   transform: translate(-50%, -50%);
   width: 100%;
 }
+
 .titlecontainer span {
   text-transform: uppercase;
   display: block;
@@ -85,7 +86,7 @@ html {
 }
 
 .login-button {
-  animation: reveal 0s 3s ;
+  animation: reveal 0s 3s;
   background-color: transparent;
   border: 3px solid white;
   color: white;
