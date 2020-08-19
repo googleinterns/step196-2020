@@ -4,43 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>My Portfolio</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="style.css">
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDNbt9SH6F9IdHXMpdm9fTjZQZUXz9DkSE&libraries=places"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBmOq13SbE4zw0O6DDk05xmC2urtSfd_gk&libraries=places"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <script src="script.js"></script>
     <script src="loginAuth.js"></script>
   </head>
   <body>
-    <div id="filter-container">
-      <form id="filters-form">
-        <p>Suggested Filters:</p>
-        <label class="checkbox-inline">
-          <input type="checkbox" id="small-businesses" value="small">
-          <label for="small-businesses">Small Businesses</label><br>
-        </label>
-        <label class="checkbox-inline">
-          <input type="checkbox" id="black-owned-business" value="black-owned">
-          <label for="black-owned-business"> Black-owned Businesses</label><br>
-        </label>
-        <label class="checkbox-inline">
-          <input type="text" id="search" placeholder="Search Google Maps">
-          <button type="submit"><i class="fa fa-search"></i></button>
-        </label>
+    <div class="filter-container">
+      <form id="filters-form" onsubmit="return false">
+        <div class="dropdown">
+          <select id="filter-input">
+            <option value="default">Suggested Filters</option>
+            <option value="small">Small Businesses</option>
+            <option value="black-owned">Black-owned Businesses</option>
+          </select>
+        </div>
+        <input type="text" id="search" placeholder="Search Google Maps">
+        <button id="search-button" onclick="getInputFilters(); this.disabled = true;"><i class="fa fa-search"></i></button>
       </form>
     </div>
-
-    <!-- will remove this button later, currently used for testing NLP -->
-    <button type="button" onclick="getReviews()">debug</button>
 
     <div class="content">
       <div id="panel" class="result-panel">
         <a href="javascript:void(0)" class="closebtn" onclick="closePanel()">×</a>
         <h2>Results</h2>
         <p id="restaurant-results"></p>
-     </div>
+      </div>
       <div id="map"></div>
     </div>
   </body>

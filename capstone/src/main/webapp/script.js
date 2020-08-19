@@ -16,16 +16,15 @@ window.addEventListener('DOMContentLoaded', (event) => {
   if (document.getElementById('map')) {
     createMap();
   }
-  if (document.getElementById('filters-form')) {
-    getInputFilters();
-  }
 });
 
 /** user, at location _center, searches a query with search string
-    _keyword and selected filters _showSmallBusiness and _showBlackOwnedBusiness
+    keyword and selected filters _showSmallBusiness and _showBlackOwnedBusiness
     places matching user's query will be returned on _map
+    and stored in _markersArray
  */
 let _map;
+const _markersArray = [];
 let _center;
 let _showSmallBusiness = false;
 let _showBlackOwnedBusiness = false;
@@ -33,8 +32,6 @@ const _scrapedSmallBusinesses = new Set();
 const _scrapedBlackBusinesses = new Set();
 const _detailedSmallBusinesses = new Set();
 const _detailedBlackOwned = new Set();
-let _keyword;
-let _keywordEntities;
 const SMALL = 'small';
 const BLACK_OWNED = 'black-owned';
 
@@ -43,7 +40,6 @@ function fetchBusinessNames() {
   fetch('/business-names').then((response) => response.json()).then(
       (restaurantNames) => {
         for (const name of restaurantNames) {
-          getPlaceDetails(name, _detailedSmallBusinesses);
           _scrapedSmallBusinesses.add(name);
         }
       });
@@ -51,9 +47,8 @@ function fetchBusinessNames() {
   fetch('/black-owned-restaurants-data').then((response) =>
     response.json()).then((restaurantNames) => {
     for (const name of restaurantNames) {
-      getPlaceDetails(name, _detailedBlackOwned);
       _scrapedBlackBusinesses.add(name);
-    } 
+    }
   });
 }
 
@@ -148,34 +143,10 @@ function createMap() {
   });
 }
 
-function getPlaceDetails(name, set) {
-  let location;
-  const searchRequest = {
-    query: name,
-    fields: ['name', 'geometry', 'place_id'],
-  };
- 
-  service = new google.maps.places.PlacesService(_map);
-  service.findPlaceFromQuery(searchRequest, (results, status) => {
-    if (status === google.maps.places.PlacesServiceStatus.OK) {
-      location = results[0];
-
-      const detailsRequest = {
-        placeId: location.place_id,
-        fields: ['name', 'formatted_address', 'opening_hours', 'photo', 'geometry',
-        'website', 'formatted_phone_number', 'review', 'rating', 'price_level']
-      };
-      service.getDetails(detailsRequest, (place, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK) {
-          set.add(place);
-        }
-      });
-    }
-  });
-}
-
-/** Obtains search results from Places API */
-function getSearchResults() {
+/** Obtains search results from Places API
+    @param {any} keyword search query keyword
+    @return {Promise} top 20 places matching search results */
+function getPlacesSearchResults(keyword) {
   document.getElementById('map').style.width = '75%';
   document.getElementById('panel').style.display = 'block';
   document.getElementById('restaurant-results').innerHTML = '';
@@ -184,11 +155,11 @@ function getSearchResults() {
     location: _center,
     radius: 10000,
     rankBy: google.maps.places.RankBy.PROMINENCE,
-    keyword: _keyword,
+    keyword: keyword,
     types: ['restaurant', 'food'],
   };
   service = new google.maps.places.PlacesService(_map);
-  service.nearbySearch(request, callback);
+  return service.nearbySearch(request, callback);
 }
 
 /** Function for aiding calls to nearbySearch and getDetails
@@ -216,8 +187,6 @@ function callback(results, status) {
   }
   _showSmallBusiness = false;
   _showBlackOwnedBusiness = false;
-  _keyword = "";
-  _keywordEntities = "";
 }
 
 /** Creates an animated marker for each result location
@@ -230,6 +199,15 @@ function setMarker(place) {
     animation: google.maps.Animation.DROP,
   });
   addToDisplayPanel(place);
+  _markersArray.push(marker);
+}
+
+/** Clears all markers on map */
+function clearMarkers() {
+  for (let i = 0; i < _markersArray.length; i++ ) {
+    _markersArray[i].setMap(null);
+  }
+  _markersArray.length = 0;
 }
 
 /** Itemizes each result into the collapsible panel
@@ -294,58 +272,59 @@ function closePanel() {
   document.getElementById('map').style.width = '100%';
 }
 
-closePanel();
+/** Clears all exisiting markers on map
+    and gets filters from checked boxes, ie. small or black-owned */
+async function getInputFilters() {
+  clearMarkers();
+  keyword = document.getElementById('search').value;
+  const selectedFilters = document.getElementById('filter-input').value;
 
-/** Gets filters from checked boxess, ie. small and/or black-owned */
-function getInputFilters() {
-  document.querySelector('button').addEventListener('click', function(event) {
-    // TODO(#14): clear all markers on map each time new
-    // search query is submitted
-    const form = document.querySelector('form');
-    _keyword = document.getElementById('search').value;
-    Array.from(form.querySelectorAll('input')).forEach(function(filterInput) {
-      if (filterInput.checked) {
-        if (filterInput.value == SMALL) {
-          _showSmallBusiness = true;
-        }
-        if (filterInput.value == BLACK_OWNED) {
-          _showBlackOwnedBusiness = true;
-        }
-        // if a filter is selected, get entities of search query
-        if ((_showSmallBusiness || _showBlackOwnedBusiness) && !isStringEmpty(_keyword)) {
-          _keywordEntities = getEntities(_keyword);
-        }
-      }
-    });
-    getSearchResults();
-  });
+  if (selectedFilters == SMALL) {
+    _showSmallBusiness = true;
+  } else if (selectedFilters == BLACK_OWNED) {
+    _showBlackOwnedBusiness = true;
+  }
+
+  // do manual search if filter is selected, else do Nearby Search w Places API
+  if (_showSmallBusiness || _showBlackOwnedBusiness) {
+    if (!isStringEmpty(keyword)) {
+      const keywordEntities = getEntities(keyword);
+      // TODO(#47): manual search
+    }
+  } else {
+    await getPlacesSearchResults(keyword);
+  }
+  document.getElementById('search-button').disabled = false;
 }
 
-/** checks if string is empty, contains only white space, or null */
+/** @param {String} str input string to check
+    @return {boolean} if str is empty, contains only white space, or null */
 function isStringEmpty(str) {
   return (str.length === 0 || !str.trim() || !str);
 }
 
-/** post request params to send a POST request using fetch() */
-const requestParamPOST = {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-};
-
-function getReviews() {
+async function getReviewsEntities(reviews) {
   // TODO(#33): integrate with actual reviews of businesses
-  const review = 'Really good pizza, nice wine, reasonable prices and great music.';
-  getEntities(review);
+  const reviewsEntities = await getEntities(reviews);
+  return reviewsEntities;
 }
 
-/** send POST request to Cloud Natural Language API for entity recognition */
-function getEntities(message) {
-  const url = '/nlp-entity-recognition?message=' + message;
-  fetch(url, requestParamPOST).then((response) => response.json()).then((entities) => {
-    const businessTags = entities;
-  }).catch((err) => {
-    console.log('Error reading data ' + err);
-  });
+/** send POST request to Cloud Natural Language API for entity recognition
+    @param {String} messages message to passed into NLP API
+    @return {Promise} entities from messages
+*/
+function getEntities(messages) {
+  const url = '/nlp-entity-recognition?messages=' + messages;
+  const requestParamPOST = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+  return fetch(url, requestParamPOST).then((response) => response.json())
+      .then((entities) => {
+        return entities;
+      }).catch((err) => {
+        console.log('Error reading data ' + err);
+      });
 }
