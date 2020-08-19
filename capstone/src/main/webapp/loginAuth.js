@@ -24,3 +24,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
     fetchLoginStatus();
   }
 });
+
+function showButton() {
+  document.getElementById("login-button").style.display = "inline";
+}
+
+setTimeout("showButton()", 3000);
