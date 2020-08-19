@@ -17,6 +17,7 @@ package com.google.sps.servlets;
 import com.google.gson.Gson;
 import java.io.IOException;
 import com.google.maps.model.PlaceDetails;
+import com.google.sps.data.RestaurantDetailsGetter;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -25,7 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/get-details")
 public class DetailsForSearchResultsServlet extends HttpServlet {
 
-  private GettingDetails details = new GettingDetails();
+  private RestaurantDetailsGetter details = new RestaurantDetailsGetter();
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
