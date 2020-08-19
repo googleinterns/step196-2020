@@ -14,10 +14,12 @@
 
 package com.google.sps.servlets;
 
+import com.google.maps.model.PlaceDetails;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.gson.Gson;
+import com.google.sps.data.RestaurantDetailsGetter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,9 +32,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-/** Servlet that returns some example content. TODO: modify this file to handle comments data */
 @WebServlet("/business-names")
-public class scraperServlet extends HttpServlet {
+public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
+  
+  private ArrayList<PlaceDetails> detailedPlaces = new ArrayList<>();
+  private RestaurantDetailsGetter details = new RestaurantDetailsGetter();
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -48,7 +52,10 @@ public class scraperServlet extends HttpServlet {
       Elements restaurantNameElements = page.select(restaurantNameSelector);
 
       for (Element restaurantName : restaurantNameElements) {
-        restaurantNames.add(restaurantName.text());
+        String name = restaurantName.text();
+        detailedPlaces.add(details.request(name));
+
+        restaurantNames.add(name);
       }
     }
 

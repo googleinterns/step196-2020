@@ -18,10 +18,12 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.gson.Gson;
+import com.google.sps.data.RestaurantDetailsGetter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Scanner;
+import com.google.maps.model.PlaceDetails;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -31,29 +33,37 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/black-owned-restaurants-data")
 public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
 
-  private ArrayList<String> restaurantNames = new ArrayList<>();
+  private ArrayList<String> blackRestaurants = new ArrayList<>();
+  private ArrayList<PlaceDetails> detailedPlaces = new ArrayList<>();
+  
+  private RestaurantDetailsGetter details = new RestaurantDetailsGetter();
 
   @Override
   public void init() {
     Scanner scanner =
         new Scanner(
             getServletContext().getResourceAsStream("/WEB-INF/black-owned-restaurants.csv"));
+    int i = 0;
     while (scanner.hasNextLine()) {
+      if (i >= 1) break;
       String line = scanner.nextLine();
       String[] cells = line.split(",");
 
       String name = String.valueOf(cells[0]);
+      detailedPlaces.add(details.request(name));
 
-      restaurantNames.add(name);
+      blackRestaurants.add(name);
+      i++;
     }
     scanner.close();
   }
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
     response.setContentType("application/json");
     Gson gson = new Gson();
-    String json = gson.toJson(restaurantNames);
+    String json = gson.toJson(detailedPlaces);
     response.getWriter().println(json);
   }
 
