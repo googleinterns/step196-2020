@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.servlets;
+package com.google.sps.data;
 
 import com.google.maps.GaeRequestHandler;
 import com.google.maps.GeoApiContext;
@@ -20,6 +20,19 @@ import com.google.maps.FindPlaceFromTextRequest;
 import com.google.maps.PlacesApi;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResult;
+import com.google.cloud.language.v1.AnalyzeEntitiesRequest;
+import com.google.cloud.language.v1.AnalyzeEntitiesResponse;
+import com.google.cloud.language.v1.Document;
+import com.google.cloud.language.v1.Document.Type;
+import com.google.cloud.language.v1.EncodingType;
+import com.google.cloud.language.v1.Entity;
+import com.google.cloud.language.v1.EntityMention;
+import com.google.cloud.language.v1.LanguageServiceClient;
+import com.google.cloud.language.v1.Token;
+import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.Set;
+import java.io.IOException;
 
 public final class GettingDetails {  
 
@@ -53,7 +66,26 @@ public final class GettingDetails {
     return place;
   }
 
-  public getTags {
-      
+  public Set<String> getTags(String reviews) {
+    Set<String> allEntityNames= new HashSet<>();
+    try (LanguageServiceClient language = LanguageServiceClient.create()) {
+      Document doc =
+        Document.newBuilder().setContent(reviews).setType(Document.Type.PLAIN_TEXT).build();
+      AnalyzeEntitiesRequest entitiesRequest =
+          AnalyzeEntitiesRequest.newBuilder()
+              .setDocument(doc)
+              .setEncodingType(EncodingType.UTF16)
+              .build();
+
+      AnalyzeEntitiesResponse entitiesResponse = language.analyzeEntities(entitiesRequest);
+      allEntityNames =
+          entitiesResponse.getEntitiesList().stream()
+              .map(entity -> entity.getName())
+              .collect(Collectors.toSet());
+    
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return allEntityNames;
   }
 }

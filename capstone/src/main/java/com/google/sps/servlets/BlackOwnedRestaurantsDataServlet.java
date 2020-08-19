@@ -14,9 +14,13 @@
 
 package com.google.sps.servlets;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.Scanner;
 import com.google.maps.model.PlaceDetails;
 import javax.servlet.annotation.WebServlet;
@@ -30,6 +34,7 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
 
   private ArrayList<String> blackRestaurants = new ArrayList<>();
   private ArrayList<PlaceDetails> detailedPlaces = new ArrayList<>();
+  private Set<String> entities;
   
   private GettingDetails details = new GettingDetails();
 
@@ -43,7 +48,16 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
       String[] cells = line.split(",");
 
       String name = String.valueOf(cells[0]);
-      detailedPlaces.add(details.request(name));
+      PlaceDetails place = details.request(name);
+
+      detailedPlaces.add(place); 
+
+      String reviews = "";
+      PlaceDetails.Review[] reviewsList = place.reviews;
+      for (PlaceDetails.Review review : reviewsList) {
+        reviews += review.text + " ";
+      } 
+      Set<String> tags = details.getTags(reviews);
 
       blackRestaurants.add(name);
     }
@@ -52,10 +66,10 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
     response.setContentType("application/json");
     Gson gson = new Gson();
-    String json = gson.toJson(detailedPlaces);
+    String json = gson.toJson(entities);
     response.getWriter().println(json);
-  }
+  } 
+
 }
