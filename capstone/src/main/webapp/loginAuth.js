@@ -3,8 +3,6 @@
  */
 function fetchLoginStatus() {
   fetch('/login').then((response) => response.json()).then((loginStatus) => {
-    console.log(loginStatus.status);
-    console.log(loginStatus.url);
     const redirectUrl = document.createElement('a');
     redirectUrl.setAttribute('href', loginStatus.url);
     if (loginStatus.status) {
