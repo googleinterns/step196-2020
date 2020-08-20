@@ -1,5 +1,5 @@
 /**
- * checks if user is logged in or not
+ * redirects user to main map page if logged in
  */
 function fetchLoginStatus() {
   fetch('/login').then((response) => response.json()).then((loginStatus) => {
@@ -17,11 +17,14 @@ function fetchLoginStatus() {
   });
 }
 
+/**
+ * redirects user to login page if logged out
+ */
 function fetchLogoutStatus() {
   fetch('/login').then((response) => response.json()).then((loginStatus) => {
     const redirectUrl = document.createElement('a');
     redirectUrl.setAttribute('href', loginStatus.url);
-    if(loginStatus.status) {
+    if (loginStatus.status) {
       document.getElementById('logout-button').addEventListener('click',
           function() {
             window.location.href = loginStatus.url; // Navigate to login page
