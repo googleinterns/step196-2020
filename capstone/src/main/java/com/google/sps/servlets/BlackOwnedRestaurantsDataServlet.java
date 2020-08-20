@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/black-owned-restaurants-data")
 public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
 
-  private ArrayList<String> blackRestaurants = new ArrayList<>();
+  private ArrayList<String> blackOwnedRestaurants = new ArrayList<>();
   private ArrayList<PlaceDetails> detailedPlaces = new ArrayList<>();
   private Set<String> entities;
   
@@ -45,26 +45,13 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
     Scanner scanner =
         new Scanner(
             getServletContext().getResourceAsStream("/WEB-INF/black-owned-restaurants.csv"));
-    int i = 0;
     while (scanner.hasNextLine()) {
-      if (i >= 1) break;
       String line = scanner.nextLine();
       String[] cells = line.split(",");
 
       String name = String.valueOf(cells[0]);
-      PlaceDetails place = details.request(name);
 
-      detailedPlaces.add(place); 
-
-      String reviews = "";
-      PlaceDetails.Review[] reviewsList = place.reviews;
-      for (PlaceDetails.Review review : reviewsList) {
-        reviews += review.text + " ";
-      } 
-      Set<String> tags = details.getTags(reviews);
-
-      blackRestaurants.add(name);
-      i++;
+      blackOwnedRestaurants.add(name);
     }
     scanner.close();
   }
@@ -79,27 +66,39 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    String restaurantName = request.getParameter("businessName");
-    boolean blackOwned = true;
-    boolean smallBusiness = false;
-    // stores tags like "pizza" or "chinese"
-    HashSet<String> tags = new HashSet<String>();
-    // because input is string regardless of actual type, we need to extract each value in list
-    // TODO: input type might change so will need to do specific character cuts
-    //      as needed e.g. if inputted as list must omit '[' and ']' chars when storing
-    String[] tagsAsStringValues = request.getParameter("tags").split(", ");
-    for (String tag : tagsAsStringValues) {
-      tags.add(tag);
+    for (String restaurantName : blackOwnedRestaurants) {
+      PlaceDetails place = details.request(restaurantName);
+
+      detailedPlaces.add(place); 
+
+      String reviews = "";
+      PlaceDetails.Review[] reviewsList = place.reviews;
+      for (PlaceDetails.Review review : reviewsList) {
+        reviews += review.text + " ";
+      } 
+      
+      Set<String> tags = details.getTags(reviews);
+      String tagsString = tags.toString();
+
+      String placeString = place.toString();
+
+      boolean blackOwned = true;
+      boolean smallBusiness = false;
+      int numberOfReviews = place.userRatingsTotal; 
+      float rating = place.rating;
+    
+      Entity restaurantEntity = new Entity("Restaurant");
+      restaurantEntity.setProperty("name", restaurantName);
+      restaurantEntity.setProperty("placeObject", placeString);
+      restaurantEntity.setProperty("blackOwned", blackOwned);
+      restaurantEntity.setProperty("smallBusiness", smallBusiness);
+      restaurantEntity.setProperty("numberOfReviews", numberOfReviews);
+      restaurantEntity.setProperty("rating", rating);
+      restaurantEntity.setProperty("tags", tagsString);
+
+      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+      datastore.put(restaurantEntity);
     }
-
-    Entity restaurantEntity = new Entity("Restaurant");
-    restaurantEntity.setProperty("name", restaurantName);
-    restaurantEntity.setProperty("blackOwned", blackOwned);
-    restaurantEntity.setProperty("smallBusiness", smallBusiness);
-    restaurantEntity.setProperty("tags", tags);
-
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    datastore.put(restaurantEntity);
-    response.sendRedirect("/login.html");
+    response.sendRedirect("/admin.html");
   }
 }

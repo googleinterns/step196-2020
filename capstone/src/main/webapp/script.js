@@ -30,8 +30,6 @@ let _showSmallBusiness = false;
 let _showBlackOwnedBusiness = false;
 const _scrapedSmallBusinesses = new Set();
 const _scrapedBlackBusinesses = new Set();
-const _detailedSmallBusinesses = new Set();
-const _detailedBlackOwned = new Set();
 const SMALL = 'small';
 const BLACK_OWNED = 'black-owned';
 
@@ -170,7 +168,7 @@ function callback(results, status) {
   if (status == google.maps.places.PlacesServiceStatus.OK) {
     for (let i = 0; i < results.length; i++) {
       if (!_showSmallBusiness && !_showBlackOwnedBusiness) {
-        // put fetch here 
+        // put fetch here
         setMarker(results[i]);
         continue;
       }
@@ -215,7 +213,8 @@ function clearMarkers() {
 @param {Object} place location to add to results panel
  */
 function addToDisplayPanel(place) {
-  fetch('/get-details?placeId=' + place.place_id).then(response => response.json()).then((place) => {
+  fetch('/get-details?placeId=' + place.place_id).then((response) =>
+    response.json()).then((place) => {
     // put call to get details here and get new place before adding to panel
     const locationElement = document.getElementById('restaurant-results');
     locationElement.appendChild(createLocationElement(place));
@@ -256,8 +255,9 @@ function createAdditionalInfo(place) {
   informationContainer.className = 'info';
 
   const information = document.createElement('p');
-  information.innerHTML = `Address: ${place.formattedAddress}<br>Phone Number: ${place.formattedPhoneNumber}<br>Rating: ${place.rating}<br>Price:
-   ${place.priceLevel}<br>Website: ${place.website}`;
+  information.innerHTML = `Address: ${place.formattedAddress}<br>Phone Number: 
+  ${place.formattedPhoneNumber}<br>Rating: ${place.rating}<br>Price:
+  ${place.priceLevel}<br>Website: ${place.website}`;
 
   const editsLink = document.createElement('a');
   editsLink.setAttribute('href', 'feedback.html');
@@ -274,6 +274,8 @@ function closePanel() {
   document.getElementById('panel').style.display = 'none';
   document.getElementById('map').style.width = '100%';
 }
+
+closePanel();
 
 /** Clears all exisiting markers on map
     and gets filters from checked boxes, ie. small or black-owned */
@@ -304,30 +306,4 @@ async function getInputFilters() {
     @return {boolean} if str is empty, contains only white space, or null */
 function isStringEmpty(str) {
   return (str.length === 0 || !str.trim() || !str);
-}
-
-async function getReviewsEntities(reviews) {
-  // TODO(#33): integrate with actual reviews of businesses
-  const reviewsEntities = await getEntities(reviews);
-  return reviewsEntities;
-}
-
-/** send POST request to Cloud Natural Language API for entity recognition
-    @param {String} messages message to passed into NLP API
-    @return {Promise} entities from messages
-*/
-function getEntities(messages) {
-  const url = '/nlp-entity-recognition?messages=' + messages;
-  const requestParamPOST = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  };
-  return fetch(url, requestParamPOST).then((response) => response.json())
-      .then((entities) => {
-        return entities;
-      }).catch((err) => {
-        console.log('Error reading data ' + err);
-      });
 }
