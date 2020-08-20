@@ -73,7 +73,6 @@ html {
   cursor: pointer;
   display: inline-block;
   font-weight: 600;
-  left: 42%;
   margin-bottom: 30px;
   margin-left: 30px;
   padding-bottom: 30px;
@@ -81,7 +80,6 @@ html {
   position: absolute;
   text-align: center;
   text-transform: uppercase;
-  top: 65%;
   width: 170px;
 }
 
@@ -91,6 +89,8 @@ html {
   border: 3px solid white;
   color: white;
   display: none;
+  left: 42%;
+  top: 65%;
   transition: 0.3s;
 }
 
