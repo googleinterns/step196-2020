@@ -33,24 +33,23 @@ const _scrapedBlackBusinesses = new Set();
 const SMALL = 'small';
 const BLACK_OWNED = 'black-owned';
 
-/** Gets business names from scraped datasets and puts in array */
+const requestParamPOST = {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+};
+
+// TODO(#37): have database set up (fetchBusinessNames) to only occur only during setup
+
+/** scraps datasets' names and sets up database */
 function fetchBusinessNames() {
-  fetch('/business-names').then((response) => response.json()).then(
-      (restaurantNames) => {
-        for (const name of restaurantNames) {
-          _scrapedSmallBusinesses.add(name);
-        }
-      });
-
-  fetch('/black-owned-restaurants-data').then((response) =>
-    response.json()).then((restaurantNames) => {
-    for (const name of restaurantNames) {
-      _scrapedBlackBusinesses.add(name);
-    }
-  });
+  fetch('/small-restaurants', requestParamPOST).then((response) => response.json())
+    .then((restaurantNames) => {});
+ 
+  fetch('/black-owned-restaurants-data', requestParamPOST).then((response) => response.json())
+    .then((restaurantNames) => {});
 }
-
-fetchBusinessNames();
 
 /** Creates a map and adds it to the page. */
 function createMap() {
@@ -143,8 +142,10 @@ function createMap() {
 
 /** Obtains search results from Places API
     @param {any} keyword search query keyword
-    @return {Promise} top 20 places matching search results */
+    @return {Promise} top 20 places matching search results 
+ */
 function getPlacesSearchResults(keyword) {
+  console.log("doing normal search");
   document.getElementById('map').style.width = '75%';
   document.getElementById('panel').style.display = 'block';
   document.getElementById('restaurant-results').innerHTML = '';
@@ -173,8 +174,6 @@ function callback(results, status) {
           response.json()).then((place) => {
           addToDisplayPanel(place);
         });
-        // put fetch here
-        // setMarker(results[i]);
         continue;
       }
       if (_showSmallBusiness &&
@@ -257,7 +256,6 @@ function createLocationElement(place) {
   mainElement.addEventListener('click', function() {
     openCollapsible(mainElement);
   });
-
   return mainElement;
 }
 
@@ -311,7 +309,7 @@ closePanel();
     and gets filters from checked boxes, ie. small or black-owned */
 async function getInputFilters() {
   clearMarkers();
-  keyword = document.getElementById('search').value;
+  const keyword = document.getElementById('search').value;
   const selectedFilters = document.getElementById('filter-input').value;
 
   if (selectedFilters == SMALL) {
@@ -322,10 +320,14 @@ async function getInputFilters() {
 
   // do manual search if filter is selected, else do Nearby Search w Places API
   if (_showSmallBusiness || _showBlackOwnedBusiness) {
+    let keywordEntities;
     if (!isStringEmpty(keyword)) {
-      // const keywordEntities = getEntities(keyword);
-      // TODO(#47): manual search - commenting out to pass lint but is handled
-      // in another PR
+      keywordEntities = await(getEntities(keyword));
+      console.log("keyword entities "+ keywordEntities);
+      await manualSearch(keywordEntities)
+    }
+    else {
+      await(manualSearch('[]'));
     }
   } else {
     await getPlacesSearchResults(keyword);
@@ -334,9 +336,47 @@ async function getInputFilters() {
 }
 
 /** @param {String} str input string to check
-    @return {boolean} if str is empty, contains only white space, or null */
+    @return {boolean} if str is empty, contains only white space, or null 
+ */
 function isStringEmpty(str) {
   return (str.length === 0 || !str.trim() || !str);
 }
 
-getInputFilters();
+/** @returns{Object} gets top 20 results, sorted by avg review,
+    matching @param {String} keyword 
+ */
+async function manualSearch(keyword) {
+  if (_showSmallBusiness) {
+    console.log("doing manual search");
+    return fetch('/small-restaurants?keyword='+keyword).then((response) => response.json())
+      .then((restaurantResults) => {
+        console.log("results" + restaurantResults);
+        restaurantResults.forEach((place) => {
+          setMarker(place);
+        })
+      });
+  }
+  else if (_showBlackOwnedBusiness) {
+    return fetch('/black-owned-restaurants?keyword='+keyword).then((response) => response.json())
+      .then((restaurantResults) => {
+        restaurantResults.forEach((place) => {
+          setMarker(place);
+        })
+      });
+  }
+}
+
+/** send POST request to Cloud Natural Language API for entity recognition
+    @param {String} messages message to passed into NLP API
+    @return {Promise} entities from messages
+*/
+async function getEntities(messages) {
+  console.log("getting entities");
+  const url = '/nlp-entity-recognition?messages=' + messages;
+  return fetch(url, requestParamPOST).then((response) => response.json())
+      .then((entities) => {
+        return entities;
+      }).catch((err) => {
+        console.log('Error reading data ' + err);
+      });
+}

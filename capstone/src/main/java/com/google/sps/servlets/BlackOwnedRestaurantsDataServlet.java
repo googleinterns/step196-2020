@@ -24,30 +24,32 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Collections;
 import com.google.maps.model.PlaceDetails;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.SortDirection;
 
 /** Returns black owned restaurants data as a JSON object */
-@WebServlet("/black-owned-restaurants-data")
+@WebServlet("/black-owned-restaurants")
 public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
 
+  int MAX_RESULTS = 20;
   private ArrayList<String> blackOwnedRestaurants = new ArrayList<>();
   private ArrayList<PlaceDetails> detailedPlaces = new ArrayList<>();
-  private Set<String> entities;
-  
   private RestaurantDetailsGetter details = new RestaurantDetailsGetter();
 
+/** scrapes business names from source */
   @Override
   public void init() {
     Scanner scanner =
         new Scanner(
             getServletContext().getResourceAsStream("/WEB-INF/black-owned-restaurants.csv"));
-    int i = 0;
     while (scanner.hasNextLine()) {
-      if (i >= 1) break;
       String line = scanner.nextLine();
       String[] cells = line.split(",");
 
@@ -74,10 +76,6 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    response.setContentType("application/json");
-    Gson gson = new Gson();
-    String json = gson.toJson(entities);
-    response.getWriter().println(json);
   }
 
   @Override
@@ -102,6 +100,7 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
       float rating = place.rating;
     
       Entity restaurantEntity = new Entity("BlackOwnedRestaurant");
+
       restaurantEntity.setProperty("name", restaurantName);
       restaurantEntity.setProperty("placeObject", placeString);
       restaurantEntity.setProperty("numberOfReviews", numberOfReviews);
@@ -111,6 +110,7 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
       DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
       datastore.put(restaurantEntity);
     }
-    response.sendRedirect("/main.html");
+    
+    response.sendRedirect("/admin.html");
   }
 }
