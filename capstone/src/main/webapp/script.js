@@ -30,8 +30,6 @@ let _showSmallBusiness = false;
 let _showBlackOwnedBusiness = false;
 const _scrapedSmallBusinesses = new Set();
 const _scrapedBlackBusinesses = new Set();
-const _detailedSmallBusinesses = new Set();
-const _detailedBlackOwned = new Set();
 const SMALL = 'small';
 const BLACK_OWNED = 'black-owned';
 
@@ -170,8 +168,13 @@ function callback(results, status) {
   if (status == google.maps.places.PlacesServiceStatus.OK) {
     for (let i = 0; i < results.length; i++) {
       if (!_showSmallBusiness && !_showBlackOwnedBusiness) {
-        // put fetch here 
-        setMarker(results[i]);
+        const place = results[i];
+        fetch('/get-details?placeId=' + place.place_id).then((response) =>
+          response.json()).then((place) => {
+          addToDisplayPanel(place);
+        });
+        // put fetch here
+        // setMarker(results[i]);
         continue;
       }
       if (_showSmallBusiness &&
@@ -192,15 +195,33 @@ function callback(results, status) {
 
 /** Creates an animated marker for each result location
    @param {Object} place location to set marker for
+   @param {HTMLButtonElement} button button for location to toggle open
  */
-function setMarker(place) {
+function setMarker(place, button) {
+  const infowindow = new google.maps.InfoWindow();
   const marker = new google.maps.Marker({
     map: _map,
     position: place.geometry.location,
     animation: google.maps.Animation.DROP,
   });
-  addToDisplayPanel(place);
   _markersArray.push(marker);
+
+  google.maps.event.addListener(marker, 'click', function() {
+    openCollapsible(button);
+    let status = 'Closed';
+    if (place.openingHours.openNow) status = 'Open';
+    infowindow.setContent(
+        '<div><strong>' +
+            place.name +
+            '</strong><br>' +
+            place.vicinity +
+            '<br>' +
+            status +
+            '</div>',
+    );
+
+    infowindow.open(map, this);
+  });
 }
 
 /** Clears all markers on map */
@@ -215,12 +236,11 @@ function clearMarkers() {
 @param {Object} place location to add to results panel
  */
 function addToDisplayPanel(place) {
-  fetch('/get-details?placeId=' + place.place_id).then(response => response.json()).then((place) => {
-    // put call to get details here and get new place before adding to panel
-    const locationElement = document.getElementById('restaurant-results');
-    locationElement.appendChild(createLocationElement(place));
-    locationElement.appendChild(createAdditionalInfo(place));
-  });
+  const locationElement = document.getElementById('restaurant-results');
+  const button = createLocationElement(place);
+  locationElement.appendChild(button);
+  locationElement.appendChild(createAdditionalInfo(place));
+  setMarker(place, button);
 }
 
 /** Creates button with location name for each place
@@ -235,16 +255,24 @@ function createLocationElement(place) {
   mainElement.innerHTML = place.name;
 
   mainElement.addEventListener('click', function() {
-    this.classList.toggle('active');
-    const content = this.nextElementSibling;
-    if (content.style.maxHeight) {
-      content.style.maxHeight = null;
-    } else {
-      content.style.maxHeight = content.scrollHeight + 'px';
-    }
+    openCollapsible(mainElement);
   });
 
   return mainElement;
+}
+
+/** Handles opening and closing of additional information tab
+    each location
+    @param {HTMLButtonElement} button button to be toggled
+ */
+function openCollapsible(button) {
+  button.classList.toggle('active');
+  const content = button.nextElementSibling;
+  if (content.style.maxHeight) {
+    content.style.maxHeight = null;
+  } else {
+    content.style.maxHeight = content.scrollHeight + 'px';
+  }
 }
 
 /** Creates div that contains all extra info about a place
@@ -256,8 +284,10 @@ function createAdditionalInfo(place) {
   informationContainer.className = 'info';
 
   const information = document.createElement('p');
-  information.innerHTML = `Address: ${place.formattedAddress}<br>Phone Number: ${place.formattedPhoneNumber}<br>Rating: ${place.rating}<br>Price:
-   ${place.priceLevel}<br>Website: ${place.website}`;
+
+  information.innerHTML = `Address: ${place.formattedAddress}<br>Phone Number: 
+  ${place.formattedPhoneNumber}<br>Rating: ${place.rating}<br>Prices:
+  ${place.priceLevel}<br><a href=${place.website}> Make your order now!</a>`;
 
   const editsLink = document.createElement('a');
   editsLink.setAttribute('href', 'feedback.html');
@@ -275,6 +305,8 @@ function closePanel() {
   document.getElementById('map').style.width = '100%';
 }
 
+closePanel();
+
 /** Clears all exisiting markers on map
     and gets filters from checked boxes, ie. small or black-owned */
 async function getInputFilters() {
@@ -291,8 +323,9 @@ async function getInputFilters() {
   // do manual search if filter is selected, else do Nearby Search w Places API
   if (_showSmallBusiness || _showBlackOwnedBusiness) {
     if (!isStringEmpty(keyword)) {
-      const keywordEntities = getEntities(keyword);
-      // TODO(#47): manual search
+      // const keywordEntities = getEntities(keyword);
+      // TODO(#47): manual search - commenting out to pass lint but is handled
+      // in another PR
     }
   } else {
     await getPlacesSearchResults(keyword);
@@ -306,28 +339,4 @@ function isStringEmpty(str) {
   return (str.length === 0 || !str.trim() || !str);
 }
 
-async function getReviewsEntities(reviews) {
-  // TODO(#33): integrate with actual reviews of businesses
-  const reviewsEntities = await getEntities(reviews);
-  return reviewsEntities;
-}
-
-/** send POST request to Cloud Natural Language API for entity recognition
-    @param {String} messages message to passed into NLP API
-    @return {Promise} entities from messages
-*/
-function getEntities(messages) {
-  const url = '/nlp-entity-recognition?messages=' + messages;
-  const requestParamPOST = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  };
-  return fetch(url, requestParamPOST).then((response) => response.json())
-      .then((entities) => {
-        return entities;
-      }).catch((err) => {
-        console.log('Error reading data ' + err);
-      });
-}
+getInputFilters();
