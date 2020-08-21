@@ -37,7 +37,7 @@ import com.google.maps.model.PlacesSearchResult;
 public final class RestaurantDetailsGetter {  
 
   protected GeoApiContext context =
-      new GeoApiContext.Builder(new GaeRequestHandler.Builder()).apiKey("<API Key here>").build();
+      new GeoApiContext.Builder(new GaeRequestHandler.Builder()).apiKey("AIzaSyBmOq13SbE4zw0O6DDk05xmC2urtSfd_gk").build();
 
   public PlaceDetails getDetails(String placeId) {
     PlaceDetails place = new PlaceDetails();

@@ -145,6 +145,7 @@ function createMap() {
     @return {Promise} top 20 places matching search results 
  */
 function getPlacesSearchResults(keyword) {
+  console.log("doing normal search");
   document.getElementById('map').style.width = '75%';
   document.getElementById('panel').style.display = 'block';
   document.getElementById('restaurant-results').innerHTML = '';
@@ -294,6 +295,7 @@ async function getInputFilters() {
     let keywordEntities;
     if (!isStringEmpty(keyword)) {
       keywordEntities = await(getEntities(keyword));
+      console.log("keyword entities "+ keywordEntities);
       await manualSearch(keywordEntities)
     }
     else {
@@ -320,8 +322,7 @@ async function manualSearch(keyword) {
     console.log("doing manual search");
     return fetch('/small-restaurants?keyword='+keyword).then((response) => response.json())
       .then((restaurantResults) => {
-        console.log("results");
-        console.log(restaurantResults);
+        console.log("results" + restaurantResults);
         restaurantResults.forEach((place) => {
           setMarker(place);
         })
@@ -342,6 +343,7 @@ async function manualSearch(keyword) {
     @return {Promise} entities from messages
 */
 async function getEntities(messages) {
+  console.log("getting entities");
   const url = '/nlp-entity-recognition?messages=' + messages;
   return fetch(url, requestParamPOST).then((response) => response.json())
       .then((entities) => {

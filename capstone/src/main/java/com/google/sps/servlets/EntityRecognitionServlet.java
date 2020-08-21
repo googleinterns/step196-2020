@@ -22,6 +22,7 @@ public class EntityRecognitionServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String messages = request.getParameter("messages");
+    System.out.println("\n\n" + messages + "\n\n");
     try (LanguageServiceClient language = LanguageServiceClient.create()) {
       Document doc = 
           Document.newBuilder().setContent(messages).setType(Document.Type.PLAIN_TEXT).build();
@@ -36,6 +37,7 @@ public class EntityRecognitionServlet extends HttpServlet {
           entitiesResponse.getEntitiesList().stream()
               .map(entity -> entity.getName())
               .collect(Collectors.toSet());
+      System.out.println("api call resp " + allEntityNames);
 
       Gson gson = new Gson();
       response.setContentType("application/json;");

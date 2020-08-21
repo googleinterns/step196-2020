@@ -114,7 +114,7 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
       int numberOfReviews = place.userRatingsTotal; 
       float rating = place.rating;
     
-      Entity restaurantEntity = new Entity("SmallRestaurant");
+      Entity restaurantEntity = new Entity("SmallRestaurants");
       restaurantEntity.setProperty("name", restaurantName);
       restaurantEntity.setProperty("placeObject", placeString);
       restaurantEntity.setProperty("numberOfReviews", numberOfReviews);

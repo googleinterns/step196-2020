@@ -84,7 +84,7 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
       int numberOfReviews = place.userRatingsTotal; 
       float rating = place.rating;
     
-      Entity restaurantEntity = new Entity("Restaurant");
+      Entity restaurantEntity = new Entity("BlackOwnedRestaurants");
       restaurantEntity.setProperty("name", restaurantName);
       restaurantEntity.setProperty("placeObject", placeString);
       restaurantEntity.setProperty("numberOfReviews", numberOfReviews);
