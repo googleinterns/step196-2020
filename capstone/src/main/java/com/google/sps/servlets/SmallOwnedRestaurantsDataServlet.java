@@ -23,6 +23,7 @@ import com.google.sps.data.RestaurantDetailsGetter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -37,10 +38,10 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
   
   private ArrayList<PlaceDetails> detailedPlaces = new ArrayList<>();
   private RestaurantDetailsGetter details = new RestaurantDetailsGetter();
+  private ArrayList<String> restaurantNames = new ArrayList<>();
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    ArrayList<String> restaurantNames = new ArrayList<>();
     String urlbase = "https://www.helpourneighborhoodrestaurants.com/";
     String[] locations = {"brooklyn", "manhattan", "queens", "staten-island", "bronx"};
 
@@ -53,8 +54,6 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
 
       for (Element restaurantName : restaurantNameElements) {
         String name = restaurantName.text();
-        detailedPlaces.add(details.request(name));
-
         restaurantNames.add(name);
       }
     }
@@ -66,28 +65,35 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    String restaurantName = request.getParameter("businessName");
-    boolean blackOwned = false;
-    boolean smallBusiness = true;
-    // stores tags like "pizza" or "chinese"
-    // implemented as hashset for faster lookup
-    HashSet<String> tags = new HashSet<String>();
-    // because input is string regardless of actual type, we need to extract each value in list
-    // TODO: input type might change so will need to do specific character cuts
-    //      as needed e.g. if inputted as list must omit '[' and ']' chars when storing
-    String[] tagsAsStringValues = request.getParameter("tags").split(", ");
-    for (String tag : tagsAsStringValues) {
-      tags.add(tag);
+    for (String restaurantName : restaurantNames) {
+      PlaceDetails place = details.request(restaurantName);
+
+      detailedPlaces.add(place); 
+
+      String reviews = "";
+      PlaceDetails.Review[] reviewsList = place.reviews;
+      for (PlaceDetails.Review review : reviewsList) {
+        reviews += review.text + " ";
+      } 
+      
+      //Set<String> tags = details.getTags(reviews);
+      //String tagsString = tags.toString();
+
+      String placeString = place.toString();
+
+      int numberOfReviews = place.userRatingsTotal; 
+      float rating = place.rating;
+    
+      Entity restaurantEntity = new Entity("SmallBusinessRestaurant");
+      restaurantEntity.setProperty("name", restaurantName);
+      restaurantEntity.setProperty("placeObject", placeString);
+      restaurantEntity.setProperty("numberOfReviews", numberOfReviews);
+      restaurantEntity.setProperty("rating", rating);
+      //restaurantEntity.setProperty("tags", tagsString);
+
+      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+      datastore.put(restaurantEntity);
     }
-
-    Entity restaurantEntity = new Entity("Restaurant");
-    restaurantEntity.setProperty("name", restaurantName);
-    restaurantEntity.setProperty("blackOwned", blackOwned);
-    restaurantEntity.setProperty("smallBusiness", smallBusiness);
-    restaurantEntity.setProperty("tags", tags);
-
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    datastore.put(restaurantEntity);
-    response.sendRedirect("/login.html");
+    response.sendRedirect("/admin.html");
   }
 }
