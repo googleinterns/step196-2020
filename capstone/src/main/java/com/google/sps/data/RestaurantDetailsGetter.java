@@ -88,7 +88,7 @@ public final class RestaurantDetailsGetter {
     // } catch (Exception e) {
     //   e.printStackTrace();
     // }
-    String[] reviewsArray = reviews.split(" ");
+    String[] reviewsArray = reviews.split("\\P{Alpha}+");
     //TODO: regex so only includes words
     Set<String> allEntityNames = new HashSet<>(Arrays.asList(reviewsArray));
     return allEntityNames;

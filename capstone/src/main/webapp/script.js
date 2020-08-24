@@ -292,15 +292,16 @@ async function getInputFilters() {
 
   // do manual search if filter is selected, else do Nearby Search w Places API
   if (_showSmallBusiness || _showBlackOwnedBusiness) {
-    let keywordEntities;
-    if (!isStringEmpty(keyword)) {
-      keywordEntities = await(getEntities(keyword));
-      console.log("keyword entities "+ keywordEntities);
-      await manualSearch(keywordEntities)
-    }
-    else {
-      await(manualSearch());
-    }
+    // let keywordEntities;
+    // if (!isStringEmpty(keyword)) {
+    //   keywordEntities = await(getEntities(keyword));
+    //   console.log("keyword entities "+ keywordEntities);
+    //   await manualSearch(keywordEntities)
+    // }
+    // else {
+    //   await(manualSearch());
+    // }
+    await(manualSearch(keyword));
   } else {
     await getPlacesSearchResults(keyword);
   }
@@ -322,12 +323,8 @@ async function manualSearch(keyword) {
     console.log("doing manual search");
     return fetch('/small-restaurants?keyword='+keyword).then((response) => response.json())
       .then((restaurantResults) => {
-        // console.log("results" + restaurantResults);
         restaurantResults.forEach((place) => {
-          console.log("place " + place);
-          console.log("loc " + place.geometry);
-          console.log("\n\n");
-        //   setMarker(place);
+          setMarkerManualSearch(place);
         })
       });
   }
@@ -339,6 +336,20 @@ async function manualSearch(keyword) {
         })
       });
   }
+}
+
+function setMarkerManualSearch(place) {
+  const marker = new google.maps.Marker({
+    map: _map,
+    position: new google.maps.LatLng(place.lat, place.lng),
+    animation: google.maps.Animation.DROP,
+  });
+  addToDisplayPanelManualSearch(place);
+  _markersArray.push(marker);
+}
+
+function addToDisplayPanelManualSearch(place) {
+ // TODO: do display panel stuff for manual search
 }
 
 /** send POST request to Cloud Natural Language API for entity recognition
@@ -355,7 +366,3 @@ async function manualSearch(keyword) {
 //         console.log('Error reading data ' + err);
 //       });
 // }
-
-async function getEntities(messages) {
-  return messages;
-}
