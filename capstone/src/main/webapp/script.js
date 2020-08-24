@@ -299,7 +299,7 @@ async function getInputFilters() {
       await manualSearch(keywordEntities)
     }
     else {
-      await(manualSearch('[]'));
+      await(manualSearch());
     }
   } else {
     await getPlacesSearchResults(keyword);
@@ -322,9 +322,12 @@ async function manualSearch(keyword) {
     console.log("doing manual search");
     return fetch('/small-restaurants?keyword='+keyword).then((response) => response.json())
       .then((restaurantResults) => {
-        console.log("results" + restaurantResults);
+        // console.log("results" + restaurantResults);
         restaurantResults.forEach((place) => {
-          setMarker(place);
+          console.log("place " + place);
+          console.log("loc " + place.geometry);
+          console.log("\n\n");
+        //   setMarker(place);
         })
       });
   }
@@ -342,13 +345,17 @@ async function manualSearch(keyword) {
     @param {String} messages message to passed into NLP API
     @return {Promise} entities from messages
 */
+// async function getEntities(messages) {
+//   console.log("getting entities");
+//   const url = '/nlp-entity-recognition?messages=' + messages;
+//   return fetch(url, requestParamPOST).then((response) => response.json())
+//       .then((entities) => {
+//         return entities;
+//       }).catch((err) => {
+//         console.log('Error reading data ' + err);
+//       });
+// }
+
 async function getEntities(messages) {
-  console.log("getting entities");
-  const url = '/nlp-entity-recognition?messages=' + messages;
-  return fetch(url, requestParamPOST).then((response) => response.json())
-      .then((entities) => {
-        return entities;
-      }).catch((err) => {
-        console.log('Error reading data ' + err);
-      });
+  return messages;
 }
