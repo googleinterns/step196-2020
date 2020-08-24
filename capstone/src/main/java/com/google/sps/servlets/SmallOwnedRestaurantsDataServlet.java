@@ -72,8 +72,9 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
   }
 
   private Set<String> splitStringToSet(String str) {
-    String[] strArray = str.split(",");
-    Set<String> strSet = new HashSet<>(Arrays.asList(strArray));
+    String[] strArray = str.split(" ");
+    Set<String> strSet = new HashSet<>();
+    strSet.addAll(Arrays.asList(strArray)); 
     return strSet;
   }
 
