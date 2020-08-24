@@ -24,3 +24,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
     fetchLoginStatus();
   }
 });
+
+/**
+ Only shows button after title animation finished
+ */
+setTimeout(function() {
+  document.getElementById('login-button').style.display = 'inline';
+}, 3000);

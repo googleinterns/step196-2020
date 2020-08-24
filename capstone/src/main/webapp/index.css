@@ -1,0 +1,114 @@
+html {
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-color: black;
+  background-size: cover;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.titlecontainer {
+  left: 50%;
+  position: absolute;
+  text-align: center;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+}
+
+.titlecontainer span {
+  display: block;
+  text-transform: uppercase;
+}
+
+.hidden {
+  display: none;
+}
+
+.homepage-header-1 {
+  animation: text 3s 1;
+  background: black;
+  color: white;
+  font-size: 60px;
+  font-weight: 700;
+  letter-spacing: 8px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.homepage-header-2 {
+  color: #51e2f5;
+  font-size: 30px;
+}
+
+@keyframes text {
+  0% {
+    color: black;
+    margin-bottom: -40px;
+  }
+
+  30% {
+    letter-spacing: 25px;
+    margin-bottom: -40px;
+  }
+
+  85% {
+    letter-spacing: 8px;
+    margin-bottom: -40px;
+  }
+}
+
+.button {
+  color: #000;
+  cursor: pointer;
+  display: inline-block;
+  font-weight: 600;
+  left: 42%;
+  margin-bottom: 30px;
+  margin-left: 30px;
+  padding-bottom: 30px;
+  padding-top: 30px;
+  position: absolute;
+  text-align: center;
+  text-transform: uppercase;
+  top: 65%;
+  width: 170px;
+}
+
+.login-button {
+  animation: reveal 0s 3s;
+  background-color: transparent;
+  border: 3px solid white;
+  color: white;
+  display: none;
+  transition: 0.3s;
+}
+
+.login-button:hover {
+  animation: pulse 1s infinite;
+  transition: 0.3s;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  70% {
+    transform: scale(0.9);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
