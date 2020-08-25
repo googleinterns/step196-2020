@@ -42,14 +42,16 @@ import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.FetchOptions.Builder;
 
+
 @WebServlet("/small-restaurants")
 public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
+  private static final String DATABASE_NAME = "SmallRestaurants";
   private RestaurantDetailsGetter details = new RestaurantDetailsGetter();
   private RestaurantQueryHelper queryHelper = new RestaurantQueryHelper();
 
   private ArrayList<String> restaurantNames = new ArrayList<>();
 
-/** scrapes business names from source */
+  /** scrapes business names from source */
   private ArrayList<String> getRestaurantNames() throws IOException{
     ArrayList<String> restaurantNames = new ArrayList<>();
     String urlbase = "https://www.helpourneighborhoodrestaurants.com/";
@@ -73,7 +75,7 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String keywords = (String) request.getParameter("keyword");
-    Query query = new Query("SmallRestaurants").addSort("rating", SortDirection.DESCENDING);
+    Query query = new Query(DATABASE_NAME).addSort("rating", SortDirection.DESCENDING);
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     List<Entity> allRestaurants = datastore.prepare(query).asList(FetchOptions.Builder.withDefaults());
 
@@ -102,7 +104,7 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
       PlaceDetails.Review[] reviewsArray = place.reviews;
       String reviews = details.getTagsfromReviews(reviewsArray);
 
-      Entity restaurantEntity = queryHelper.makeRestaurantEntity(place, restaurantName, reviews, "SmallRestaurants");
+      Entity restaurantEntity = queryHelper.makeRestaurantEntity(place, restaurantName, reviews, DATABASE_NAME);
       DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
       datastore.put(restaurantEntity);
     }

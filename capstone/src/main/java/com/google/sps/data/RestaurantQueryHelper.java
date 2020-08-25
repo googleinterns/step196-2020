@@ -1,12 +1,7 @@
 package com.google.sps.data;
 
 import com.google.maps.model.PlaceDetails;
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.gson.Gson;
-import com.google.sps.data.RestaurantDetailsGetter;
-import com.google.sps.data.RestaurantQueryHelper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,25 +9,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Arrays;
 import java.util.Collections;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import com.google.appengine.api.datastore.PreparedQuery;
-import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.SortDirection;
-import com.google.appengine.api.datastore.FetchOptions;
-import com.google.appengine.api.datastore.FetchOptions.Builder;
 import com.google.sps.data.Restaurant;
 
 
 public final class RestaurantQueryHelper {
-  public int MAX_RESULTS = 20;
-  private ArrayList<Restaurant> result = new ArrayList<>(); 
+  public static int MAX_RESULTS = 20;
 
   public boolean restaurantContainsKeyword( Entity RestaurantEntity, String keywordsCombinedString) {
     Set<String> keywords = splitStringToSet(keywordsCombinedString);
@@ -50,7 +31,7 @@ public final class RestaurantQueryHelper {
   /**
    * @return all lowercase set form of string with alphabetic characters
    */
-  public Set<String> splitStringToSet(String str) {
+  private Set<String> splitStringToSet(String str) {
     String[] strArray = str.toLowerCase().split("\\P{Alpha}+");
     Set<String> strSet = new HashSet<>();
     strSet.addAll(Arrays.asList(strArray)); 
@@ -103,7 +84,9 @@ public final class RestaurantQueryHelper {
       restaurantEntity.setProperty("website", website);
       restaurantEntity.setProperty("ID", placeID);
     } 
-    catch (NullPointerException e) {}
+    catch (NullPointerException e) {
+    //   e.printStackTrace();
+    }
 
     return restaurantEntity;
   } 

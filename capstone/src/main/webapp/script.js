@@ -185,8 +185,6 @@ function callback(results, status) {
       }
     }
   }
-  _showSmallBusiness = false;
-  _showBlackOwnedBusiness = false;
 }
 
 /** Creates an animated marker for each result location
@@ -292,19 +290,12 @@ async function getInputFilters() {
 
   // do manual search if filter is selected, else do Nearby Search w Places API
   if (_showSmallBusiness || _showBlackOwnedBusiness) {
-    // let keywordEntities;
-    // if (!isStringEmpty(keyword)) {
-    //   keywordEntities = await(getEntities(keyword));
-    //   console.log("keyword entities "+ keywordEntities);
-    //   await manualSearch(keywordEntities)
-    // }
-    // else {
-    //   await(manualSearch());
-    // }
     await(manualSearch(keyword));
   } else {
     await getPlacesSearchResults(keyword);
   }
+  _showSmallBusiness = false;
+  _showBlackOwnedBusiness = false;
   document.getElementById('search-button').disabled = false;
 }
 
@@ -351,18 +342,3 @@ function setMarkerManualSearch(place) {
 function addToDisplayPanelManualSearch(place) {
  // TODO: do display panel stuff for manual search
 }
-
-/** send POST request to Cloud Natural Language API for entity recognition
-    @param {String} messages message to passed into NLP API
-    @return {Promise} entities from messages
-*/
-// async function getEntities(messages) {
-//   console.log("getting entities");
-//   const url = '/nlp-entity-recognition?messages=' + messages;
-//   return fetch(url, requestParamPOST).then((response) => response.json())
-//       .then((entities) => {
-//         return entities;
-//       }).catch((err) => {
-//         console.log('Error reading data ' + err);
-//       });
-// }
