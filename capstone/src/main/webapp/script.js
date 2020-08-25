@@ -161,16 +161,15 @@ function getPlacesSearchResults(keyword) {
   return service.nearbySearch(request, callback);
 }
 
-/** Function for aiding calls to nearbySearch and getDetails
-    @param {any} results
-    @param {any} status
-*/
 function callback(results, status) {
   if (status == google.maps.places.PlacesServiceStatus.OK) {
     for (let i = 0; i < results.length; i++) {
       if (!_showSmallBusiness && !_showBlackOwnedBusiness) {
-        // put fetch here
-        setMarker(results[i]);
+        const place = results[i];
+        fetch('/get-details?placeId=' + place.place_id).then((response) =>
+          response.json()).then((place) => {
+          addToDisplayPanel(place);
+        });
         continue;
       }
       if (_showSmallBusiness &&
@@ -191,15 +190,33 @@ function callback(results, status) {
 
 /** Creates an animated marker for each result location
    @param {Object} place location to set marker for
+   @param {HTMLButtonElement} button button for location to toggle open
  */
-function setMarker(place) {
+function setMarker(place, button) {
+  const infowindow = new google.maps.InfoWindow();
   const marker = new google.maps.Marker({
     map: _map,
     position: place.geometry.location,
     animation: google.maps.Animation.DROP,
   });
-  addToDisplayPanel(place);
   _markersArray.push(marker);
+ 
+  google.maps.event.addListener(marker, 'click', function() {
+    openCollapsible(button);
+    let status = 'Closed';
+    if (place.openingHours.openNow) status = 'Open';
+    infowindow.setContent(
+        '<div><strong>' +
+            place.name +
+            '</strong><br>' +
+            place.vicinity +
+            '<br>' +
+            status +
+            '</div>',
+    );
+ 
+    infowindow.open(map, this);
+  });
 }
 
 /** Clears all markers on map */
@@ -209,20 +226,18 @@ function clearMarkers() {
   }
   _markersArray.length = 0;
 }
-
+ 
 /** Itemizes each result into the collapsible panel
 @param {Object} place location to add to results panel
  */
 function addToDisplayPanel(place) {
-  fetch('/get-details?placeId=' + place.place_id).then((response) =>
-    response.json()).then((place) => {
-    // put call to get details here and get new place before adding to panel
-    const locationElement = document.getElementById('restaurant-results');
-    locationElement.appendChild(createLocationElement(place));
-    locationElement.appendChild(createAdditionalInfo(place));
-  });
+  const locationElement = document.getElementById('restaurant-results');
+  const button = createLocationElement(place);
+  locationElement.appendChild(button);
+  locationElement.appendChild(createAdditionalInfo(place));
+  setMarker(place, button);
 }
-
+ 
 /** Creates button with location name for each place
     Add clicker event to each button to handle open and close of
     collapsible.
@@ -233,19 +248,27 @@ function createLocationElement(place) {
   const mainElement = document.createElement('button');
   mainElement.className = 'collapsible';
   mainElement.innerHTML = place.name;
-
+ 
   mainElement.addEventListener('click', function() {
-    this.classList.toggle('active');
-    const content = this.nextElementSibling;
-    if (content.style.maxHeight) {
-      content.style.maxHeight = null;
-    } else {
-      content.style.maxHeight = content.scrollHeight + 'px';
-    }
+    openCollapsible(mainElement);
   });
   return mainElement;
 }
-
+ 
+/** Handles opening and closing of additional information tab
+    each location
+    @param {HTMLButtonElement} button button to be toggled
+ */
+function openCollapsible(button) {
+  button.classList.toggle('active');
+  const content = button.nextElementSibling;
+  if (content.style.maxHeight) {
+    content.style.maxHeight = null;
+  } else {
+    content.style.maxHeight = content.scrollHeight + 'px';
+  }
+}
+ 
 /** Creates div that contains all extra info about a place
     @param {Object} place place to add additional information for
     @return {HTMLDivElement} the added information in a div element
@@ -253,19 +276,20 @@ function createLocationElement(place) {
 function createAdditionalInfo(place) {
   const informationContainer = document.createElement('div');
   informationContainer.className = 'info';
-
+ 
   const information = document.createElement('p');
+ 
   information.innerHTML = `Address: ${place.formattedAddress}<br>Phone Number: 
-  ${place.formattedPhoneNumber}<br>Rating: ${place.rating}<br>Price:
-  ${place.priceLevel}<br>Website: ${place.website}`;
-
+  ${place.formattedPhoneNumber}<br>Rating: ${place.rating}<br>Prices:
+  ${place.priceLevel}<br><a href=${place.website}>Click here to make your order/reservation now!</a>`;
+ 
   const editsLink = document.createElement('a');
   editsLink.setAttribute('href', 'feedback.html');
   editsLink.innerHTML = 'Suggest edits?';
-
+ 
   informationContainer.appendChild(information);
   informationContainer.appendChild(editsLink);
-
+ 
   return informationContainer;
 }
 
