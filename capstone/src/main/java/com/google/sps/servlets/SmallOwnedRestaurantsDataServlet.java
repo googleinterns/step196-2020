@@ -20,13 +20,14 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.gson.Gson;
 import com.google.sps.data.RestaurantDetailsGetter;
+import com.google.sps.data.RestaurantQueryHelper;
+import com.google.sps.data.Restaurant;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Arrays;
-import java.util.Collections;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -40,18 +41,16 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.FetchOptions.Builder;
-import com.google.sps.data.Restaurant;
 
 @WebServlet("/small-restaurants")
 public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
-  private int MAX_RESULTS = 20;
-  private ArrayList<PlaceDetails> detailedPlaces = new ArrayList<>();
   private RestaurantDetailsGetter details = new RestaurantDetailsGetter();
+  private RestaurantQueryHelper queryHelper = new RestaurantQueryHelper();
+
   private ArrayList<String> restaurantNames = new ArrayList<>();
 
 /** scrapes business names from source */
   private ArrayList<String> getRestaurantNames() throws IOException{
-    System.out.println("scraping names");
     ArrayList<String> restaurantNames = new ArrayList<>();
     String urlbase = "https://www.helpourneighborhoodrestaurants.com/";
     String[] locations = {"brooklyn", "manhattan", "queens", "staten-island", "bronx"};
@@ -71,36 +70,20 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
     return restaurantNames;
   }
 
-  private Set<String> splitStringToSet(String str) {
-    String[] strArray = str.split(" ");
-    Set<String> strSet = new HashSet<>();
-    strSet.addAll(Arrays.asList(strArray)); 
-    return strSet;
-  }
-
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    String keywordsCombinedString = (String) request.getParameter("keyword");
-    Set<String> keywords = splitStringToSet(keywordsCombinedString);
-
+    String keywords = (String) request.getParameter("keyword");
     Query query = new Query("SmallRestaurants").addSort("rating", SortDirection.DESCENDING);
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     List<Entity> allRestaurants = datastore.prepare(query).asList(FetchOptions.Builder.withDefaults());
 
     ArrayList<Restaurant> result = new ArrayList<>();
-    for (Entity RestaurantObject : allRestaurants){
-      List<String> list = (List<String>) RestaurantObject.getProperty("tags");
-      Set<String> currRestaurantTags = new HashSet<String>(); 
-      currRestaurantTags.addAll(list); 
-
-      if (!Collections.disjoint(currRestaurantTags, keywords)) {
-        System.out.println("\n\nFOUND RES " + (String) RestaurantObject.getProperty("name"));
-        Restaurant restaurant = makeRestaurantObject(RestaurantObject);
+    for (Entity RestaurantEntity : allRestaurants){
+      if (queryHelper.restaurantContainsKeyword(RestaurantEntity, keywords)) {
+        Restaurant restaurant = queryHelper.makeRestaurantObject(RestaurantEntity);
         result.add(restaurant);
-
-        if (result.size() >= MAX_RESULTS) {
-          break;
-        }
+        
+        if (result.size() >= queryHelper.MAX_RESULTS) break;
       }
     }
 
@@ -111,51 +94,17 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, NullPointerException {
-    restaurantNames = getRestaurantNames();
+
+    List<String> restaurantNames = getRestaurantNames();
     for (String restaurantName : restaurantNames) {
       PlaceDetails place = details.request(restaurantName);
-      detailedPlaces.add(place); 
 
-      String reviews = "";
-      PlaceDetails.Review[] reviewsList = place.reviews;
-      try {
-        for (PlaceDetails.Review review : reviewsList) {
-          reviews += review.text + " ";
-        } 
-      }
-      catch (NullPointerException e) {}
-      
-      Set<String> tags = details.getTags(reviews);
-      System.out.println("place " + restaurantName + "\ntags: " + tags + "\n\n");
+      PlaceDetails.Review[] reviewsArray = place.reviews;
+      String reviews = details.getTagsfromReviews(reviewsArray);
 
-      try {
-        int numberOfReviews = place.userRatingsTotal; 
-        double rating = place.rating;
-        double lat = place.geometry.location.lat;
-        double lng = place.geometry.location.lng;
-        String address = place.formattedAddress;
-        String phone = place.formattedPhoneNumber;
-        String price = place.priceLevel.toString();
-        String website = place.website.toString();
-        String placeID = place.placeId;
-
-        Entity restaurantEntity = new Entity("SmallRestaurants");
-        restaurantEntity.setProperty("name", restaurantName);
-        restaurantEntity.setProperty("numberOfReviews", numberOfReviews);
-        restaurantEntity.setProperty("rating", rating);
-        restaurantEntity.setProperty("tags", tags);
-        restaurantEntity.setProperty("lat", lat);
-        restaurantEntity.setProperty("lng", lng);
-        restaurantEntity.setProperty("address", address);
-        restaurantEntity.setProperty("phone", phone);
-        restaurantEntity.setProperty("price", price);
-        restaurantEntity.setProperty("website", website);
-        restaurantEntity.setProperty("ID", placeID);
-
-        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-        datastore.put(restaurantEntity);
-
-      } catch (NullPointerException e) {}
+      Entity restaurantEntity = queryHelper.makeRestaurantEntity(place, restaurantName, reviews, "SmallRestaurants");
+      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+      datastore.put(restaurantEntity);
     }
     
     response.sendRedirect("/admin.html");
@@ -171,21 +120,5 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
       return defaultValue;
     }
     return value;
-  }
-
-  private Restaurant makeRestaurantObject(Entity RestaurantEntity) throws NullPointerException {
-    String name = (String) RestaurantEntity.getProperty("name");
-    int numberOfReviews = ((Long) RestaurantEntity.getProperty("numberOfReviews")).intValue();
-    double rating = (double) RestaurantEntity.getProperty("rating");
-    double lat = (double) RestaurantEntity.getProperty("lat");
-    double lng = (double) RestaurantEntity.getProperty("lng");
-    String address = (String) RestaurantEntity.getProperty("address");
-    String phone = (String) RestaurantEntity.getProperty("phone");
-    String price = (String) RestaurantEntity.getProperty("price");
-    String website = (String) RestaurantEntity.getProperty("website");
-    String ID = (String) RestaurantEntity.getProperty("ID");
-
-    Restaurant restaurant = new Restaurant(name, numberOfReviews, rating, lat, lng, address, phone, price, website, ID);
-    return restaurant;
   }
 }

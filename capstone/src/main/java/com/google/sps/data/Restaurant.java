@@ -42,4 +42,8 @@ public class Restaurant {
     this.website = website;
     this.ID = ID;
   }
+
+  public String name() {
+      return this.name;
+  }
 }
