@@ -76,8 +76,8 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
         reviews += review.text + " ";
       } 
       
-      Set<String> tags = details.getTags(reviews);
-      String tagsString = tags.toString();
+    //   Set<String> tags = details.getTags(reviews);
+    //   String tagsString = tags.toString();
 
       String placeString = place.toString();
 
@@ -89,7 +89,7 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
       restaurantEntity.setProperty("placeObject", placeString);
       restaurantEntity.setProperty("numberOfReviews", numberOfReviews);
       restaurantEntity.setProperty("rating", rating);
-      restaurantEntity.setProperty("tags", tagsString);
+    //   restaurantEntity.setProperty("tags", tagsString);
 
       DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
       datastore.put(restaurantEntity);
