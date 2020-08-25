@@ -1,20 +1,36 @@
 /**
- * checks if user is logged in or not
+ * redirects user to main map page if logged in
  */
 function fetchLoginStatus() {
   fetch('/login').then((response) => response.json()).then((loginStatus) => {
     const redirectUrl = document.createElement('a');
     redirectUrl.setAttribute('href', loginStatus.url);
     if (loginStatus.status) {
-      // if logged in, go to maps page
-      window.location = '/main.html';
-      // TODO: create logout button on page
+      location = '/main.html';
     } else {
       // if not logged in, go to login page
       document.getElementById('login-button').addEventListener('click',
           function() {
-            location = loginStatus.url; // Navigate to new page
+            window.location.href = loginStatus.url; // Navigate to map page
           });
+    }
+  });
+}
+
+/**
+ * redirects user to login page if logged out
+ */
+function fetchLogoutStatus() {
+  fetch('/login').then((response) => response.json()).then((loginStatus) => {
+    const redirectUrl = document.createElement('a');
+    redirectUrl.setAttribute('href', loginStatus.url);
+    if (loginStatus.status) {
+      document.getElementById('logout-button').addEventListener('click',
+          function() {
+            window.location.href = loginStatus.url; // Navigate to login page
+          });
+    } else {
+      location = 'index.html';
     }
   });
 }
@@ -22,6 +38,9 @@ function fetchLoginStatus() {
 window.addEventListener('DOMContentLoaded', (event) => {
   if (document.getElementById('login-button')) {
     fetchLoginStatus();
+  }
+  if (document.getElementById('logout-button')) {
+    fetchLogoutStatus();
   }
 });
 

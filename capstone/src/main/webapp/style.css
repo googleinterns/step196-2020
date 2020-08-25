@@ -97,3 +97,26 @@
 #filter-input {
   font-size: 1.2em;
 }
+
+.button {
+  color: #000;
+  cursor: pointer;
+  display: inline-block;
+  font-weight: 300;
+  margin-bottom: 10px;
+  margin-left: 10px;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  position: absolute;
+  text-align: center;
+  text-transform: uppercase;
+  width: 100px;
+}
+
+.logout-button {
+  background-color: transparent;
+  border: 1.5px solid white;
+  color: black;
+  right: 5%;
+  top: 0%;
+}
