@@ -34,10 +34,12 @@ import com.google.maps.PlacesApi;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResult;
 
+import java.util.*;
+
 public final class RestaurantDetailsGetter {  
 
   protected GeoApiContext context =
-      new GeoApiContext.Builder(new GaeRequestHandler.Builder()).apiKey("<API Key here>").build();
+      new GeoApiContext.Builder(new GaeRequestHandler.Builder()).apiKey("AIzaSyBmOq13SbE4zw0O6DDk05xmC2urtSfd_gk").build();
 
   public PlaceDetails getDetails(String placeId) {
     PlaceDetails place = new PlaceDetails();
@@ -67,25 +69,28 @@ public final class RestaurantDetailsGetter {
   }
 
   public Set<String> getTags(String reviews) {
-    Set<String> allEntityNames= new HashSet<>();
-    try (LanguageServiceClient language = LanguageServiceClient.create()) {
-      Document doc =
-        Document.newBuilder().setContent(reviews).setType(Document.Type.PLAIN_TEXT).build();
-      AnalyzeEntitiesRequest entitiesRequest =
-          AnalyzeEntitiesRequest.newBuilder()
-              .setDocument(doc)
-              .setEncodingType(EncodingType.UTF16)
-              .build();
+    // Set<String> allEntityNames= new HashSet<>();
+    // try (LanguageServiceClient language = LanguageServiceClient.create()) {
+    //   Document doc =
+    //     Document.newBuilder().setContent(reviews).setType(Document.Type.PLAIN_TEXT).build();
+    //   AnalyzeEntitiesRequest entitiesRequest =
+    //       AnalyzeEntitiesRequest.newBuilder()
+    //           .setDocument(doc)
+    //           .setEncodingType(EncodingType.UTF16)
+    //           .build();
 
-      AnalyzeEntitiesResponse entitiesResponse = language.analyzeEntities(entitiesRequest);
-      allEntityNames =
-          entitiesResponse.getEntitiesList().stream()
-              .map(entity -> entity.getName())
-              .collect(Collectors.toSet());
+    //   AnalyzeEntitiesResponse entitiesResponse = language.analyzeEntities(entitiesRequest);
+    //   allEntityNames =
+    //       entitiesResponse.getEntitiesList().stream()
+    //           .map(entity -> entity.getName())
+    //           .collect(Collectors.toSet());
     
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    // } catch (Exception e) {
+    //   e.printStackTrace();
+    // }
+    String[] reviewsArray = reviews.split("\\P{Alpha}+");
+    //TODO: regex so only includes words
+    Set<String> allEntityNames = new HashSet<>(Arrays.asList(reviewsArray));
     return allEntityNames;
   }
 }
