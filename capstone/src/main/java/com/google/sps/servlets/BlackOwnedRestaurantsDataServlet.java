@@ -42,7 +42,8 @@ import java.util.Scanner;
 /** Returns black owned restaurants data as a JSON object */
 @WebServlet("/black-owned-restaurants")
 public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
-  private static final String DATABASE_NAME = "BlackOwnedRestuarants";
+//   private static final String DATABASE_NAME = "BlackOwnedRestuarants";
+private static final String DATABASE_NAME = "test1";
 
   private RestaurantDetailsGetter details = new RestaurantDetailsGetter();
   private RestaurantQueryHelper queryHelper = new RestaurantQueryHelper();
@@ -58,7 +59,6 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
     while (scanner.hasNextLine()) {
       String line = scanner.nextLine();
       String[] cells = line.split(",");
-
       String name = String.valueOf(cells[0]);
 
       blackOwnedRestaurants.add(name);
@@ -78,12 +78,15 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
     for (Entity RestaurantEntity : allRestaurants){
       if (queryHelper.restaurantContainsKeyword(RestaurantEntity, keywords)) {
         Restaurant restaurant = queryHelper.makeRestaurantObject(RestaurantEntity);
+        if (restaurant.location() == "0") {
+          continue;
+        }
         result.add(restaurant);
-        
+        System.out.println("added " + restaurant.name() + " loc: " + restaurant.location() + "\n");
         if (result.size() >= queryHelper.MAX_RESULTS) break;
       }
     }
-
+    System.out.println(result);
     Gson gson = new Gson();
     response.setContentType("application/json;");
     response.getWriter().println(gson.toJson(result));
@@ -94,6 +97,8 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
     List<String> restaurantNames = getRestaurantNames();
     for (String restaurantName : restaurantNames) {
       PlaceDetails place = details.request(restaurantName);
+
+      if (place.geometry == null) continue;
 
       PlaceDetails.Review[] reviewsArray = place.reviews;
       String reviews = details.getTagsfromReviews(reviewsArray);

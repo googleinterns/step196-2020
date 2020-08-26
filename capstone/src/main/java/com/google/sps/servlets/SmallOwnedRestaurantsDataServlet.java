@@ -83,6 +83,7 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
     for (Entity RestaurantEntity : allRestaurants){
       if (queryHelper.restaurantContainsKeyword(RestaurantEntity, keywords)) {
         Restaurant restaurant = queryHelper.makeRestaurantObject(RestaurantEntity);
+        // if (restaurant.location() == "0, 0") continue;
         result.add(restaurant);
         
         if (result.size() >= queryHelper.MAX_RESULTS) break;
@@ -100,6 +101,8 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
     List<String> restaurantNames = getRestaurantNames();
     for (String restaurantName : restaurantNames) {
       PlaceDetails place = details.request(restaurantName);
+
+      if (place.geometry == null) continue;
 
       PlaceDetails.Review[] reviewsArray = place.reviews;
       String reviews = details.getTagsfromReviews(reviewsArray);
