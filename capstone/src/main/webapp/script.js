@@ -28,8 +28,6 @@ const _markersArray = [];
 let _center;
 let _showSmallBusiness = false;
 let _showBlackOwnedBusiness = false;
-const _scrapedSmallBusinesses = new Set();
-const _scrapedBlackBusinesses = new Set();
 const SMALL = 'small';
 const BLACK_OWNED = 'black-owned';
 
@@ -39,17 +37,6 @@ const requestParamPOST = {
     'Content-Type': 'application/json',
   },
 };
-
-// TODO(#37): have database set up (fetchBusinessNames) to only occur only during setup
-
-/** scraps datasets' names and sets up database */
-function fetchBusinessNames() {
-  fetch('/small-restaurants', requestParamPOST).then((response) => response.json())
-    .then((restaurantNames) => {});
- 
-  fetch('/black-owned-restaurants-data', requestParamPOST).then((response) => response.json())
-    .then((restaurantNames) => {});
-}
 
 /** Creates a map and adds it to the page. */
 function createMap() {
@@ -145,7 +132,6 @@ function createMap() {
     @return {Promise} top 20 places matching search results 
  */
 function getPlacesSearchResults(keyword) {
-  console.log("doing normal search");
   document.getElementById('map').style.width = '75%';
   document.getElementById('panel').style.display = 'block';
   document.getElementById('restaurant-results').innerHTML = '';
@@ -316,15 +302,6 @@ async function getInputFilters() {
 
   // do manual search if filter is selected, else do Nearby Search w Places API
   if (_showSmallBusiness || _showBlackOwnedBusiness) {
-    // let keywordEntities;
-    // if (!isStringEmpty(keyword)) {
-    //   keywordEntities = await(getEntities(keyword));
-    //   console.log("keyword entities "+ keywordEntities);
-    //   await manualSearch(keywordEntities)
-    // }
-    // else {
-    //   await(manualSearch());
-    // }
     await(manualSearch(keyword));
   } else {
     await getPlacesSearchResults(keyword);
@@ -344,7 +321,6 @@ function isStringEmpty(str) {
  */
 async function manualSearch(keyword) {
   if (_showSmallBusiness) {
-    console.log("doing manual search");
     return fetch('/small-restaurants?keyword='+keyword).then((response) => response.json())
       .then((restaurantResults) => {
         restaurantResults.forEach((place) => {
@@ -375,18 +351,3 @@ function setMarkerManualSearch(place) {
 function addToDisplayPanelManualSearch(place) {
  // TODO: do display panel stuff for manual search
 }
-
-/** send POST request to Cloud Natural Language API for entity recognition
-    @param {String} messages message to passed into NLP API
-    @return {Promise} entities from messages
-*/
-// async function getEntities(messages) {
-//   console.log("getting entities");
-//   const url = '/nlp-entity-recognition?messages=' + messages;
-//   return fetch(url, requestParamPOST).then((response) => response.json())
-//       .then((entities) => {
-//         return entities;
-//       }).catch((err) => {
-//         console.log('Error reading data ' + err);
-//       });
-// }
