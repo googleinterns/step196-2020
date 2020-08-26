@@ -42,8 +42,7 @@ import java.util.Scanner;
 /** Returns black owned restaurants data as a JSON object */
 @WebServlet("/black-owned-restaurants")
 public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
-//   private static final String DATABASE_NAME = "BlackOwnedRestuarants";
-private static final String DATABASE_NAME = "test1";
+  private static final String DATABASE_NAME = "BlackOwnedRestuarants";
 
   private RestaurantDetailsGetter details = new RestaurantDetailsGetter();
   private RestaurantQueryHelper queryHelper = new RestaurantQueryHelper();
@@ -78,15 +77,11 @@ private static final String DATABASE_NAME = "test1";
     for (Entity RestaurantEntity : allRestaurants){
       if (queryHelper.restaurantContainsKeyword(RestaurantEntity, keywords)) {
         Restaurant restaurant = queryHelper.makeRestaurantObject(RestaurantEntity);
-        if (restaurant.location() == "0") {
-          continue;
-        }
         result.add(restaurant);
-        System.out.println("added " + restaurant.name() + " loc: " + restaurant.location() + "\n");
         if (result.size() >= queryHelper.MAX_RESULTS) break;
       }
     }
-    System.out.println(result);
+
     Gson gson = new Gson();
     response.setContentType("application/json;");
     response.getWriter().println(gson.toJson(result));

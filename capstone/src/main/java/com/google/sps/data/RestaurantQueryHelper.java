@@ -22,19 +22,18 @@ public final class RestaurantQueryHelper {
     Set<String> currRestaurantTags = new HashSet<String>(); 
     currRestaurantTags.addAll(restauarantTagsAsList); 
 
-    if (!Collections.disjoint(currRestaurantTags, keywords)) {
-      return true;
-    }
-    else return false;
+    return !Collections.disjoint(currRestaurantTags, keywords) || keywords.isEmpty();
   }
 
   /**
    * @return all lowercase set form of string with alphabetic characters
    */
   private Set<String> splitStringToSet(String str) {
+    if (str.length() == 0) return Collections.emptySet();
+    
     String[] strArray = str.toLowerCase().split("\\P{Alpha}+");
     Set<String> strSet = new HashSet<>();
-    strSet.addAll(Arrays.asList(strArray)); 
+    strSet.addAll(Arrays.asList(strArray));
     return strSet;
   }
 
