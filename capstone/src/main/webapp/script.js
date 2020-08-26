@@ -323,7 +323,7 @@ async function manualSearch(keyword) {
     return fetch('/black-owned-restaurants?keyword='+keyword).then((response) => response.json())
       .then((restaurantResults) => {
         restaurantResults.forEach((place) => {
-          setMarker(place);
+          setMarkerManualSearch(place);
         })
       });
   }

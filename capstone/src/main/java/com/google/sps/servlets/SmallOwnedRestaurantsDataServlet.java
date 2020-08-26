@@ -46,14 +46,14 @@ import com.google.appengine.api.datastore.FetchOptions.Builder;
 @WebServlet("/small-restaurants")
 public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
   private static final String DATABASE_NAME = "SmallRestaurants";
+
   private RestaurantDetailsGetter details = new RestaurantDetailsGetter();
   private RestaurantQueryHelper queryHelper = new RestaurantQueryHelper();
-
-  private ArrayList<String> restaurantNames = new ArrayList<>();
 
   /** scrapes business names from source */
   private ArrayList<String> getRestaurantNames() throws IOException{
     ArrayList<String> restaurantNames = new ArrayList<>();
+    
     String urlbase = "https://www.helpourneighborhoodrestaurants.com/";
     String[] locations = {"brooklyn", "manhattan", "queens", "staten-island", "bronx"};
 
