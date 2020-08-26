@@ -15,17 +15,14 @@ import com.google.sps.data.Restaurant;
 public final class RestaurantQueryHelper {
   public static int MAX_RESULTS = 20;
 
-  public boolean restaurantContainsKeyword( Entity RestaurantEntity, String keywordsCombinedString) {
+  public boolean restaurantContainsKeyword(Entity RestaurantEntity, String keywordsCombinedString) {
     Set<String> keywords = splitStringToSet(keywordsCombinedString);
 
     List<String> restauarantTagsAsList = (List<String>) RestaurantEntity.getProperty("tags");
     Set<String> currRestaurantTags = new HashSet<String>(); 
     currRestaurantTags.addAll(restauarantTagsAsList); 
 
-    if (!Collections.disjoint(currRestaurantTags, keywords)) {
-      return true;
-    }
-    else return false;
+    return !Collections.disjoint(currRestaurantTags, keywords) || keywords.isEmpty();
   }
 
   /**
