@@ -24,10 +24,14 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.gson.Gson;
 import com.google.sps.data.RestaurantDetailsGetter;
+import com.google.sps.data.RestaurantQueryHelper;
+import com.google.sps.data.Restaurant;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Arrays;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -36,16 +40,22 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.api.datastore.FetchOptions;
+import com.google.appengine.api.datastore.FetchOptions.Builder;
 
-@WebServlet("/business-names")
+@WebServlet("/small-restaurants")
 public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
-  
-  private ArrayList<PlaceDetails> detailedPlaces = new ArrayList<>();
   private RestaurantDetailsGetter details = new RestaurantDetailsGetter();
+  private RestaurantQueryHelper queryHelper = new RestaurantQueryHelper();
+
   private ArrayList<String> restaurantNames = new ArrayList<>();
 
-  @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+/** scrapes business names from source */
+  private ArrayList<String> getRestaurantNames() throws IOException{
+    ArrayList<String> restaurantNames = new ArrayList<>();
     String urlbase = "https://www.helpourneighborhoodrestaurants.com/";
     String[] locations = {"brooklyn", "manhattan", "queens", "staten-island", "bronx"};
 
@@ -61,53 +71,52 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
         restaurantNames.add(name);
       }
     }
-
-    String restaurantNamesJson = new Gson().toJson(restaurantNames);
-    response.setContentType("application/json;");
-    response.getWriter().println(restaurantNamesJson);
+    return restaurantNames;
   }
 
   @Override
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    String keywords = (String) request.getParameter("keyword");
+    Query query = new Query("SmallRestaurants").addSort("rating", SortDirection.DESCENDING);
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    List<Entity> allRestaurants = datastore.prepare(query).asList(FetchOptions.Builder.withDefaults());
+
+    ArrayList<Restaurant> result = new ArrayList<>();
+    for (Entity RestaurantEntity : allRestaurants){
+      if (queryHelper.restaurantContainsKeyword(RestaurantEntity, keywords)) {
+        Restaurant restaurant = queryHelper.makeRestaurantObject(RestaurantEntity);
+        result.add(restaurant);
+        
+        if (result.size() >= queryHelper.MAX_RESULTS) break;
+      }
+    }
+
+    Gson gson = new Gson();
+    response.setContentType("application/json;");
+    response.getWriter().println(gson.toJson(result));
+  }
+
+  @Override
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, NullPointerException {
     clearDatastore();
+
+    List<String> restaurantNames = getRestaurantNames();
 
     for (String restaurantName : restaurantNames) {
       PlaceDetails place = details.request(restaurantName);
 
-      detailedPlaces.add(place); 
+      PlaceDetails.Review[] reviewsArray = place.reviews;
+      String reviews = details.getTagsfromReviews(reviewsArray);
 
-      String reviews = "";
-      PlaceDetails.Review[] reviewsList = place.reviews;
-      for (PlaceDetails.Review review : reviewsList) {
-        reviews += review.text + " ";
-      } 
-      
-      Set<String> tags = details.getTags(reviews);
-      String tagsString = tags.toString();
-
-      String placeString = place.toString();
-
-      boolean blackOwned = true;
-      boolean smallBusiness = false;
-      int numberOfReviews = place.userRatingsTotal; 
-      float rating = place.rating;
-    
-      Entity restaurantEntity = new Entity("Restaurant");
-      restaurantEntity.setProperty("name", restaurantName);
-      restaurantEntity.setProperty("placeObject", placeString);
-      restaurantEntity.setProperty("blackOwned", blackOwned);
-      restaurantEntity.setProperty("smallBusiness", smallBusiness);
-      restaurantEntity.setProperty("numberOfReviews", numberOfReviews);
-      restaurantEntity.setProperty("rating", rating);
-      restaurantEntity.setProperty("tags", tagsString);
-
+      Entity restaurantEntity = queryHelper.makeRestaurantEntity(place, restaurantName, reviews, "SmallRestaurants");
       DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
       datastore.put(restaurantEntity);
     }
+    
     response.sendRedirect("/admin.html");
   }
 
-  public void clearDatastore(){
+  public void clearDatastore() {
     Query restaurantQuery = new Query("Restaurant");
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery allRestaurants = datastore.prepare(restaurantQuery);
@@ -116,5 +125,17 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
       keys.add(restaurant.getKey());
     }
     datastore.delete(keys);
+  }
+
+  /**
+   * @return the request parameter, or the default value if the parameter
+   *         was not specified by the client
+   */
+  private String getParameter(HttpServletRequest request, String name, String defaultValue) {
+    String value = request.getParameter(name);
+    if (value == null) {
+      return defaultValue;
+    }
+    return value;
   }
 }
