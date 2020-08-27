@@ -63,9 +63,8 @@ public final class RestaurantDetailsGetter {
       String placeID = results[0].placeId;
       place = getDetails(placeID);
       
-    } catch (Exception e) {
-    //   e.printStackTrace();
-    }
+    } catch (Exception e) {}
+    
     return place;
   }
 
@@ -76,10 +75,8 @@ public final class RestaurantDetailsGetter {
       for (PlaceDetails.Review review : reviewsArray) {
         res.append(review.text);
       } 
-    }
-    catch (NullPointerException e) {
-    //   e.printStackTrace();
-    }
+    } catch (NullPointerException e) {}
+
     return res.toString();
   }
 }

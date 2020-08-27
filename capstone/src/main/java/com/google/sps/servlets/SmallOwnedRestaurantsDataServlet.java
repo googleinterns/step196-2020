@@ -14,20 +14,23 @@
 
 package com.google.sps.servlets;
 
-import com.google.maps.model.PlaceDetails;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.FetchOptions;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.gson.Gson;
+import com.google.maps.model.PlaceDetails;
+import com.google.sps.data.Restaurant;
 import com.google.sps.data.RestaurantDetailsGetter;
 import com.google.sps.data.RestaurantQueryHelper;
-import com.google.sps.data.Restaurant;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.HashSet;
 import java.util.Set;
-import java.util.Arrays;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -39,6 +42,9 @@ import org.jsoup.select.Elements;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.FetchOptions.Builder;
 
@@ -72,22 +78,26 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
     return restaurantNames;
   }
 
+  /** gets top 20 restaurants from small business database with matching tags as keyword, sorted by rating */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    String keywords = (String) request.getParameter("keyword");
+    String keywordsCombinedString = (String) request.getParameter("keyword");
+    Set<String> keywords = queryHelper.splitStringToSet(keywordsCombinedString);
+
     Query query = new Query(DATABASE_NAME).addSort("rating", SortDirection.DESCENDING);
+
+    if (!keywords.isEmpty()) {
+      Filter propertyFilter = new FilterPredicate("tags", FilterOperator.IN, keywords);
+      query.setFilter(propertyFilter);
+    }
+
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    List<Entity> allRestaurants = datastore.prepare(query).asList(FetchOptions.Builder.withDefaults());
+    List<Entity> allRestaurants = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(queryHelper.MAX_RESULTS));
 
     ArrayList<Restaurant> result = new ArrayList<>();
     for (Entity RestaurantEntity : allRestaurants){
-      if (queryHelper.restaurantContainsKeyword(RestaurantEntity, keywords)) {
-        Restaurant restaurant = queryHelper.makeRestaurantObject(RestaurantEntity);
-        // if (restaurant.location() == "0, 0") continue;
-        result.add(restaurant);
-        
-        if (result.size() >= queryHelper.MAX_RESULTS) break;
-      }
+      Restaurant restaurant = queryHelper.makeRestaurantObject(RestaurantEntity);
+      result.add(restaurant);
     }
 
     Gson gson = new Gson();
@@ -95,10 +105,14 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
     response.getWriter().println(gson.toJson(result));
   }
 
+  /** triggers call to scrape business names, get place details for each business, and populate database */
   @Override
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, NullPointerException {
+  public void doPost(HttpServletRequest request, HttpServletResponse response)
+      throws IOException, NullPointerException {
+    clearDatastore();
 
     List<String> restaurantNames = getRestaurantNames();
+
     for (String restaurantName : restaurantNames) {
       PlaceDetails place = details.request(restaurantName);
 
@@ -111,13 +125,23 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
       DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
       datastore.put(restaurantEntity);
     }
-    
     response.sendRedirect("/admin.html");
   }
 
+  public void clearDatastore() {
+    Query restaurantQuery = new Query(DATABASE_NAME);
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    PreparedQuery allRestaurants = datastore.prepare(restaurantQuery);
+    ArrayList<Key> keys = new ArrayList<>();
+    for (Entity restaurant : allRestaurants.asIterable()) {
+      keys.add(restaurant.getKey());
+    }
+    datastore.delete(keys);
+  }
+
   /**
-   * @return the request parameter, or the default value if the parameter
-   *         was not specified by the client
+   * @return the request parameter, or the default value if the parameter was not specified by the
+   *     client
    */
   private String getParameter(HttpServletRequest request, String name, String defaultValue) {
     String value = request.getParameter(name);

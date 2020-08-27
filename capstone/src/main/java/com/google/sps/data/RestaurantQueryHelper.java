@@ -15,22 +15,13 @@ import com.google.sps.data.Restaurant;
 public final class RestaurantQueryHelper {
   public static int MAX_RESULTS = 20;
 
-  public boolean restaurantContainsKeyword( Entity RestaurantEntity, String keywordsCombinedString) {
-    Set<String> keywords = splitStringToSet(keywordsCombinedString);
-
-    List<String> restauarantTagsAsList = (List<String>) RestaurantEntity.getProperty("tags");
-    Set<String> currRestaurantTags = new HashSet<String>(); 
-    currRestaurantTags.addAll(restauarantTagsAsList); 
-
-    return !Collections.disjoint(currRestaurantTags, keywords) || keywords.isEmpty();
-  }
-
   /**
-   * @return all lowercase set form of string with alphabetic characters
+   * @return str split on word boundries, 
+   * transformed to all lowercase and only including alphabetic characters
    */
-  private Set<String> splitStringToSet(String str) {
+  public Set<String> splitStringToSet(String str) {
     if (str.length() == 0) return Collections.emptySet();
-    
+
     String[] strArray = str.toLowerCase().split("\\P{Alpha}+");
     Set<String> strSet = new HashSet<>();
     strSet.addAll(Arrays.asList(strArray));
@@ -38,7 +29,8 @@ public final class RestaurantQueryHelper {
   }
 
   /**
-   * @return restaurant object with fields of restauarant entity, or default value if parameter not specified
+   * @return restaurant object with fields of restauarant entity,
+   * or default value if parameter not specified
    */
   public Restaurant makeRestaurantObject(Entity RestaurantEntity) throws NullPointerException {
     String name = (String) RestaurantEntity.getProperty("name");
@@ -78,5 +70,5 @@ public final class RestaurantQueryHelper {
   private static <T> T getValue(T value, T defaultValue) {
     return (value == null) ? defaultValue : value;
   }
-
+  
 }
