@@ -18,6 +18,10 @@ import com.google.maps.model.PlaceDetails;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.gson.Gson;
 import com.google.sps.data.RestaurantDetailsGetter;
 import java.io.IOException;
@@ -66,7 +70,7 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     clearDatastore();
-    
+
     for (String restaurantName : restaurantNames) {
       PlaceDetails place = details.request(restaurantName);
 
@@ -103,14 +107,13 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
     response.sendRedirect("/admin.html");
   }
 
-  @Override
   public void clearDatastore(){
     Query restaurantQuery = new Query("Restaurant");
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery allRestaurants = datastore.prepare(restaurantQuery);
     ArrayList<Key> keys = new ArrayList<>();
     for (Entity restaurant : allRestaurants.asIterable()) {
-      keys.add(review.getKey());
+      keys.add(restaurant.getKey());
     }
     datastore.delete(keys);
   }
