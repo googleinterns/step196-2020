@@ -66,6 +66,8 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    clearDatastore();
+    
     for (String restaurantName : blackOwnedRestaurants) {
       PlaceDetails place = details.request(restaurantName);
 
@@ -100,5 +102,16 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
       datastore.put(restaurantEntity);
     }
     response.sendRedirect("/admin.html");
+  }
+
+  public void clearDatastore(){
+    Query restaurantQuery = new Query("Restaurant");
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    PreparedQuery allRestaurants = datastore.prepare(restaurantQuery);
+    ArrayList<Key> keys = new ArrayList<>();
+    for (Entity restaurant : allRestaurants.asIterable()) {
+      keys.add(restaurant.getKey());
+    }
+    datastore.delete(keys);
   }
 }
