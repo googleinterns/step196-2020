@@ -26,7 +26,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
 let _map;
 const _markersArray = [];
 let _center;
-let _scrapedOnce = false;
 let _showSmallBusiness = false;
 let _showBlackOwnedBusiness = false;
 const _scrapedSmallBusinesses = new Set();
