@@ -52,9 +52,9 @@ function fetchBusinessNames() {
 }
 
 /** Runs the scrapers once per day, at 1AM */
-function scraperScheduler(){
-  var now = new Date();
-  var millisUntil1AM = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 1, 0, 0, 0) - now;
+function scraperScheduler() {
+  const now = new Date();
+  const millisUntil1AM = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 1, 0, 0, 0) - now;
   // accounting for a margin of error due to latency here. As long as we are within 10 milliseconds of 1AM we should run the scrapers.
   if (abs(millisUntil1AM) < 10) {
     fetchBusinessNames();

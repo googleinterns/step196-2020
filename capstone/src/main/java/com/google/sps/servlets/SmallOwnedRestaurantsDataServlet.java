@@ -65,6 +65,8 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    clearDatastore();
+    
     for (String restaurantName : restaurantNames) {
       PlaceDetails place = details.request(restaurantName);
 
@@ -99,5 +101,17 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
       datastore.put(restaurantEntity);
     }
     response.sendRedirect("/admin.html");
+  }
+
+  @Override
+  public void clearDatastore(){
+    Query restaurantQuery = new Query("Restaurant");
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    PreparedQuery allRestaurants = datastore.prepare(restaurantQuery);
+    ArrayList<Key> keys = new ArrayList<>();
+    for (Entity restaurant : allRestaurants.asIterable()) {
+      keys.add(review.getKey());
+    }
+    datastore.delete(keys);
   }
 }
