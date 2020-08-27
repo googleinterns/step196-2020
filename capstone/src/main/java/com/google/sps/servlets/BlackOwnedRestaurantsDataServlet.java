@@ -35,8 +35,12 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.FetchOptions.Builder;
+
 import java.util.Scanner;
 
 /** Returns black owned restaurants data as a JSON object */
@@ -47,7 +51,7 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
   private RestaurantDetailsGetter details = new RestaurantDetailsGetter();
   private RestaurantQueryHelper queryHelper = new RestaurantQueryHelper();
 
-/** scrapes business names from source */
+  /** scrapes business names from source */
   private ArrayList<String> getRestaurantNames() throws IOException{
     ArrayList<String> blackOwnedRestaurants = new ArrayList<>();
 
@@ -67,21 +71,22 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
     return blackOwnedRestaurants;
   }
 
+  /** gets top 20 restaurants from black owned business database with matching tags as keyword, sorted by rating */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    String keywords = (String) request.getParameter("keyword");
-    Query query = new Query(DATABASE_NAME).addSort("rating", SortDirection.DESCENDING);
+    String keywordsCombinedString = (String) request.getParameter("keyword");
+    Set<String> keywords = queryHelper.splitStringToSet(keywordsCombinedString);
+
+    Filter propertyFilter = new FilterPredicate("tags", FilterOperator.IN, keywords);
+    Query query = new Query(DATABASE_NAME).setFilter(propertyFilter).addSort("rating", SortDirection.DESCENDING);
+
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    List<Entity> allRestaurants = datastore.prepare(query).asList(FetchOptions.Builder.withDefaults());
+    List<Entity> allRestaurants = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(queryHelper.MAX_RESULTS));
 
     ArrayList<Restaurant> result = new ArrayList<>();
     for (Entity RestaurantEntity : allRestaurants){
-      if (queryHelper.restaurantContainsKeyword(RestaurantEntity, keywords)) {
-        Restaurant restaurant = queryHelper.makeRestaurantObject(RestaurantEntity);
-        result.add(restaurant);
-        
-        if (result.size() >= queryHelper.MAX_RESULTS) break;
-      }
+      Restaurant restaurant = queryHelper.makeRestaurantObject(RestaurantEntity);
+      result.add(restaurant);
     }
 
     Gson gson = new Gson();
@@ -89,6 +94,7 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
     response.getWriter().println(gson.toJson(result));
   }
 
+  /** triggers call to scrape business names, get place details for each business, and populate database */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     List<String> restaurantNames = getRestaurantNames();
