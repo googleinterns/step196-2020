@@ -14,20 +14,22 @@
 
 package com.google.sps.servlets;
 
-import com.google.maps.model.PlaceDetails;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.FetchOptions;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.gson.Gson;
+import com.google.maps.model.PlaceDetails;
+import com.google.sps.data.Restaurant;
 import com.google.sps.data.RestaurantDetailsGetter;
 import com.google.sps.data.RestaurantQueryHelper;
-import com.google.sps.data.Restaurant;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Arrays;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -100,9 +102,12 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
 
   /** triggers call to scrape business names, get place details for each business, and populate database */
   @Override
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, NullPointerException {
+  public void doPost(HttpServletRequest request, HttpServletResponse response)
+      throws IOException, NullPointerException {
+    clearDatastore();
 
     List<String> restaurantNames = getRestaurantNames();
+
     for (String restaurantName : restaurantNames) {
       PlaceDetails place = details.request(restaurantName);
 
@@ -113,13 +118,23 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
       DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
       datastore.put(restaurantEntity);
     }
-    
     response.sendRedirect("/admin.html");
   }
 
+  public void clearDatastore() {
+    Query restaurantQuery = new Query("Restaurant");
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    PreparedQuery allRestaurants = datastore.prepare(restaurantQuery);
+    ArrayList<Key> keys = new ArrayList<>();
+    for (Entity restaurant : allRestaurants.asIterable()) {
+      keys.add(restaurant.getKey());
+    }
+    datastore.delete(keys);
+  }
+
   /**
-   * @return the request parameter, or the default value if the parameter
-   *         was not specified by the client
+   * @return the request parameter, or the default value if the parameter was not specified by the
+   *     client
    */
   private String getParameter(HttpServletRequest request, String name, String defaultValue) {
     String value = request.getParameter(name);

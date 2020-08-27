@@ -18,7 +18,10 @@ import com.google.maps.model.PlaceDetails;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.gson.Gson;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.maps.model.PlaceDetails;
 import com.google.sps.data.RestaurantDetailsGetter;
 import com.google.sps.data.RestaurantQueryHelper;
 import com.google.sps.data.Restaurant;
@@ -28,6 +31,7 @@ import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Arrays;
+import java.util.Scanner;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -41,8 +45,6 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.FetchOptions.Builder;
 
-import java.util.Scanner;
-
 /** Returns black owned restaurants data as a JSON object */
 @WebServlet("/black-owned-restaurants")
 public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
@@ -54,7 +56,7 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
   /** scrapes business names from source */
   private ArrayList<String> getRestaurantNames() throws IOException{
     ArrayList<String> blackOwnedRestaurants = new ArrayList<>();
-
+    
     Scanner scanner =
         new Scanner(
             getServletContext().getResourceAsStream("/WEB-INF/black-owned-restaurants.csv"));
@@ -97,6 +99,8 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
   /** triggers call to scrape business names, get place details for each business, and populate database */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    clearDatastore();
+    
     List<String> restaurantNames = getRestaurantNames();
     for (String restaurantName : restaurantNames) {
       PlaceDetails place = details.request(restaurantName);
@@ -122,5 +126,15 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
       return defaultValue;
     }
     return value;
+
+  public void clearDatastore() {
+    Query restaurantQuery = new Query("Restaurant");
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    PreparedQuery allRestaurants = datastore.prepare(restaurantQuery);
+    ArrayList<Key> keys = new ArrayList<>();
+    for (Entity restaurant : allRestaurants.asIterable()) {
+      keys.add(restaurant.getKey());
+    }
+    datastore.delete(keys);
   }
 }
