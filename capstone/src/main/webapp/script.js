@@ -18,16 +18,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
   }
 });
 
-/** user, at location _center, searches a query with search string
-    keyword and selected filters _showSmallBusiness and _showBlackOwnedBusiness
+/** user, at location _center, searches a query and
     places matching user's query will be returned on _map
     and stored in _markersArray
  */
 let _map;
 const _markersArray = [];
 let _center;
-let _showSmallBusiness = false;
-let _showBlackOwnedBusiness = false;
 const SMALL = 'small';
 const BLACK_OWNED = 'black-owned';
 
@@ -150,28 +147,9 @@ function getPlacesSearchResults(keyword) {
 function callback(results, status) {
   if (status == google.maps.places.PlacesServiceStatus.OK) {
     for (let i = 0; i < results.length; i++) {
-      if (!_showSmallBusiness && !_showBlackOwnedBusiness) {
-        const place = results[i];
-        fetch('/get-details?placeId=' + place.place_id).then((response) =>
-          response.json()).then((place) => {
-          addToDisplayPanel(place);
-        });
-        continue;
-      }
-      if (_showSmallBusiness &&
-      _scrapedSmallBusinesses.has(results[i].name)) {
-        setMarker(results[i]);
-        continue;
-      }
-      if (_showBlackOwnedBusiness &&
-      _scrapedBlackBusinesses.has(results[i].name)) {
-        setMarker(results[i]);
-        continue;
-      }
+      setMarker(results[i]);
     }
   }
-  _showSmallBusiness = false;
-  _showBlackOwnedBusiness = false;
 }
 
 /** Creates an animated marker for each result location
@@ -285,8 +263,6 @@ function closePanel() {
   document.getElementById('map').style.width = '100%';
 }
 
-closePanel();
-
 /** Clears all exisiting markers on map
     and gets filters from checked boxes, ie. small or black-owned */
 async function getInputFilters() {
@@ -294,15 +270,9 @@ async function getInputFilters() {
   const keyword = document.getElementById('search').value;
   const selectedFilters = document.getElementById('filter-input').value;
 
-  if (selectedFilters == SMALL) {
-    _showSmallBusiness = true;
-  } else if (selectedFilters == BLACK_OWNED) {
-    _showBlackOwnedBusiness = true;
-  }
-
   // do manual search if filter is selected, else do Nearby Search w Places API
-  if (_showSmallBusiness || _showBlackOwnedBusiness) {
-    await(manualSearch(keyword));
+  if (selectedFilters == SMALL || selectedFilters == BLACK_OWNED) {
+    await(manualSearch(keyword, selectedFilters));
   } else {
     await getPlacesSearchResults(keyword);
   }
@@ -319,8 +289,8 @@ function isStringEmpty(str) {
 /** @returns{Object} gets top 20 results, sorted by avg review,
     matching @param {String} keyword 
  */
-async function manualSearch(keyword) {
-  if (_showSmallBusiness) {
+function manualSearch(keyword, filter) {
+  if (filter == SMALL) {
     return fetch('/small-restaurants?keyword='+keyword).then((response) => response.json())
       .then((restaurantResults) => {
         restaurantResults.forEach((place) => {
@@ -328,11 +298,11 @@ async function manualSearch(keyword) {
         })
       });
   }
-  else if (_showBlackOwnedBusiness) {
+  if (filter == BLACK_OWNED) {
     return fetch('/black-owned-restaurants?keyword='+keyword).then((response) => response.json())
       .then((restaurantResults) => {
         restaurantResults.forEach((place) => {
-          setMarker(place);
+          setMarkerManualSearch(place);
         })
       });
   }
@@ -349,5 +319,5 @@ function setMarkerManualSearch(place) {
 }
 
 function addToDisplayPanelManualSearch(place) {
- // TODO: do display panel stuff for manual search
+ // TODO(#64): do display panel stuff for manual search
 }

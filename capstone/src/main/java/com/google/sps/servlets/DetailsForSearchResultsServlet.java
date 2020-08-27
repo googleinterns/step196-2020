@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/** pass results from Places Search API to Place Details API to get all needed info for panel */
 @WebServlet("/get-details")
 public class DetailsForSearchResultsServlet extends HttpServlet {
 

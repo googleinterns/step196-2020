@@ -1,12 +1,7 @@
 package com.google.sps.data;
 
 import com.google.maps.model.PlaceDetails;
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.gson.Gson;
-import com.google.sps.data.RestaurantDetailsGetter;
-import com.google.sps.data.RestaurantQueryHelper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,41 +9,15 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Arrays;
 import java.util.Collections;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import com.google.appengine.api.datastore.PreparedQuery;
-import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.SortDirection;
-import com.google.appengine.api.datastore.FetchOptions;
-import com.google.appengine.api.datastore.FetchOptions.Builder;
 import com.google.sps.data.Restaurant;
 
 
 public final class RestaurantQueryHelper {
-  public int MAX_RESULTS = 20;
-  private ArrayList<Restaurant> result = new ArrayList<>(); 
-
-  public boolean restaurantContainsKeyword( Entity RestaurantEntity, String keywordsCombinedString) {
-    Set<String> keywords = splitStringToSet(keywordsCombinedString);
-
-    List<String> restauarantTagsAsList = (List<String>) RestaurantEntity.getProperty("tags");
-    Set<String> currRestaurantTags = new HashSet<String>(); 
-    currRestaurantTags.addAll(restauarantTagsAsList); 
-
-    if (!Collections.disjoint(currRestaurantTags, keywords)) {
-      return true;
-    }
-    else return false;
-  }
+  public static int MAX_RESULTS = 20;
 
   /**
-   * @return all lowercase set form of string with alphabetic characters
+   * @return str split on word boundries, 
+   * transformed to all lowercase and only including alphabetic characters
    */
   public Set<String> splitStringToSet(String str) {
     String[] strArray = str.toLowerCase().split("\\P{Alpha}+");
@@ -58,7 +27,8 @@ public final class RestaurantQueryHelper {
   }
 
   /**
-   * @return restaurant object with fields of restauarant entity, or default value if parameter not specified
+   * @return restaurant object with fields of restauarant entity,
+   * or default value if parameter not specified
    */
   public Restaurant makeRestaurantObject(Entity RestaurantEntity) throws NullPointerException {
     String name = (String) RestaurantEntity.getProperty("name");
@@ -107,7 +77,5 @@ public final class RestaurantQueryHelper {
 
     return restaurantEntity;
   } 
-
-
 
 }

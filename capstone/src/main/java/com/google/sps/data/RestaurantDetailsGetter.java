@@ -34,6 +34,7 @@ import com.google.maps.FindPlaceFromTextRequest;
 import com.google.maps.PlacesApi;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResult;
+import java.lang.StringBuilder;
 
 
 public final class RestaurantDetailsGetter {  
@@ -62,21 +63,20 @@ public final class RestaurantDetailsGetter {
       String placeID = results[0].placeId;
       place = getDetails(placeID);
       
-    } catch (Exception e) {
-    //   e.printStackTrace();
-    }
+    } catch (Exception e) {}
+    
     return place;
   }
 
   public String getTagsfromReviews(PlaceDetails.Review[] reviewsArray) {
-    // TODO: change to stringbuilder
-    String res = "";
+    StringBuilder res = new StringBuilder();
+
     try {
       for (PlaceDetails.Review review : reviewsArray) {
-        res += review.text + " ";
+        res.append(review.text);
       } 
-    }
-    catch (NullPointerException e) {}
-    return res;
+    } catch (NullPointerException e) {}
+
+    return res.toString();
   }
 }
