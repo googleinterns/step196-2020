@@ -281,7 +281,7 @@ function isStringEmpty(str) {
 /** @returns{Object} gets top 20 results, sorted by avg review,
     matching @param {String} keyword 
  */
-async function manualSearch(keyword, filter) {
+function manualSearch(keyword, filter) {
   if (filter == SMALL) {
     return fetch('/small-restaurants?keyword='+keyword).then((response) => response.json())
       .then((restaurantResults) => {

@@ -90,7 +90,6 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
     ArrayList<Restaurant> result = new ArrayList<>();
     for (Entity RestaurantEntity : allRestaurants){
       Restaurant restaurant = queryHelper.makeRestaurantObject(RestaurantEntity);
-      System.out.println(restaurant.name());
       result.add(restaurant);
     }
 
