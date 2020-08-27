@@ -17,7 +17,6 @@ package com.google.sps.servlets;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.FetchOptions.Builder;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.PreparedQuery;
@@ -30,10 +29,7 @@ import com.google.sps.data.RestaurantDetailsGetter;
 import com.google.sps.data.RestaurantQueryHelper;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -108,7 +104,7 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
       String reviews = details.getTagsfromReviews(reviewsArray);
 
       Entity restaurantEntity =
-        queryHelper.makeRestaurantEntity(place, restaurantName, reviews, "SmallRestaurants");
+          queryHelper.makeRestaurantEntity(place, restaurantName, reviews, "SmallRestaurants");
       DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
       datastore.put(restaurantEntity);
     }
@@ -128,7 +124,7 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
 
   /**
    * @return the request parameter, or the default value if the parameter was not specified by the
-   *         client
+   *     client
    */
   private String getParameter(HttpServletRequest request, String name, String defaultValue) {
     String value = request.getParameter(name);
