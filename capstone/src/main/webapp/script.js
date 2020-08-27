@@ -28,29 +28,15 @@ const _markersArray = [];
 let _center;
 let _showSmallBusiness = false;
 let _showBlackOwnedBusiness = false;
-const _scrapedSmallBusinesses = new Set();
-const _scrapedBlackBusinesses = new Set();
 const SMALL = 'small';
 const BLACK_OWNED = 'black-owned';
 
-/** Gets business names from scraped datasets and puts in array */
-function fetchBusinessNames() {
-  fetch('/business-names').then((response) => response.json()).then(
-      (restaurantNames) => {
-        for (const name of restaurantNames) {
-          _scrapedSmallBusinesses.add(name);
-        }
-      });
-
-  fetch('/black-owned-restaurants-data').then((response) =>
-    response.json()).then((restaurantNames) => {
-    for (const name of restaurantNames) {
-      _scrapedBlackBusinesses.add(name);
-    }
-  });
-}
-
-fetchBusinessNames();
+const requestParamPOST = {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+};
 
 /** Creates a map and adds it to the page. */
 function createMap() {
@@ -143,7 +129,8 @@ function createMap() {
 
 /** Obtains search results from Places API
     @param {any} keyword search query keyword
-    @return {Promise} top 20 places matching search results */
+    @return {Promise} top 20 places matching search results 
+ */
 function getPlacesSearchResults(keyword) {
   document.getElementById('map').style.width = '75%';
   document.getElementById('panel').style.display = 'block';
@@ -160,16 +147,15 @@ function getPlacesSearchResults(keyword) {
   return service.nearbySearch(request, callback);
 }
 
-/** Function for aiding calls to nearbySearch and getDetails
-    @param {any} results
-    @param {any} status
-*/
 function callback(results, status) {
   if (status == google.maps.places.PlacesServiceStatus.OK) {
     for (let i = 0; i < results.length; i++) {
       if (!_showSmallBusiness && !_showBlackOwnedBusiness) {
-        // put fetch here
-        setMarker(results[i]);
+        const place = results[i];
+        fetch('/get-details?placeId=' + place.place_id).then((response) =>
+          response.json()).then((place) => {
+          addToDisplayPanel(place);
+        });
         continue;
       }
       if (_showSmallBusiness &&
@@ -190,15 +176,33 @@ function callback(results, status) {
 
 /** Creates an animated marker for each result location
    @param {Object} place location to set marker for
+   @param {HTMLButtonElement} button button for location to toggle open
  */
-function setMarker(place) {
+function setMarker(place, button) {
+  const infowindow = new google.maps.InfoWindow();
   const marker = new google.maps.Marker({
     map: _map,
     position: place.geometry.location,
     animation: google.maps.Animation.DROP,
   });
-  addToDisplayPanel(place);
   _markersArray.push(marker);
+ 
+  google.maps.event.addListener(marker, 'click', function() {
+    openCollapsible(button);
+    let status = 'Closed';
+    if (place.openingHours.openNow) status = 'Open';
+    infowindow.setContent(
+        '<div><strong>' +
+            place.name +
+            '</strong><br>' +
+            place.vicinity +
+            '<br>' +
+            status +
+            '</div>',
+    );
+ 
+    infowindow.open(map, this);
+  });
 }
 
 /** Clears all markers on map */
@@ -208,20 +212,18 @@ function clearMarkers() {
   }
   _markersArray.length = 0;
 }
-
+ 
 /** Itemizes each result into the collapsible panel
 @param {Object} place location to add to results panel
  */
 function addToDisplayPanel(place) {
-  fetch('/get-details?placeId=' + place.place_id).then((response) =>
-    response.json()).then((place) => {
-    // put call to get details here and get new place before adding to panel
-    const locationElement = document.getElementById('restaurant-results');
-    locationElement.appendChild(createLocationElement(place));
-    locationElement.appendChild(createAdditionalInfo(place));
-  });
+  const locationElement = document.getElementById('restaurant-results');
+  const button = createLocationElement(place);
+  locationElement.appendChild(button);
+  locationElement.appendChild(createAdditionalInfo(place));
+  setMarker(place, button);
 }
-
+ 
 /** Creates button with location name for each place
     Add clicker event to each button to handle open and close of
     collapsible.
@@ -232,20 +234,27 @@ function createLocationElement(place) {
   const mainElement = document.createElement('button');
   mainElement.className = 'collapsible';
   mainElement.innerHTML = place.name;
-
+ 
   mainElement.addEventListener('click', function() {
-    this.classList.toggle('active');
-    const content = this.nextElementSibling;
-    if (content.style.maxHeight) {
-      content.style.maxHeight = null;
-    } else {
-      content.style.maxHeight = content.scrollHeight + 'px';
-    }
+    openCollapsible(mainElement);
   });
-
   return mainElement;
 }
-
+ 
+/** Handles opening and closing of additional information tab
+    each location
+    @param {HTMLButtonElement} button button to be toggled
+ */
+function openCollapsible(button) {
+  button.classList.toggle('active');
+  const content = button.nextElementSibling;
+  if (content.style.maxHeight) {
+    content.style.maxHeight = null;
+  } else {
+    content.style.maxHeight = content.scrollHeight + 'px';
+  }
+}
+ 
 /** Creates div that contains all extra info about a place
     @param {Object} place place to add additional information for
     @return {HTMLDivElement} the added information in a div element
@@ -253,19 +262,20 @@ function createLocationElement(place) {
 function createAdditionalInfo(place) {
   const informationContainer = document.createElement('div');
   informationContainer.className = 'info';
-
+ 
   const information = document.createElement('p');
+ 
   information.innerHTML = `Address: ${place.formattedAddress}<br>Phone Number: 
-  ${place.formattedPhoneNumber}<br>Rating: ${place.rating}<br>Price:
-  ${place.priceLevel}<br>Website: ${place.website}`;
-
+  ${place.formattedPhoneNumber}<br>Rating: ${place.rating}<br>Prices:
+  ${place.priceLevel}<br><a href=${place.website}>Click here to make your order/reservation now!</a>`;
+ 
   const editsLink = document.createElement('a');
   editsLink.setAttribute('href', 'feedback.html');
   editsLink.innerHTML = 'Suggest edits?';
-
+ 
   informationContainer.appendChild(information);
   informationContainer.appendChild(editsLink);
-
+ 
   return informationContainer;
 }
 
@@ -281,7 +291,7 @@ closePanel();
     and gets filters from checked boxes, ie. small or black-owned */
 async function getInputFilters() {
   clearMarkers();
-  keyword = document.getElementById('search').value;
+  const keyword = document.getElementById('search').value;
   const selectedFilters = document.getElementById('filter-input').value;
 
   if (selectedFilters == SMALL) {
@@ -292,10 +302,7 @@ async function getInputFilters() {
 
   // do manual search if filter is selected, else do Nearby Search w Places API
   if (_showSmallBusiness || _showBlackOwnedBusiness) {
-    if (!isStringEmpty(keyword)) {
-      const keywordEntities = getEntities(keyword);
-      // TODO(#47): manual search
-    }
+    await(manualSearch(keyword));
   } else {
     await getPlacesSearchResults(keyword);
   }
@@ -303,7 +310,44 @@ async function getInputFilters() {
 }
 
 /** @param {String} str input string to check
-    @return {boolean} if str is empty, contains only white space, or null */
+    @return {boolean} if str is empty, contains only white space, or null 
+ */
 function isStringEmpty(str) {
   return (str.length === 0 || !str.trim() || !str);
+}
+
+/** @returns{Object} gets top 20 results, sorted by avg review,
+    matching @param {String} keyword 
+ */
+async function manualSearch(keyword) {
+  if (_showSmallBusiness) {
+    return fetch('/small-restaurants?keyword='+keyword).then((response) => response.json())
+      .then((restaurantResults) => {
+        restaurantResults.forEach((place) => {
+          setMarkerManualSearch(place);
+        })
+      });
+  }
+  else if (_showBlackOwnedBusiness) {
+    return fetch('/black-owned-restaurants?keyword='+keyword).then((response) => response.json())
+      .then((restaurantResults) => {
+        restaurantResults.forEach((place) => {
+          setMarker(place);
+        })
+      });
+  }
+}
+
+function setMarkerManualSearch(place) {
+  const marker = new google.maps.Marker({
+    map: _map,
+    position: new google.maps.LatLng(place.lat, place.lng),
+    animation: google.maps.Animation.DROP,
+  });
+  addToDisplayPanelManualSearch(place);
+  _markersArray.push(marker);
+}
+
+function addToDisplayPanelManualSearch(place) {
+ // TODO: do display panel stuff for manual search
 }

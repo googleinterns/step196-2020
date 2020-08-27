@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.stream.Collectors;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Arrays;
 import com.google.maps.GaeRequestHandler;
 import com.google.maps.GeoApiContext;
 import com.google.maps.FindPlaceFromTextRequest;
@@ -34,10 +35,11 @@ import com.google.maps.PlacesApi;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResult;
 
+
 public final class RestaurantDetailsGetter {  
 
   protected GeoApiContext context =
-      new GeoApiContext.Builder(new GaeRequestHandler.Builder()).apiKey("<API Key here>").build();
+      new GeoApiContext.Builder(new GaeRequestHandler.Builder()).apiKey("AIzaSyBmOq13SbE4zw0O6DDk05xmC2urtSfd_gk").build();
 
   public PlaceDetails getDetails(String placeId) {
     PlaceDetails place = new PlaceDetails();
@@ -54,38 +56,27 @@ public final class RestaurantDetailsGetter {
     try {
       PlacesSearchResult[] results =
           PlacesApi.findPlaceFromText(
-                  context, placeName, FindPlaceFromTextRequest.InputType.TEXT_QUERY)
+              context, placeName, FindPlaceFromTextRequest.InputType.TEXT_QUERY)
               .await()
               .candidates;
       String placeID = results[0].placeId;
       place = getDetails(placeID);
       
     } catch (Exception e) {
-      e.printStackTrace();
+    //   e.printStackTrace();
     }
     return place;
   }
 
-  public Set<String> getTags(String reviews) {
-    Set<String> allEntityNames= new HashSet<>();
-    try (LanguageServiceClient language = LanguageServiceClient.create()) {
-      Document doc =
-        Document.newBuilder().setContent(reviews).setType(Document.Type.PLAIN_TEXT).build();
-      AnalyzeEntitiesRequest entitiesRequest =
-          AnalyzeEntitiesRequest.newBuilder()
-              .setDocument(doc)
-              .setEncodingType(EncodingType.UTF16)
-              .build();
-
-      AnalyzeEntitiesResponse entitiesResponse = language.analyzeEntities(entitiesRequest);
-      allEntityNames =
-          entitiesResponse.getEntitiesList().stream()
-              .map(entity -> entity.getName())
-              .collect(Collectors.toSet());
-    
-    } catch (Exception e) {
-      e.printStackTrace();
+  public String getTagsfromReviews(PlaceDetails.Review[] reviewsArray) {
+    // TODO: change to stringbuilder
+    String res = "";
+    try {
+      for (PlaceDetails.Review review : reviewsArray) {
+        res += review.text + " ";
+      } 
     }
-    return allEntityNames;
+    catch (NullPointerException e) {}
+    return res;
   }
 }
