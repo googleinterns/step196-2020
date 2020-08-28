@@ -33,8 +33,4 @@ public class Restaurant {
   public String name() {
     return this.name;
   }
-
-  public String location() {
-    return Double.toString(this.lat);
-  }
 }
