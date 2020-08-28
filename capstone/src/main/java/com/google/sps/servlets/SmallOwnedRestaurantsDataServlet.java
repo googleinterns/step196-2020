@@ -30,6 +30,7 @@ import com.google.sps.data.RestaurantQueryHelper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -83,8 +84,12 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
     String keywordsCombinedString = (String) request.getParameter("keyword");
     Set<String> keywords = queryHelper.splitStringToSet(keywordsCombinedString);
 
-    Filter propertyFilter = new FilterPredicate("tags", FilterOperator.IN, keywords);
-    Query query = new Query(DATABASE_NAME).setFilter(propertyFilter).addSort("rating", SortDirection.DESCENDING);
+    Query query = new Query(DATABASE_NAME).addSort("rating", SortDirection.DESCENDING);
+
+    if (!keywords.isEmpty()) {
+      Filter propertyFilter = new FilterPredicate("tags", FilterOperator.IN, keywords);
+      query.setFilter(propertyFilter);
+    }
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     List<Entity> allRestaurants = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(queryHelper.MAX_RESULTS));
@@ -111,6 +116,8 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
     for (String restaurantName : restaurantNames) {
       PlaceDetails place = details.request(restaurantName);
 
+      if (place.geometry == null) continue;
+
       PlaceDetails.Review[] reviewsArray = place.reviews;
       String reviews = details.getTagsfromReviews(reviewsArray);
 
@@ -122,7 +129,7 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
   }
 
   public void clearDatastore() {
-    Query restaurantQuery = new Query("Restaurant");
+    Query restaurantQuery = new Query(DATABASE_NAME);
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery allRestaurants = datastore.prepare(restaurantQuery);
     ArrayList<Key> keys = new ArrayList<>();

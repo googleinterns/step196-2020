@@ -44,6 +44,7 @@ import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.FetchOptions.Builder;
+import com.google.gson.Gson;
 
 /** Returns black owned restaurants data as a JSON object */
 @WebServlet("/black-owned-restaurants")
@@ -64,7 +65,6 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
     while (scanner.hasNextLine()) {
       String line = scanner.nextLine();
       String[] cells = line.split(",");
-
       String name = String.valueOf(cells[0]);
 
       blackOwnedRestaurants.add(name);
@@ -79,8 +79,12 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
     String keywordsCombinedString = (String) request.getParameter("keyword");
     Set<String> keywords = queryHelper.splitStringToSet(keywordsCombinedString);
 
-    Filter propertyFilter = new FilterPredicate("tags", FilterOperator.IN, keywords);
-    Query query = new Query(DATABASE_NAME).setFilter(propertyFilter).addSort("rating", SortDirection.DESCENDING);
+    Query query = new Query(DATABASE_NAME).addSort("rating", SortDirection.DESCENDING);
+
+    if (!keywords.isEmpty()) {
+      Filter propertyFilter = new FilterPredicate("tags", FilterOperator.IN, keywords);
+      query.setFilter(propertyFilter);
+    }
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     List<Entity> allRestaurants = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(queryHelper.MAX_RESULTS));
@@ -105,6 +109,8 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
     for (String restaurantName : restaurantNames) {
       PlaceDetails place = details.request(restaurantName);
 
+      if (place.geometry == null) continue;
+
       PlaceDetails.Review[] reviewsArray = place.reviews;
       String reviews = details.getTagsfromReviews(reviewsArray);
 
@@ -126,9 +132,10 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
       return defaultValue;
     }
     return value;
+  }
 
   public void clearDatastore() {
-    Query restaurantQuery = new Query("Restaurant");
+    Query restaurantQuery = new Query(DATABASE_NAME);
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery allRestaurants = datastore.prepare(restaurantQuery);
     ArrayList<Key> keys = new ArrayList<>();
