@@ -8,11 +8,11 @@ ul {
   top: 0;
   width: 100%;
 }
- 
+
 li {
   float: left;
 }
- 
+
 li a,
 button a {
   color: white;
@@ -21,7 +21,7 @@ button a {
   text-align: center;
   text-decoration: none;
 }
- 
+
 a:focus,
 a:active {
   text-decoration: none;
@@ -32,12 +32,23 @@ a:active {
   -o-transition: all 300ms ease 0s;
   -ms-transition: all 300ms ease 0s;
 }
- 
+
 li a:hover {
   background-color: white;
   color: black;
 }
- 
+
+input,
+select {
+  width: 100%;
+  display: block;
+  border: none;
+  border-bottom: 2px solid #ebebeb;
+  padding: 5px 0;
+  color: #222;
+  margin-bottom: 31px;
+}
+
 input,
 select,
 textarea {
@@ -48,7 +59,7 @@ textarea {
   -o-appearance: unset !important;
   -ms-appearance: unset !important;
 }
- 
+
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   appearance: none !important;
@@ -58,7 +69,7 @@ input::-webkit-inner-spin-button {
   -ms-appearance: none !important;
   margin: 0;
 }
- 
+
 input:focus,
 select:focus,
 textarea:focus {
@@ -69,20 +80,20 @@ textarea:focus {
   -o-box-shadow: none !important;
   -ms-box-shadow: none !important;
 }
- 
+
 img {
   max-width: 100%;
   height: auto;
 }
- 
+
 figure {
   margin: 0;
 }
- 
+
 p {
   margin-bottom: 0;
 }
- 
+
 input:-webkit-autofill {
   box-shadow: 0 0 0 30px white inset;
   -moz-box-shadow: 0 0 0 30px white inset;
@@ -90,24 +101,23 @@ input:-webkit-autofill {
   -o-box-shadow: 0 0 0 30px white inset;
   -ms-box-shadow: 0 0 0 30px white inset;
 }
- 
+
 h2 {
   line-height: 1.8;
   margin: 0;
   padding: 0;
   font-weight: bold;
   color: #222;
-  font-family: 'Roboto Slab';
   font-size: 20px;
   margin-bottom: 30px;
   text-transform: uppercase;
   text-align: center;
 }
- 
+
 .clear {
   clear: both;
 }
- 
+
 body {
   font-size: 13px;
   line-height: 1.8;
@@ -121,15 +131,14 @@ body {
   -ms-background-size: cover;
   background-position: center center;
   font-weight: 400;
-  font-family: 'Roboto Slab';
   margin: 0;
 }
- 
+
 .main {
   padding: 60px 0;
   position: relative;
 }
- 
+
 .feedback-form {
   width: 586px;
   height: 580px;
@@ -143,29 +152,17 @@ body {
   margin-top: 5%;
   padding: 50px 60px 70px 60px;
 }
- 
+
 .content {
   padding: 50px 60px 70px 60px;
 }
- 
-input,
-select {
-  width: 100%;
-  display: block;
-  border: none;
-  border-bottom: 2px solid #ebebeb;
-  padding: 5px 0;
-  color: #222;
-  margin-bottom: 31px;
-  font-family: 'Roboto Slab';
-}
- 
+
 input:focus,
 select:focus {
   color: #222;
   border-bottom: 2px solid #4966b1;
 }
- 
+
 .submit {
   width: auto;
   background: #4966b1;
@@ -185,24 +182,24 @@ select:focus {
   -o-box-shadow: 0 1px 15px 0 rgba(73, 102, 177, 0.7);
   -ms-box-shadow: 0 1px 15px 0 rgba(73, 102, 177, 0.7);
 }
- 
+
 .submit:hover {
   background: #3a518d;
 }
- 
+
 @media screen and (max-width: 1024px) {
   .content {
     margin: 0 auto;
   }
 }
- 
+
 @media screen and (max-width: 768px) {
   .content {
     width: calc(100% - 30px);
     max-width: 100%;
   }
 }
- 
+
 @media screen and (max-width: 480px) {
   .feedback-form {
     padding: 50px 30px 70px 30px;
