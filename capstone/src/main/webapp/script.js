@@ -11,13 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
+ 
 window.addEventListener('DOMContentLoaded', (event) => {
   if (document.getElementById('map')) {
     createMap();
   }
 });
-
+ 
 /** user, at location _center, searches a query and
     places matching user's query will be returned on _map
     and stored in _markersArray
@@ -27,20 +27,20 @@ const _markersArray = [];
 let _center;
 const SMALL = 'small';
 const BLACK_OWNED = 'black-owned';
-
+ 
 const requestParamPOST = {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
   },
 };
-
+ 
 /** Creates a map and adds it to the page. */
 function createMap() {
   _center = new google.maps.LatLng(40.7128, -74.0060);
   _map = new google.maps.Map(document.getElementById('map'), {
     center: _center,
-    zoom: 15,
+    zoom: 13,
     styles: [
       {elementType: 'geometry', stylers: [{color: '#242f3e'}]},
       {elementType: 'labels.text.stroke', stylers: [{color: '#242f3e'}]},
@@ -123,7 +123,7 @@ function createMap() {
     ],
   });
 }
-
+ 
 /** Obtains search results from Places API
     @param {any} keyword search query keyword
     @return {Promise} top 20 places matching search results 
@@ -132,7 +132,7 @@ function getPlacesSearchResults(keyword) {
   document.getElementById('map').style.width = '75%';
   document.getElementById('panel').style.display = 'block';
   document.getElementById('restaurant-results').innerHTML = '';
-
+ 
   const request = {
     location: _center,
     radius: 10000,
@@ -143,15 +143,19 @@ function getPlacesSearchResults(keyword) {
   service = new google.maps.places.PlacesService(_map);
   return service.nearbySearch(request, callback);
 }
-
+ 
 function callback(results, status) {
   if (status == google.maps.places.PlacesServiceStatus.OK) {
     for (let i = 0; i < results.length; i++) {
-      setMarker(results[i]);
+      const place = results[i];
+      fetch('/get-details?placeId='+place.place_id).then((response) => response.json())
+      .then((place) => {
+        addToDisplayPanel(place);
+      });
     }
   }
 }
-
+ 
 /** Creates an animated marker for each result location
    @param {Object} place location to set marker for
    @param {HTMLButtonElement} button button for location to toggle open
@@ -164,8 +168,15 @@ function setMarker(place, button) {
     animation: google.maps.Animation.DROP,
   });
   _markersArray.push(marker);
+  const map = _map;
  
   google.maps.event.addListener(marker, 'click', function() {
+    
+    map.setZoom(16);
+    map.setCenter(marker.getPosition());
+ 
+    // _map.setZoom(9);
+    // _map.setCenter(marker.getPosition());
     openCollapsible(button);
     let status = 'Closed';
     if (place.openingHours.openNow) status = 'Open';
@@ -181,8 +192,14 @@ function setMarker(place, button) {
  
     infowindow.open(map, this);
   });
+ 
+  google.maps.event.addListener(infowindow, 'closeclick', function() {  
+    map.setZoom(13);
+    map.setCenter(marker.getPosition());  
+    openCollapsible(button, place);
+  }); 
 }
-
+ 
 /** Clears all markers on map */
 function clearMarkers() {
   for (let i = 0; i < _markersArray.length; i++ ) {
@@ -211,6 +228,8 @@ function addToDisplayPanel(place) {
 function createLocationElement(place) {
   const mainElement = document.createElement('button');
   mainElement.className = 'collapsible';
+  mainElement.id = place.name;
+  mainElement.setAttribute('onclick', 'window.location.href=#' + mainElement.id +';');
   mainElement.innerHTML = place.name;
  
   mainElement.addEventListener('click', function() {
@@ -244,7 +263,7 @@ function createAdditionalInfo(place) {
   const information = document.createElement('p');
  
   information.innerHTML = `Address: ${place.formattedAddress}<br>Phone Number: 
-  ${place.formattedPhoneNumber}<br>Rating: ${place.rating}<br>Prices:
+  ${place.formattedPhoneNumber}<br>Rating: ${place.rating.toFixed(1)}<br>Prices:
   ${place.priceLevel}<br><a href=${place.website}>Click here to make your order/reservation now!</a>`;
  
   const editsLink = document.createElement('a');
@@ -256,20 +275,20 @@ function createAdditionalInfo(place) {
  
   return informationContainer;
 }
-
+ 
 /** Closes collapsible panels when the x is clicked. */
 function closePanel() {
   document.getElementById('panel').style.display = 'none';
   document.getElementById('map').style.width = '100%';
 }
-
+ 
 /** Clears all exisiting markers on map
     and gets filters from checked boxes, ie. small or black-owned */
 async function getInputFilters() {
   clearMarkers();
   const keyword = document.getElementById('search').value;
   const selectedFilters = document.getElementById('filter-input').value;
-
+ 
   // do manual search if filter is selected, else do Nearby Search w Places API
   if (selectedFilters == SMALL || selectedFilters == BLACK_OWNED) {
     await(manualSearch(keyword, selectedFilters));
@@ -278,23 +297,27 @@ async function getInputFilters() {
   }
   document.getElementById('search-button').disabled = false;
 }
-
+ 
 /** @param {String} str input string to check
     @return {boolean} if str is empty, contains only white space, or null 
  */
 function isStringEmpty(str) {
   return (str.length === 0 || !str.trim() || !str);
 }
-
+ 
 /** @returns{Object} gets top 20 results, sorted by avg review,
     matching @param {String} keyword 
  */
+ 
 function manualSearch(keyword, filter) {
+  document.getElementById('map').style.width = '75%';
+  document.getElementById('panel').style.display = 'block';
+  document.getElementById('restaurant-results').innerHTML = '';
   if (filter == SMALL) {
     return fetch('/small-restaurants?keyword='+keyword).then((response) => response.json())
       .then((restaurantResults) => {
         restaurantResults.forEach((place) => {
-          setMarkerManualSearch(place);
+            addToDisplayPanelManualSearch(place);
         })
       });
   }
@@ -302,22 +325,53 @@ function manualSearch(keyword, filter) {
     return fetch('/black-owned-restaurants?keyword='+keyword).then((response) => response.json())
       .then((restaurantResults) => {
         restaurantResults.forEach((place) => {
-          setMarkerManualSearch(place);
+            addToDisplayPanelManualSearch(place);
         })
       });
   }
 }
-
-function setMarkerManualSearch(place) {
+ 
+function setMarkerManualSearch(place, button) {
+  const infowindow = new google.maps.InfoWindow();
   const marker = new google.maps.Marker({
     map: _map,
     position: new google.maps.LatLng(place.lat, place.lng),
     animation: google.maps.Animation.DROP,
   });
-  addToDisplayPanelManualSearch(place);
   _markersArray.push(marker);
+ 
+  google.maps.event.addListener(marker, 'click', function() {
+    _map.setZoom(16);
+    _map.setCenter(marker.getPosition());
+    openCollapsible(button);
+    let status = 'Closed';
+    if (place.openStatus) status = 'Open';
+    infowindow.setContent(
+        '<div><strong>' +
+            place.name +
+            '</strong><br>' +
+            place.vicinity +
+            '<br>' +
+            status +
+            '</div>',
+    );
+ 
+    infowindow.open(map, this);
+  });
+ 
+  google.maps.event.addListener(infowindow, 'closeclick', function() {  
+    _map.setZoom(13);
+    _map.setCenter(marker.getPosition());  
+    openCollapsible(button);
+  }); 
 }
-
+ 
+// TODO: if there is no search words, then return the all the results
+ 
 function addToDisplayPanelManualSearch(place) {
- // TODO(#64): do display panel stuff for manual search
+  const locationElement = document.getElementById('restaurant-results');
+  const button = createLocationElement(place);
+  locationElement.appendChild(button);
+  locationElement.appendChild(createAdditionalInfo(place));
+  setMarkerManualSearch(place, button);
 }

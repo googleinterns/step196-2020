@@ -3,35 +3,32 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Suggest Edits</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="feedback.css">
     <script src="script.js"></script>
   </head>
   <body>
     <ul>
       <li><a href="index.html">Home</a></li>
     </ul>
+    <div id="main">
     <div id="content">
-      <h2>Suggest Edits</h2>
 
-      <form action="/feedback" method="POST">
-        <p>Put in your name here:</p>
-        <textarea name="name-input"></textarea>
-        <br>
-        <p>What is your relation to this place/business:</p>
-        <textarea name="relation-input"></textarea>
-        <br>
-        <p>What information given about this place was inaccurate:</p>
-        <textarea name="problem-area-input"></textarea>
-        <br>
-        <p>What is the correct/accurate version of this information:</p>
-        <textarea name="suggestion-input"></textarea>
-        <br>
-        <p>Any other feedback/suggestions?:</p>
-        <textarea name="feedback-input"></textarea>
-        <br>
-        <input type="submit" class="submit-button">
+      <form action="/feedback" method="POST" class="feedback-form" id="feedback-form">
+        <h2>Help Neighbouhood Nibbles provide you with the most accurate information!</h2>
+       <div class="form-group-1">
+        <input type="text" name="name-input" id="name" placeholder="Your Name" required />
+        <input type="text" name="relation-input" id="relation" placeholder="Relation to this place/business" required />
+        <input type="text" name="problem-area-input" id="problemArea" placeholder="Inaccurate information about this place" required />
+        <input type="text" name="suggestion-input" id="suggestion" placeholder="Correct/accurate version of this information" required />
+        <input type="text" name="feedback-input" id="feedback" placeholder="Other issues/suggestions/feedback?" required />
+       </div>
+       <div class="form-submit">
+          <input type="submit" name="submit" id="submit" class="submit" value="Tell us your feedback!">
+        </div>
       </form>
+    </div>
     </div>
   </body>
 </html>
