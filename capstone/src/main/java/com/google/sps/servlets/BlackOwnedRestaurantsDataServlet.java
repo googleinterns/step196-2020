@@ -21,10 +21,12 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import com.google.gson.Gson;
 import com.google.maps.model.PlaceDetails;
 import com.google.sps.data.RestaurantDetailsGetter;
 import com.google.sps.data.RestaurantQueryHelper;
 import com.google.sps.data.Restaurant;
+import com.google.sps.data.StoreRestaurantDataHelper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -99,20 +101,10 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
   /** triggers call to scrape business names, get place details for each business, and populate database */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    clearDatastore();
-    
     List<String> restaurantNames = getRestaurantNames();
-    for (String restaurantName : restaurantNames) {
-      PlaceDetails place = details.request(restaurantName);
+    StoreRestaurantDataHelper storeDataHelper = new StoreRestaurantDataHelper();
+    storeDataHelper.storeData(restaurantNames, DATABASE_NAME, details, queryHelper);
 
-      PlaceDetails.Review[] reviewsArray = place.reviews;
-      String reviews = details.getTagsfromReviews(reviewsArray);
-
-      Entity restaurantEntity = queryHelper.makeRestaurantEntity(place, restaurantName, reviews, DATABASE_NAME);
-      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-      datastore.put(restaurantEntity);
-    }
-    
     response.sendRedirect("/admin.html");
   }
 
@@ -126,6 +118,7 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
       return defaultValue;
     }
     return value;
+  }
 
   public void clearDatastore() {
     Query restaurantQuery = new Query("Restaurant");

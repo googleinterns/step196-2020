@@ -27,9 +27,11 @@ import com.google.maps.model.PlaceDetails;
 import com.google.sps.data.Restaurant;
 import com.google.sps.data.RestaurantDetailsGetter;
 import com.google.sps.data.RestaurantQueryHelper;
+import com.google.sps.data.StoreRestaurantDataHelper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -104,32 +106,11 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException, NullPointerException {
-    clearDatastore();
-
     List<String> restaurantNames = getRestaurantNames();
+    StoreRestaurantDataHelper storeDataHelper = new StoreRestaurantDataHelper();
+    storeDataHelper.storeData(restaurantNames, DATABASE_NAME, details, queryHelper);
 
-    for (String restaurantName : restaurantNames) {
-      PlaceDetails place = details.request(restaurantName);
-
-      PlaceDetails.Review[] reviewsArray = place.reviews;
-      String reviews = details.getTagsfromReviews(reviewsArray);
-
-      Entity restaurantEntity = queryHelper.makeRestaurantEntity(place, restaurantName, reviews, DATABASE_NAME);
-      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-      datastore.put(restaurantEntity);
-    }
     response.sendRedirect("/admin.html");
-  }
-
-  public void clearDatastore() {
-    Query restaurantQuery = new Query("Restaurant");
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    PreparedQuery allRestaurants = datastore.prepare(restaurantQuery);
-    ArrayList<Key> keys = new ArrayList<>();
-    for (Entity restaurant : allRestaurants.asIterable()) {
-      keys.add(restaurant.getKey());
-    }
-    datastore.delete(keys);
   }
 
   /**
