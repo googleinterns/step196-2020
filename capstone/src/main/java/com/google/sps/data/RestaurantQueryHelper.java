@@ -20,9 +20,11 @@ public final class RestaurantQueryHelper {
    * transformed to all lowercase and only including alphabetic characters
    */
   public Set<String> splitStringToSet(String str) {
+    if (str.length() == 0) return Collections.emptySet();
+
     String[] strArray = str.toLowerCase().split("\\P{Alpha}+");
     Set<String> strSet = new HashSet<>();
-    strSet.addAll(Arrays.asList(strArray)); 
+    strSet.addAll(Arrays.asList(strArray));
     return strSet;
   }
 
@@ -48,34 +50,25 @@ public final class RestaurantQueryHelper {
 
   public Entity makeRestaurantEntity(PlaceDetails place, String restaurantName, String reviews, String databaseName) {
     Entity restaurantEntity = new Entity(databaseName);
-    
-    try {
-      int numberOfReviews = place.userRatingsTotal; 
-      double rating = place.rating;
-      Set<String> tags = splitStringToSet(restaurantName + " " + reviews);
-      double lat = place.geometry.location.lat;
-      double lng = place.geometry.location.lng;
-      String address = place.formattedAddress;
-      String phone = place.formattedPhoneNumber;
-      String price = place.priceLevel.toString();
-      String website = place.website.toString();
-      String placeID = place.placeId;
 
-      restaurantEntity.setProperty("name", restaurantName);
-      restaurantEntity.setProperty("numberOfReviews", numberOfReviews);
-      restaurantEntity.setProperty("rating", rating);
-      restaurantEntity.setProperty("tags", tags);
-      restaurantEntity.setProperty("lat", lat);
-      restaurantEntity.setProperty("lng", lng);
-      restaurantEntity.setProperty("address", address);
-      restaurantEntity.setProperty("phone", phone);
-      restaurantEntity.setProperty("price", price);
-      restaurantEntity.setProperty("website", website);
-      restaurantEntity.setProperty("ID", placeID);
-    } 
-    catch (NullPointerException e) {}
+    restaurantEntity.setProperty("name", getValue(restaurantName, ""));
+    restaurantEntity.setProperty("numberOfReviews", getValue(place.userRatingsTotal, 0));
+    restaurantEntity.setProperty("rating", getValue(place.rating, 0));
+    restaurantEntity.setProperty("tags", getValue(splitStringToSet(restaurantName + " " + reviews), ""));
+    restaurantEntity.setProperty("lat", place.geometry.location.lat);
+    restaurantEntity.setProperty("lng", place.geometry.location.lng);
+    restaurantEntity.setProperty("address", getValue(place.formattedAddress, ""));
+    restaurantEntity.setProperty("phone", getValue(place.formattedPhoneNumber, ""));
+    restaurantEntity.setProperty("price", getValue(place.priceLevel, "").toString());
+    restaurantEntity.setProperty("website", getValue(place.website, "").toString());
+    restaurantEntity.setProperty("ID", place.placeId);
 
     return restaurantEntity;
   } 
 
+  /** return value if not null, else return default value */
+  private static <T> T getValue(T value, T defaultValue) {
+    return (value == null) ? defaultValue : value;
+  }
+  
 }

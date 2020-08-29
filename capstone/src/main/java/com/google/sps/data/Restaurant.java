@@ -17,19 +17,6 @@ public class Restaurant {
   private final String website;
   private final String ID;
 
-  public Restaurant() {
-    this.name = "";
-    this.numberOfReviews = 0;
-    this.rating = 0;
-    this.lat = 0;
-    this.lng = 0;
-    this.address = "";
-    this.phone = "";
-    this.price = "";
-    this.website = "";
-    this.ID = "";
-  }
-
   public Restaurant(String name, int numberOfReviews, double rating, double lat, double lng, String address, String phone, String price, String website, String ID) {
     this.name = name;
     this.numberOfReviews = numberOfReviews;
@@ -44,6 +31,6 @@ public class Restaurant {
   }
 
   public String name() {
-      return this.name;
+    return this.name;
   }
 }

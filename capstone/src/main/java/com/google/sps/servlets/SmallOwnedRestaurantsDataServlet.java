@@ -85,8 +85,12 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
     String keywordsCombinedString = (String) request.getParameter("keyword");
     Set<String> keywords = queryHelper.splitStringToSet(keywordsCombinedString);
 
-    Filter propertyFilter = new FilterPredicate("tags", FilterOperator.IN, keywords);
-    Query query = new Query(DATABASE_NAME).setFilter(propertyFilter).addSort("rating", SortDirection.DESCENDING);
+    Query query = new Query(DATABASE_NAME).addSort("rating", SortDirection.DESCENDING);
+
+    if (!keywords.isEmpty()) {
+      Filter propertyFilter = new FilterPredicate("tags", FilterOperator.IN, keywords);
+      query.setFilter(propertyFilter);
+    }
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     List<Entity> allRestaurants = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(queryHelper.MAX_RESULTS));
@@ -107,6 +111,7 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException, NullPointerException {
     List<String> restaurantNames = getRestaurantNames();
+    
     StoreRestaurantDataHelper storeDataHelper = new StoreRestaurantDataHelper();
     storeDataHelper.storeData(restaurantNames, DATABASE_NAME, details, queryHelper);
 
