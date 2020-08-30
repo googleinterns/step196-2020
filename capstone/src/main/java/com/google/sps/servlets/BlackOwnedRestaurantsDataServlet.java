@@ -14,7 +14,6 @@
 
 package com.google.sps.servlets;
 
-import com.google.maps.model.PlaceDetails;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -52,7 +51,7 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
   /** scrapes business names from source */
   private ArrayList<String> getRestaurantNames() throws IOException {
     ArrayList<String> blackOwnedRestaurants = new ArrayList<>();
-    
+
     Scanner scanner =
         new Scanner(
             getServletContext().getResourceAsStream("/WEB-INF/black-owned-restaurants.csv"));
@@ -100,9 +99,8 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
   }
 
   /**
-   * triggers call to scrape business names,
-   * get place details for each business,
-   * and populate database
+   * triggers call to scrape business names, get place details for each business, and populate
+   * database
    */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
