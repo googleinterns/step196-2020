@@ -115,7 +115,7 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
     StoreRestaurantDataHelper storeDataHelper = new StoreRestaurantDataHelper();
     storeDataHelper.storeData(restaurantNames, DATABASE_NAME, details, queryHelper);
 
-    response.sendRedirect("/admin.html");
+    response.sendRedirect("/main.html");
   }
 
   /**
