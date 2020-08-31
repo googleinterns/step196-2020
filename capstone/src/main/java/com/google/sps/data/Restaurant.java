@@ -29,7 +29,7 @@ public class Restaurant {
     this.formattedPhoneNumber = phone;
     this.priceLevel = price;
     this.website = website;
-    this.ID = ID;
+    this.placeId = ID;
     this.vicinity = vicinity; 
     this.openStatus = true;
   }
