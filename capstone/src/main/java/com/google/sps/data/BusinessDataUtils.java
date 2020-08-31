@@ -17,7 +17,7 @@ public final class BusinessDataUtils {
       RestaurantDetailsGetter details,
       RestaurantQueryHelper queryHelper) {
 
-    clearDatastore();
+    clearDatastore(DATABASE_NAME);
     
     for (String restaurantName : restaurantNames) {
       PlaceDetails place = details.request(restaurantName);
@@ -29,13 +29,13 @@ public final class BusinessDataUtils {
 
       Entity restaurantEntity =
           queryHelper.makeRestaurantEntity(place, restaurantName, reviews, DATABASE_NAME);
-      // DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
       datastore.put(restaurantEntity);
     }
   }
 
-  public void clearDatastore() {
-    Query restaurantQuery = new Query("Restaurant");
+  public void clearDatastore(String DATABASE_NAME) {
+    Query restaurantQuery = new Query(DATABASE_NAME);
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery allRestaurants = datastore.prepare(restaurantQuery);
     ArrayList<Key> keys = new ArrayList<>();
