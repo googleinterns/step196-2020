@@ -10,7 +10,7 @@ import com.google.maps.model.PlaceDetails;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class businessDataUtils {
+public final class BusinessDataUtils {
   public void storeData(
       List<String> restaurantNames,
       String DATABASE_NAME,
@@ -18,7 +18,7 @@ public final class businessDataUtils {
       RestaurantQueryHelper queryHelper) {
 
     clearDatastore();
-
+    
     for (String restaurantName : restaurantNames) {
       PlaceDetails place = details.request(restaurantName);
 
@@ -29,7 +29,7 @@ public final class businessDataUtils {
 
       Entity restaurantEntity =
           queryHelper.makeRestaurantEntity(place, restaurantName, reviews, DATABASE_NAME);
-      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+      // DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
       datastore.put(restaurantEntity);
     }
   }
