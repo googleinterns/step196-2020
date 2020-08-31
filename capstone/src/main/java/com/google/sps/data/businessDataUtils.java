@@ -10,7 +10,7 @@ import com.google.maps.model.PlaceDetails;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class StoreRestaurantDataHelper {
+public final class businessDataUtils {
   public void storeData(
       List<String> restaurantNames,
       String DATABASE_NAME,

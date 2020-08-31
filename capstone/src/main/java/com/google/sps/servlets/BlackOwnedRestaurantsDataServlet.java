@@ -26,10 +26,10 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.gson.Gson;
+import com.google.sps.data.businessDataUtils;
 import com.google.sps.data.Restaurant;
 import com.google.sps.data.RestaurantDetailsGetter;
 import com.google.sps.data.RestaurantQueryHelper;
-import com.google.sps.data.StoreRestaurantDataHelper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -106,7 +106,7 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     List<String> restaurantNames = getRestaurantNames();
 
-    StoreRestaurantDataHelper storeDataHelper = new StoreRestaurantDataHelper();
+    businessDataUtils storeDataHelper = new businessDataUtils();
     storeDataHelper.storeData(restaurantNames, DATABASE_NAME, details, queryHelper);
 
     response.sendRedirect("/main.html");
