@@ -11,13 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
+ 
 window.addEventListener('DOMContentLoaded', (event) => {
   if (document.getElementById('map')) {
     createMap();
   }
 });
-
+ 
 /** user, at location _center, searches a query and
     places matching user's query will be returned on _map
     and stored in _markersArray
@@ -27,7 +27,7 @@ const _markersArray = [];
 let _center;
 const SMALL = 'small';
 const BLACK_OWNED = 'black-owned';
-
+ 
 /** Creates a map and adds it to the page. */
 function createMap() {
   _center = new google.maps.LatLng(40.7128, -74.0060);
@@ -116,7 +116,7 @@ function createMap() {
     ],
   });
 }
-
+ 
 /** Obtains search results from Places API
     @param {any} keyword search query keyword
     @return {Promise} top 20 places matching search results
@@ -125,7 +125,7 @@ function getPlacesSearchResults(keyword) {
   document.getElementById('map').style.width = '75%';
   document.getElementById('panel').style.display = 'block';
   document.getElementById('restaurant-results').innerHTML = '';
-
+ 
   const request = {
     location: _center,
     radius: 10000,
@@ -136,39 +136,41 @@ function getPlacesSearchResults(keyword) {
   service = new google.maps.places.PlacesService(_map);
   return service.nearbySearch(request, callback);
 }
-
+ 
 function callback(results, status) {
   if (status == google.maps.places.PlacesServiceStatus.OK) {
     for (let i = 0; i < results.length; i++) {
       const place = results[i];
       fetch('/get-details?placeId='+place.place_id).then((response) =>
         response.json()).then((place) => {
+          console.log(place);
+          const location = place.geometry.location;
           const openStatus = place.openingHours.openNow;
-          addToDisplayPanel(place, openStatus);
+          addToDisplayPanel(place, openStatus, location);
       });
     }
   }
 }
-
+ 
 /** Creates an animated marker for each result location
    @param {Object} place location to set marker for
    @param {HTMLButtonElement} button button for location to toggle open
    @param {boolean} openStatus whether or not a certain place is open
  */
-function setMarker(place, button, openStatus) {
+function setMarker(place, button, openStatus, location) {
   const infowindow = new google.maps.InfoWindow();
   const marker = new google.maps.Marker({
     map: _map,
-    position: place.geometry.location,
+    position: location,
     animation: google.maps.Animation.DROP,
   });
   _markersArray.push(marker);
   const map = _map;
-
+ 
   google.maps.event.addListener(marker, 'click', function() {
     map.setZoom(16);
     map.setCenter(marker.getPosition());
-
+ 
     // _map.setZoom(9);
     // _map.setCenter(marker.getPosition());
     openCollapsible(button);
@@ -183,17 +185,17 @@ function setMarker(place, button, openStatus) {
             status +
             '</div>',
     );
-
+ 
     infowindow.open(map, this);
   });
-
+ 
   google.maps.event.addListener(infowindow, 'closeclick', function() {
     map.setZoom(13);
     map.setCenter(marker.getPosition());
     openCollapsible(button, place);
   });
 }
-
+ 
 /** Clears all markers on map */
 function clearMarkers() {
   for (let i = 0; i < _markersArray.length; i++ ) {
@@ -201,19 +203,19 @@ function clearMarkers() {
   }
   _markersArray.length = 0;
 }
-
+ 
 /** Itemizes each result into the collapsible panel
 @param {Object} place location to add to results panel
 @param {boolean} openStatus whether or not the place is open
  */
-function addToDisplayPanel(place, openStatus) {
+function addToDisplayPanel(place, openStatus, location) {
   const locationElement = document.getElementById('restaurant-results');
   const button = createLocationElement(place);
   locationElement.appendChild(button);
   locationElement.appendChild(createAdditionalInfo(place));
-  setMarker(place, button, openStatus);
+  setMarker(place, button, openStatus, location);
 }
-
+ 
 /** Creates button with location name for each place
     Add clicker event to each button to handle open and close of
     collapsible.
@@ -224,13 +226,13 @@ function createLocationElement(place) {
   const mainElement = document.createElement('button');
   mainElement.className = 'collapsible';
   mainElement.innerHTML = place.name;
-
+ 
   mainElement.addEventListener('click', function() {
     openCollapsible(mainElement);
   });
   return mainElement;
 }
-
+ 
 /** Handles opening and closing of additional information tab
     each location
     @param {HTMLButtonElement} button button to be toggled
@@ -244,7 +246,7 @@ function openCollapsible(button) {
     content.style.maxHeight = content.scrollHeight + 'px';
   }
 }
-
+ 
 /** Creates div that contains all extra info about a place
     @param {Object} place place to add additional information for
     @return {HTMLDivElement} the added information in a div element
@@ -252,37 +254,37 @@ function openCollapsible(button) {
 function createAdditionalInfo(place) {
   const informationContainer = document.createElement('div');
   informationContainer.className = 'info';
-
+ 
   const information = document.createElement('p');
-
+ 
   information.innerHTML = `Address: ${place.formattedAddress}<br>Phone Number: 
   ${place.formattedPhoneNumber}<br>Rating: ${place.rating.toFixed(1)}<br>Prices:
   ${place.priceLevel}<br><a href=${place.website}>
   Click here to make your order/reservation now!</a>`;
-
+ 
   const editsLink = document.createElement('a');
   editsLink.setAttribute('href', 'feedback.html');
   editsLink.innerHTML = 'Suggest edits?';
-
+ 
   informationContainer.appendChild(information);
   informationContainer.appendChild(editsLink);
-
+ 
   return informationContainer;
 }
-
+ 
 /** Closes collapsible panels when the x is clicked. */
 function closePanel() {
   document.getElementById('panel').style.display = 'none';
   document.getElementById('map').style.width = '100%';
 }
-
+ 
 /** Clears all exisiting markers on map
     and gets filters from checked boxes, ie. small or black-owned */
 async function getInputFilters() {
   clearMarkers();
   const keyword = document.getElementById('search').value;
   const selectedFilters = document.getElementById('filter-input').value;
-
+ 
   // do manual search if filter is selected, else do Nearby Search w Places API
   if (selectedFilters == SMALL || selectedFilters == BLACK_OWNED) {
     await(manualSearch(keyword, selectedFilters));
@@ -291,18 +293,18 @@ async function getInputFilters() {
   }
   document.getElementById('search-button').disabled = false;
 }
-
+ 
 /** @param {String} str input string to check
     @return {boolean} if str is empty, contains only white space, or null
  */
 function isStringEmpty(str) {
   return (str.length === 0 || !str.trim() || !str);
 }
-
+ 
 /** @returns{Object} gets top 20 results, sorted by avg review,
     matching @param {String} keyword
  */
-
+ 
 function manualSearch(keyword, filter) {
   document.getElementById('map').style.width = '75%';
   document.getElementById('panel').style.display = 'block';
@@ -311,8 +313,9 @@ function manualSearch(keyword, filter) {
     return fetch('/small-restaurants?keyword='+keyword).then((response) =>
       response.json()).then((restaurantResults) => {
       restaurantResults.forEach((place) => {
+        const location = new google.maps.LatLng(place.lat, place.lng);
         const openStatus = place.openStatus;
-        addToDisplayPanel(place, openStatus);
+        addToDisplayPanel(place, openStatus, location);
       });
     });
   }
@@ -320,8 +323,9 @@ function manualSearch(keyword, filter) {
     return fetch('/black-owned-restaurants?keyword='+keyword).then((response) =>
       response.json()).then((restaurantResults) => {
       restaurantResults.forEach((place) => {
+        const location = new google.maps.LatLng(place.lat, place.lng);
         const openStatus = place.openStatus;
-        addToDisplayPanel(place, openStatus);;
+        addToDisplayPanel(place, openStatus, location);;
       });
     });
   }
