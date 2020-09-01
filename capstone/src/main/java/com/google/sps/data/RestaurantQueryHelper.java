@@ -34,7 +34,7 @@ public final class RestaurantQueryHelper {
    */
   public Restaurant makeRestaurantObject(Entity RestaurantEntity) throws NullPointerException {
     String name = (String) RestaurantEntity.getProperty("name");
-    int numberOfReviews = ((Long) RestaurantEntity.getProperty("numberOfReviews")).intValue();
+    int numberOfReviews = new Integer(RestaurantEntity.getProperty("numberOfReviews").toString());
     double rating = (double) RestaurantEntity.getProperty("rating");
     double lat = (double) RestaurantEntity.getProperty("lat");
     double lng = (double) RestaurantEntity.getProperty("lng");
