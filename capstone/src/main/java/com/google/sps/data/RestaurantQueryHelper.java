@@ -43,8 +43,9 @@ public final class RestaurantQueryHelper {
     String price = (String) RestaurantEntity.getProperty("price");
     String website = (String) RestaurantEntity.getProperty("website");
     String ID = (String) RestaurantEntity.getProperty("ID");
+    String vicinity = (String) RestaurantEntity.getProperty("vicinity");
 
-    Restaurant restaurant = new Restaurant(name, numberOfReviews, rating, lat, lng, address, phone, price, website, ID);
+    Restaurant restaurant = new Restaurant(name, numberOfReviews, rating, lat, lng, address, phone, price, website, ID, vicinity);
     return restaurant;
   }
 
@@ -62,6 +63,7 @@ public final class RestaurantQueryHelper {
     restaurantEntity.setProperty("price", getValue(place.priceLevel, "").toString());
     restaurantEntity.setProperty("website", getValue(place.website, "").toString());
     restaurantEntity.setProperty("ID", place.placeId);
+    restaurantEntity.setProperty("vicinity", getValue(place.vicinity, ""));
 
     return restaurantEntity;
   } 
