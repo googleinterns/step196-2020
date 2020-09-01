@@ -160,9 +160,8 @@ public final class RestaurantQueryHelperTest {
   @Test
   public void testEmptyString() {
     // splitStringToSet(): input string is empty, so return an empty set
-    String str = "";
     Set<String> expected = new HashSet<>();
-    Set<String> actual = query.splitStringToSet(str);
+    Set<String> actual = query.splitStringToSet(DEFAULT_STRING);
 
     Assert.assertEquals(expected, actual);
   }
@@ -204,5 +203,4 @@ public final class RestaurantQueryHelperTest {
     T value = (T) entity.getProperty(property);
     return value;
   }
-
 }
