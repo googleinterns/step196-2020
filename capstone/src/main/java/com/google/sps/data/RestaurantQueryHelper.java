@@ -63,7 +63,7 @@ public final class RestaurantQueryHelper {
     restaurantEntity.setProperty("price", getValue(place.priceLevel, "").toString());
     restaurantEntity.setProperty("website", getValue(place.website, "").toString());
     restaurantEntity.setProperty("ID", place.placeId);
-    restaurantEntity.setProperty("vicinity", getValue(place.vicinity, "");
+    restaurantEntity.setProperty("vicinity", getValue(place.vicinity, ""));
 
     return restaurantEntity;
   } 

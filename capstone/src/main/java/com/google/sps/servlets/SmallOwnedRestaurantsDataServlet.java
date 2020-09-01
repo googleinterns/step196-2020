@@ -125,7 +125,7 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
       DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
       datastore.put(restaurantEntity);
     }
-    response.sendRedirect("/admin.html");
+    response.sendRedirect("/main.html");
   }
 
   public void clearDatastore() {

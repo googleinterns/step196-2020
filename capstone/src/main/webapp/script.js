@@ -143,8 +143,9 @@ function callback(results, status) {
       const place = results[i];
       fetch('/get-details?placeId='+place.place_id).then((response) =>
         response.json()).then((place) => {
+          const location = place.geometry.location;
           const openStatus = place.openingHours.openNow;
-          addToDisplayPanel(place, openStatus);
+          addToDisplayPanel(place, openStatus, location);
       });
     }
   }
@@ -155,11 +156,11 @@ function callback(results, status) {
    @param {HTMLButtonElement} button button for location to toggle open
    @param {boolean} openStatus whether or not a certain place is open
  */
-function setMarker(place, button, openStatus) {
+function setMarker(place, button, openStatus, location) {
   const infowindow = new google.maps.InfoWindow();
   const marker = new google.maps.Marker({
     map: _map,
-    position: place.geometry.location,
+    position: location,
     animation: google.maps.Animation.DROP,
   });
   _markersArray.push(marker);
@@ -206,12 +207,12 @@ function clearMarkers() {
 @param {Object} place location to add to results panel
 @param {boolean} openStatus whether or not the place is open
  */
-function addToDisplayPanel(place, openStatus) {
+function addToDisplayPanel(place, openStatus, location) {
   const locationElement = document.getElementById('restaurant-results');
   const button = createLocationElement(place);
   locationElement.appendChild(button);
   locationElement.appendChild(createAdditionalInfo(place));
-  setMarker(place, button, openStatus);
+  setMarker(place, button, openStatus, location);
 }
 
 /** Creates button with location name for each place
@@ -311,8 +312,10 @@ function manualSearch(keyword, filter) {
     return fetch('/small-restaurants?keyword='+keyword).then((response) =>
       response.json()).then((restaurantResults) => {
       restaurantResults.forEach((place) => {
+        console.log(place);
+        const location = new google.maps.LatLng(place.lat, place.lng);
         const openStatus = place.openStatus;
-        addToDisplayPanel(place, openStatus);
+        addToDisplayPanel(place, openStatus, location);
       });
     });
   }
@@ -320,8 +323,9 @@ function manualSearch(keyword, filter) {
     return fetch('/black-owned-restaurants?keyword='+keyword).then((response) =>
       response.json()).then((restaurantResults) => {
       restaurantResults.forEach((place) => {
+        const location = new google.maps.LatLng(place.lat, place.lng);
         const openStatus = place.openStatus;
-        addToDisplayPanel(place, openStatus);;
+        addToDisplayPanel(place, openStatus, location);;
       });
     });
   }

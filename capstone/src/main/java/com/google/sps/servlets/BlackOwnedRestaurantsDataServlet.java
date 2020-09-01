@@ -119,7 +119,7 @@ public class BlackOwnedRestaurantsDataServlet extends HttpServlet {
       datastore.put(restaurantEntity);
     }
     
-    response.sendRedirect("/admin.html");
+    response.sendRedirect("/main.html");
   }
 
   /**
