@@ -37,4 +37,21 @@ public class Restaurant {
   public String name() {
     return this.name;
   }
+
+  @Override
+  public boolean equals(Object that) {
+    return that instanceof Restaurant && this.sameValue((Restaurant) that);
+  }
+
+  private boolean sameValue(Restaurant that) {
+    return this.name == that.name
+        && this.numberOfReviews == that.numberOfReviews 
+        && this.rating == that.rating 
+        && this.lat == that.lat 
+        && this.lng == that.lng 
+        && this.address == that.address
+        && this.phone == that.phone
+        && this.website == that.website
+        && this.ID == that.ID;
+  }
 }
