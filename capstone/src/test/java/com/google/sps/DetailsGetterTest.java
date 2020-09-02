@@ -1,80 +1,112 @@
-// Copyright 2019 Google LLC
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-
 package com.google.sps;
 
-import static org.mockito.Mockito.*;
 import com.google.sps.data.RestaurantDetailsGetter;
+import com.google.sps.data.Restaurant;
 import com.google.maps.model.PlaceDetails;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
-import com.google.maps.model.FindPlaceFromText;
-import com.google.maps.model.PlaceDetails;
-import com.google.maps.model.PlacesSearchResult;
-import com.google.maps.FindPlaceFromTextRequest;
-import com.google.maps.GeoApiContext;
-import com.google.maps.PlaceDetailsRequest;
 import com.google.maps.PlacesApi;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.ArgumentMatchers;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import static org.mockito.Mockito.*;
 
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({PlacesApi.class, FindPlaceFromTextRequest.class, PlaceDetailsRequest.class, PlaceDetails.class})
+/** Tests RestaurantDetailsGetter java class
+ *    getDetails(String placeId):
+ *          placeId: unique string identifying location
+ *          return: PlaceDetails object of that location
+ *
+ *    request(String name):
+ *          name: name of location you want the details for 
+ *          return: PlaceDetails object that contains all details of the location in question
+ *
+ *    getTagsFromReviews(PlaceDetails.Review[] reviewsArray):
+ *          reviewsArray: review objects for a specific location
+ *          return: String that is a concatenated value of all text reviews in the array
+ */
+
+@RunWith(JUnit4.class)
 public final class DetailsGetterTest {
-  private static final String address = "25 E 77th St, New York, NY 10075, USA";
-  private static final String name = "The Mark Hotel";
-  private static final String placeId = "ChIJXYOiRJRYwokRm1i3c9R6WDA"; 
-
+  private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
   private RestaurantDetailsGetter details;
 
-  @Before
-  public void initRestaurantDetailsGetter() {
-    details = new RestaurantDetailsGetter();
-  }
+  private static String DEFAULT_STRING = "";
 
   @Before
   public void setUp() {
-    details.setUp();
+    helper.setUp();
+    details = new RestaurantDetailsGetter();
   }
 
   @After
   public void tearDown() {
-    details.tearDown();
+    helper.tearDown();
   }
 
   @Test
-  public void testForExactLocation() {
-    PlaceDetails actual = new PlaceDetails();
-    PlaceDetails expected = new PlaceDetails();
+  public void testGetDetailsReturnsCorrectResponse() {
 
-    actual = details.request("The Mark Hotel");
+    String id = "ChIJM8mGj4lZwokRSbZBvNOVNKM";
+    PlaceDetails place = details.getDetails(id);
+
+    String expectedName = "NOMO SOHO";
+    String expectedAddress = "9 Crosby St, New York, NY 10013, USA";
+
+    String actualName = place.name;
+    String actualAddress = place.formattedAddress;
+
+    Assert.assertEquals(expectedName, actualName);
+    Assert.assertEquals(expectedAddress, actualAddress);
+  }
+
+  @Test
+  public void testRequestMethod() {
+    
+    String name = "Kikoo Sushi";
+
+    PlaceDetails place = details.request(name);
+
+    String actualName = place.name;
+    String actualAddress = place.formattedAddress;
+    String expectedAddress = "141 1st Avenue, New York, NY 10003, USA";
+
+    Assert.assertEquals(name, actualName);
+    Assert.assertEquals(expectedAddress, actualAddress);
+  }
+
+  @Test
+  public void testGetTagsFromEmptyPlaceDetails() {
+
+    PlaceDetails place = new PlaceDetails();
+    PlaceDetails.Review[] reviews = place.reviews;
+
+    String expected = DEFAULT_STRING;
+    String actual = details.getTagsfromReviews(reviews);
+
+    Assert.assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testGetTagsFromReviewArrayofPlace() {
+
+    PlaceDetails place = details.request("Burger King");
+    PlaceDetails.Review[] reviews = place.reviews;
+
+    try {
+      for (PlaceDetails.Review review : reviews) {
+        review.text = "Hello, world!";
+      } 
+    } catch (NullPointerException e) {}
+
+    String expected = "Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!";
+    String actual = details.getTagsfromReviews(reviews);
 
     Assert.assertEquals(expected, actual);
   }
