@@ -113,18 +113,18 @@ public final class RestaurantQueryHelperTest {
     place.website = new URL(WEBSITE);
     place.placeId = ID;
 
-    Entity actual = query.makeRestaurantEntity(place, NAME, REVIEWS, DATABASE);
+    Entity actualEntity = query.makeRestaurantEntity(place, NAME, REVIEWS, DATABASE);
 
-    Assert.assertEquals(NAME, getGenericProperty(actual, "name"));
-    Assert.assertEquals(NUM_REVIEWS, (int) getGenericProperty(actual, "numberOfReviews"));
-    Assert.assertEquals(RATING, (float) getGenericProperty(actual, "rating"), 0.0f);
-    Assert.assertNotNull((double) getGenericProperty(actual, "lat"));
-    Assert.assertNotNull((double) getGenericProperty(actual, "lng"));
-    Assert.assertEquals(ADDRESS, getGenericProperty(actual, "address"));
-    Assert.assertEquals(PHONE, getGenericProperty(actual, "phone"));
-    Assert.assertEquals(PRICE.toString(), getGenericProperty(actual, "price"));
-    Assert.assertEquals(WEBSITE, getGenericProperty(actual, "website"));
-    Assert.assertEquals(ID, getGenericProperty(actual, "ID"));
+    Assert.assertEquals(NAME, getGenericProperty(actualEntity, "name"));
+    Assert.assertEquals(NUM_REVIEWS, (int) getGenericProperty(actualEntity, "numberOfReviews"));
+    Assert.assertEquals(RATING, (float) getGenericProperty(actualEntity, "rating"), 0.0f);
+    Assert.assertNotNull((double) getGenericProperty(actualEntity, "lat"));
+    Assert.assertNotNull((double) getGenericProperty(actualEntity, "lng"));
+    Assert.assertEquals(ADDRESS, getGenericProperty(actualEntity, "address"));
+    Assert.assertEquals(PHONE, getGenericProperty(actualEntity, "phone"));
+    Assert.assertEquals(PRICE.toString(), getGenericProperty(actualEntity, "price"));
+    Assert.assertEquals(WEBSITE, getGenericProperty(actualEntity, "website"));
+    Assert.assertEquals(ID, getGenericProperty(actualEntity, "ID"));
   }
 
   @Test
@@ -158,7 +158,7 @@ public final class RestaurantQueryHelperTest {
   }
 
   @Test
-  public void testEmptyString() {
+  public void testSplitsEmptyString() {
     // splitStringToSet(): input string is empty, so return an empty set
     Set<String> expected = new HashSet<>();
     Set<String> actual = query.splitStringToSet(DEFAULT_STRING);
@@ -167,7 +167,7 @@ public final class RestaurantQueryHelperTest {
   }
 
   @Test
-  public void testNoChangesString() {
+  public void testSplitsStringWithNoChanges() {
     // splitStringToSet(): input string has 1 word, all lowercase chars, all alphabetic chars. 
     //                     return should have no changes to str
     String str = "test";
@@ -178,7 +178,7 @@ public final class RestaurantQueryHelperTest {
   }
 
   @Test
-  public void testSplitStringSomeChanges() {
+  public void testSplitStringWithWordBoundariesAndUppercase() {
     // splitStringToSet(): input string has >1 word, some uppercase chars, and some non-alphabetic chars.
     //                     return should split the word boundaries and make the uppercase -> lowercase and remove all non-alphabetic chars
     String str = "One 2 thrEE.";
@@ -189,7 +189,7 @@ public final class RestaurantQueryHelperTest {
   }
 
   @Test
-  public void testRemoveAllChars() {
+  public void testSplitsStringWithAllUppercase() {
     // splitStringToSet(): input string has >1 word, all non-alphabetic chars
     //                     return should remove all chars and return empty set
     String str = "!23 @#$%^ (&;,";
