@@ -52,7 +52,7 @@ public final class DetailsGetterTest {
 
   @Test
   public void testGetDetailsReturnsCorrectResponse() {
-    // TODO: This is making an actual place details request, so it's inherently unreliable. 
+    // TODO(#76): This is making an actual place details request, so it's inherently unreliable. 
     // To mock out the API with a fake one, we'd need a dependency injection framework. 
     // Once we have one, we will update this test so it's less flaky
 
@@ -71,7 +71,7 @@ public final class DetailsGetterTest {
 
   @Test
   public void testRequestMethod() {
-    // TODO: This is making an actual place search request, so it's inherently unreliable. 
+    // TODO(#76): This is making an actual place search request, so it's inherently unreliable. 
     // To mock out the API with a fake one, we'd need a dependency injection framework. 
     // Once we have one, we will update this test so it's less flaky
     
