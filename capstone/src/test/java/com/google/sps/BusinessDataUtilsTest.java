@@ -36,21 +36,21 @@ import java.util.Arrays;
 /** Testing Strategy / Partitioning input(s) and output(s) for testing
  *    storeData(List<String> restaurantNames, String DATABASE_NAME, RestaurantDetailsGetter details, RestaurantQueryHelper queryHelper)
  *          restaurantNames: contains random restaurant names
- *          DATABASE_NAME: either "BlackOwnedRestuarants" or "SmallRestaurants"
+ *          DATABASE_NAME: either "BlackOwnedRestaurants" or "SmallRestaurants"
  *          details: all fields filled w/ mixture of default and non-default values based on restaurant name
  *          queryHelper: all fields filled w/ mixture of default and non-default values based on restaurant name
- *          return: datastore should have stored these restaruant names with same query DATABASE_NAME
+ *          return: datastore should have stored these restaurant names with same query DATABASE_NAME
  *
  *    clearDatastore(String DATABASE_NAME)
- *          DATABASE_NAME: either "BlackOwnedRestuarants" or "SmallRestaurants"
+ *          DATABASE_NAME: either "BlackOwnedRestaurants" or "SmallRestaurants"
  *          return: datastore should have no entities with query DATABASE_NAME
  *    
  *    updateData(List<String> restaurantNames, String DATABASE_NAME, RestaurantDetailsGetter details, RestaurantQueryHelper queryHelper)
  *          restaurantNames: contains random restaurant names
- *          DATABASE_NAME: either "BlackOwnedRestuarants" or "SmallRestaurants"
+ *          DATABASE_NAME: either "BlackOwnedRestaurants" or "SmallRestaurants"
  *          details: all fields filled w/ mixture of default and non-default values based on restaurant name
  *          queryHelper: all fields filled w/ mixture of default and non-default values based on restaurant name
- *          return: datastore should have stored these restaruant names with same query DATABASE_NAME w/ no duplicates
+ *          return: datastore should have stored these restaurant names with same query DATABASE_NAME w/ no duplicates
  *                  restaurants not in new list should not be stored
  */
 
@@ -63,6 +63,8 @@ public final class BusinessDataUtilsTest {
   private String DATABASE_NAME;
   private List<String> smallRestaurantNames = new ArrayList<String>();
   private List<String> blackRestaurantNames = new ArrayList<String>();
+  private static final String SMALL_RESTAURANTS_DB_NAME = "SmallRestaurants";
+  private static final String BLACK_OWNED_RESTAURANTS_DB_NAME = "BlackOwnedRestaurants";
 
   @Before
   public void setUp() {
@@ -81,10 +83,10 @@ public final class BusinessDataUtilsTest {
   // and 1 black-owned restaurant to datastore
   // and making sure they are stored with distinction based on type
   @Test
-  public void testStoreSmallAndBlackOwnedRestaurantsIntoDatastore() {
+  public void testStoreData_SmallAndBlackOwnedRestaurants() {
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 
-    String DATABASE_NAME = "SmallRestaurants";
+    String DATABASE_NAME = SMALL_RESTAURANTS_DB_NAME;
     smallRestaurantNames.add("Restaurant 1");
     smallRestaurantNames.add("Restaurant 2");
     utility.storeData(smallRestaurantNames, DATABASE_NAME, details, query);
@@ -92,7 +94,7 @@ public final class BusinessDataUtilsTest {
     int actualNumberOfSmallRestaurantsStored = ds.prepare(new Query(DATABASE_NAME)).countEntities();
     Assert.assertEquals(expectedNumberOfSmallRestaurantsStored, actualNumberOfSmallRestaurantsStored);
 
-    DATABASE_NAME = "BlackOwnedRestuarants";
+    DATABASE_NAME = BLACK_OWNED_RESTAURANTS_DB_NAME;
     blackRestaurantNames.add("Restaurant 3");
     utility.storeData(blackRestaurantNames, DATABASE_NAME, details, query);
     int expectedNumberOfBlackOwnedRestaurantsStored = 1;
@@ -103,10 +105,10 @@ public final class BusinessDataUtilsTest {
   // adding 2 small-business restaurants to datastore
   // checking if both restaurants are cleared after clearDatastore() call
   @Test
-  public void testClearSmallBusinessFromDatastore() {
+  public void testClearDatastore_SmallBusiness() {
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 
-    String DATABASE_NAME = "SmallRestaurants";
+    String DATABASE_NAME = SMALL_RESTAURANTS_DB_NAME;
     smallRestaurantNames.add("Restaurant 1");
     smallRestaurantNames.add("Restaurant 2");
 
@@ -118,22 +120,68 @@ public final class BusinessDataUtilsTest {
     Assert.assertEquals(expectedNumberOfSmallRestaurantsStored, actualNumberOfSmallRestaurantsStored);
   }
 
+  // adding 3 black-owned-business restaurants to datastore
+  // checking if all restaurants are cleared after clearDatastore() call
+  @Test
+  public void testClearDatastore_BlackOwnedBusiness() {
+    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+
+    String DATABASE_NAME = BLACK_OWNED_RESTAURANTS_DB_NAME;
+    blackRestaurantNames.add("Restaurant 1");
+    blackRestaurantNames.add("Restaurant 2");
+    blackRestaurantNames.add("Restaurant 3");
+
+    utility.storeData(blackRestaurantNames, DATABASE_NAME, details, query);
+    utility.clearDatastore(DATABASE_NAME);
+    int expectedNumberOfBlackOwnedRestaurantsStored = 0;
+    int actualNumberOfBlackOwnedRestaurantsStored = ds.prepare(new Query(DATABASE_NAME)).countEntities();
+
+    Assert.assertEquals(expectedNumberOfBlackOwnedRestaurantsStored, actualNumberOfBlackOwnedRestaurantsStored);
+  }
+
   // adding 2 black-owned-business restaurants
   // and 1 small business restaurant to datastore
   // removing all small business restaurant
   // making sure all black-owned-business restaurants still remain
   @Test
-  public void testClearOnlySmallBusinessFromDatastore() {
+  public void testClearDatastore_OnlySmallBusiness() {
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 
-    String DATABASE_NAME = "BlackOwnedRestuarants";
+    String DATABASE_NAME = BLACK_OWNED_RESTAURANTS_DB_NAME;
     blackRestaurantNames.add("Restaurant 1");
     blackRestaurantNames.add("Restaurant 2");
     utility.storeData(blackRestaurantNames, DATABASE_NAME, details, query);
     int expectedNumberOfBlackOwnedRestaurantsStored = 2;
     int actualNumberOfBlackOwnedRestaurantsStored = ds.prepare(new Query(DATABASE_NAME)).countEntities();
 
-    DATABASE_NAME = "SmallRestaurants";
+    DATABASE_NAME = SMALL_RESTAURANTS_DB_NAME;
+    smallRestaurantNames.add("Restaurant 3");
+    utility.storeData(smallRestaurantNames, DATABASE_NAME, details, query);
+    utility.clearDatastore(DATABASE_NAME);
+    int expectedNumberOfSmallRestaurantsStored = 0;
+    int actualNumberOfSmallRestaurantsStored = ds.prepare(new Query(DATABASE_NAME)).countEntities();
+
+    Assert.assertEquals(expectedNumberOfBlackOwnedRestaurantsStored, actualNumberOfBlackOwnedRestaurantsStored);
+    Assert.assertEquals(expectedNumberOfSmallRestaurantsStored, actualNumberOfSmallRestaurantsStored);
+  }
+
+  // adding 2 black-owned-business restaurants
+  // and 1 small business restaurant to datastore
+  // removing all restaurants
+  // making sure no restaurants still remain
+  @Test
+  public void testClearDatastore_SmallandBlackOwnedBusiness() {
+    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+
+    String DATABASE_NAME = BLACK_OWNED_RESTAURANTS_DB_NAME;
+    blackRestaurantNames.add("Restaurant 1");
+    blackRestaurantNames.add("Restaurant 2");
+    utility.storeData(blackRestaurantNames, DATABASE_NAME, details, query);
+    utility.clearDatastore(DATABASE_NAME);
+    int expectedNumberOfBlackOwnedRestaurantsStored = 0;
+    int actualNumberOfBlackOwnedRestaurantsStored = ds.prepare(new Query(DATABASE_NAME)).countEntities();
+
+    DATABASE_NAME = SMALL_RESTAURANTS_DB_NAME;
     smallRestaurantNames.add("Restaurant 3");
     utility.storeData(smallRestaurantNames, DATABASE_NAME, details, query);
     utility.clearDatastore(DATABASE_NAME);
@@ -151,17 +199,17 @@ public final class BusinessDataUtilsTest {
   // making sure there are only 3 small business restaurants in datastore w/ no duplicates
   // and still 2 black-owned-business restaurants in datastore
   @Test
-  public void testUpdateSmallBusinessFromDatastoreViaAddition() {
+  public void testUpdateData_AdditionalSmallBusinesses() {
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 
-    String DATABASE_NAME = "BlackOwnedRestuarants";
+    String DATABASE_NAME = BLACK_OWNED_RESTAURANTS_DB_NAME;
     blackRestaurantNames.add("Restaurant 1");
     blackRestaurantNames.add("Restaurant 2");
     utility.storeData(blackRestaurantNames, DATABASE_NAME, details, query);
     int expectedNumberOfBlackOwnedRestaurantsStored = 2;
     int actualNumberOfBlackOwnedRestaurantsStored = ds.prepare(new Query(DATABASE_NAME)).countEntities();
 
-    DATABASE_NAME = "SmallRestaurants";
+    DATABASE_NAME = SMALL_RESTAURANTS_DB_NAME;
     smallRestaurantNames.add("Restaurant 3");
     utility.storeData(smallRestaurantNames, DATABASE_NAME, details, query);
     smallRestaurantNames.clear();
@@ -196,10 +244,10 @@ public final class BusinessDataUtilsTest {
   // making sure there is only 2 black-owned-business restaurants in datastore w/ no duplicates
   // and still 1 small business restaurants in datastore
   @Test
-  public void testUpdateBlackOwnedBusinessFromDatastoreViaRemoval() {
+  public void testUpdateData_RemovedBlackOwnedBusiness() {
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 
-    String DATABASE_NAME = "BlackOwnedRestuarants";
+    String DATABASE_NAME = BLACK_OWNED_RESTAURANTS_DB_NAME;
     blackRestaurantNames.add("Restaurant 1");
     blackRestaurantNames.add("Restaurant 2");
     blackRestaurantNames.add("Restaurant 3");
@@ -224,7 +272,7 @@ public final class BusinessDataUtilsTest {
       }
     }
 
-    DATABASE_NAME = "SmallRestaurants";
+    DATABASE_NAME = SMALL_RESTAURANTS_DB_NAME;
     smallRestaurantNames.add("Restaurant 3");
     utility.storeData(smallRestaurantNames, DATABASE_NAME, details, query);
     int expectedNumberOfSmallRestaurantsStored = 1;
