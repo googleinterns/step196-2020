@@ -61,6 +61,7 @@ public final class RestaurantQueryHelperTest {
   private static PriceLevel PRICE = PriceLevel.MODERATE;
   private static String WEBSITE = "https://developers.google.com/";
   private static String ID = "placeID";
+  private static String VICINITY = "vicinity";
 
   @Before
   public void setUp() {
@@ -87,8 +88,9 @@ public final class RestaurantQueryHelperTest {
     entity.setProperty("price", DEFAULT_STRING);
     entity.setProperty("website", WEBSITE);
     entity.setProperty("ID", ID);
+    entity.setProperty("vicinity", VICINITY);
 
-    Restaurant expected = new Restaurant(NAME, NUM_REVIEWS, DEFAULT_NUM, LAT, LNG, DEFAULT_STRING, DEFAULT_STRING, DEFAULT_STRING, WEBSITE.toString(), ID);
+    Restaurant expected = new Restaurant(NAME, NUM_REVIEWS, DEFAULT_NUM, LAT, LNG, DEFAULT_STRING, DEFAULT_STRING, DEFAULT_STRING, WEBSITE.toString(), ID, VICINITY);
     Restaurant actual = query.makeRestaurantObject(entity);
 
     Assert.assertEquals(expected, actual);
@@ -112,6 +114,7 @@ public final class RestaurantQueryHelperTest {
     place.priceLevel = PRICE;
     place.website = new URL(WEBSITE);
     place.placeId = ID;
+    place.vicinity = VICINITY;
 
     Entity actualEntity = query.makeRestaurantEntity(place, NAME, REVIEWS, DATABASE);
 
@@ -125,6 +128,7 @@ public final class RestaurantQueryHelperTest {
     Assert.assertEquals(PRICE.toString(), getGenericProperty(actualEntity, "price"));
     Assert.assertEquals(WEBSITE, getGenericProperty(actualEntity, "website"));
     Assert.assertEquals(ID, getGenericProperty(actualEntity, "ID"));
+    Assert.assertEquals(VICINITY, getGenericProperty(actualEntity, "vicinity"));
   }
 
   @Test
@@ -142,19 +146,21 @@ public final class RestaurantQueryHelperTest {
     place.rating = (float) RATING;
     place.priceLevel = PRICE;
     place.placeId = ID;
+    place.vicinity = VICINITY;
 
-    Entity actual = query.makeRestaurantEntity(place, NAME, REVIEWS, DATABASE);
+    Entity actualEntity = query.makeRestaurantEntity(place, NAME, REVIEWS, DATABASE);
 
-    Assert.assertEquals(NAME, getGenericProperty(actual, "name"));
-    Assert.assertEquals(DEFAULT_NUM, (int) getGenericProperty(actual, "numberOfReviews"), 0.0f);
-    Assert.assertEquals(RATING, (float) getGenericProperty(actual, "rating"), 0.0f);
-    Assert.assertNotNull((double) getGenericProperty(actual, "lat"));
-    Assert.assertNotNull((double) getGenericProperty(actual, "lng"));
-    Assert.assertEquals(DEFAULT_STRING, getGenericProperty(actual, "address"));
-    Assert.assertEquals(DEFAULT_STRING, getGenericProperty(actual, "phone"));
-    Assert.assertEquals(PRICE.toString(), getGenericProperty(actual, "price"));
-    Assert.assertEquals(DEFAULT_STRING, getGenericProperty(actual, "website"));
-    Assert.assertEquals(ID, getGenericProperty(actual, "ID"));
+    Assert.assertEquals(NAME, getGenericProperty(actualEntity, "name"));
+    Assert.assertEquals(DEFAULT_NUM, (int) getGenericProperty(actualEntity, "numberOfReviews"), 0.0f);
+    Assert.assertEquals(RATING, (float) getGenericProperty(actualEntity, "rating"), 0.0f);
+    Assert.assertNotNull((double) getGenericProperty(actualEntity, "lat"));
+    Assert.assertNotNull((double) getGenericProperty(actualEntity, "lng"));
+    Assert.assertEquals(DEFAULT_STRING, getGenericProperty(actualEntity, "address"));
+    Assert.assertEquals(DEFAULT_STRING, getGenericProperty(actualEntity, "phone"));
+    Assert.assertEquals(PRICE.toString(), getGenericProperty(actualEntity, "price"));
+    Assert.assertEquals(DEFAULT_STRING, getGenericProperty(actualEntity, "website"));
+    Assert.assertEquals(ID, getGenericProperty(actualEntity, "ID"));
+    Assert.assertEquals(VICINITY, getGenericProperty(actualEntity, "vicinity"));
   }
 
   @Test
