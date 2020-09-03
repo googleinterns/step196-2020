@@ -49,9 +49,9 @@ public class Restaurant {
         && this.rating == that.rating 
         && this.lat == that.lat 
         && this.lng == that.lng 
-        && this.address == that.address
-        && this.phone == that.phone
+        && this.formattedAddress == that.formattedAddress
+        && this.formattedPhoneNumber == that.formattedPhoneNumber
         && this.website == that.website
-        && this.ID == that.ID;
+        && this.placeId == that.placeId;
   }
 }

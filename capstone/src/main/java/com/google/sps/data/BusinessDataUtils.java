@@ -16,8 +16,6 @@ public final class BusinessDataUtils {
       String DATABASE_NAME,
       RestaurantDetailsGetter details,
       RestaurantQueryHelper queryHelper) {
-
-    clearDatastore(DATABASE_NAME);
     
     for (String restaurantName : restaurantNames) {
       PlaceDetails place = details.request(restaurantName);
@@ -32,6 +30,18 @@ public final class BusinessDataUtils {
       DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
       datastore.put(restaurantEntity);
     }
+
+  }
+
+  public void updateData(
+      List<String> restaurantNames,
+      String DATABASE_NAME,
+      RestaurantDetailsGetter details,
+      RestaurantQueryHelper queryHelper) {
+
+    clearDatastore(DATABASE_NAME);
+    
+    storeData(restaurantNames, DATABASE_NAME, details, queryHelper);
   }
 
   public void clearDatastore(String DATABASE_NAME) {

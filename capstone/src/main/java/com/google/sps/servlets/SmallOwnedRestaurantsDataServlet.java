@@ -111,7 +111,7 @@ public class SmallOwnedRestaurantsDataServlet extends HttpServlet {
     List<String> restaurantNames = getRestaurantNames();
 
     BusinessDataUtils storeDataHelper = new BusinessDataUtils();
-    storeDataHelper.storeData(restaurantNames, DATABASE_NAME, details, queryHelper);
+    storeDataHelper.updateData(restaurantNames, DATABASE_NAME, details, queryHelper);
 
     response.sendRedirect("/main.html");
   }
