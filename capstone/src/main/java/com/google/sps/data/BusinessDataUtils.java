@@ -16,7 +16,7 @@ public final class BusinessDataUtils {
       String DATABASE_NAME,
       RestaurantDetailsGetter details,
       RestaurantQueryHelper queryHelper) {
-    
+
     for (String restaurantName : restaurantNames) {
       PlaceDetails place = details.request(restaurantName);
 
@@ -40,7 +40,7 @@ public final class BusinessDataUtils {
       RestaurantQueryHelper queryHelper) {
 
     clearDatastore(DATABASE_NAME);
-    
+
     storeData(restaurantNames, DATABASE_NAME, details, queryHelper);
   }
 

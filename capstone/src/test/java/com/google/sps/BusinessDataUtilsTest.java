@@ -1,39 +1,28 @@
 package com.google.sps;
 
-import com.google.sps.data.BusinessDataUtils;
-import com.google.sps.data.RestaurantDetailsGetter;
-import com.google.sps.data.RestaurantQueryHelper;
-import com.google.sps.data.Restaurant;
+
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
-import com.google.maps.model.PlaceDetails;
-import java.util.ArrayList;
-import java.util.List;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
-import com.google.maps.PlacesApi;
-import com.google.maps.model.PriceLevel;
-import com.google.maps.model.Geometry;
-import com.google.maps.model.LatLng;
-import java.net.URL;
-import java.net.MalformedURLException;
+import com.google.sps.data.BusinessDataUtils;
+import com.google.sps.data.RestaurantDetailsGetter;
+import com.google.sps.data.RestaurantQueryHelper;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Arrays;
-
-/** Testing Strategy / Partitioning input(s) and output(s) for testing
+/** 
+ * Testing Strategy / Partitioning input(s) and output(s) for testing
  *    storeData(List<String> restaurantNames, String DATABASE_NAME, RestaurantDetailsGetter details, RestaurantQueryHelper queryHelper)
  *          restaurantNames: contains random restaurant names
  *          DATABASE_NAME: either "BlackOwnedRestaurants" or "SmallRestaurants"
@@ -56,7 +45,8 @@ import java.util.Arrays;
 
 @RunWith(JUnit4.class)
 public final class BusinessDataUtilsTest {
-  private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
+  private final LocalServiceTestHelper helper =
+      new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
   private BusinessDataUtils utility;
   private RestaurantQueryHelper query;
   private RestaurantDetailsGetter details;
@@ -253,8 +243,8 @@ public final class BusinessDataUtilsTest {
     blackRestaurantNames.add("Restaurant 3");
     blackRestaurantNames.add("Restaurant 4");
     utility.storeData(blackRestaurantNames, DATABASE_NAME, details, query);
-    blackRestaurantNames.remove(blackRestaurantNames.size()-1);
-    blackRestaurantNames.remove(blackRestaurantNames.size()-1);
+    blackRestaurantNames.remove(blackRestaurantNames.size() - 1);
+    blackRestaurantNames.remove(blackRestaurantNames.size() - 1);
     utility.updateData(blackRestaurantNames, DATABASE_NAME, details, query);
     int expectedNumberOfBlackOwnedRestaurantsStored = 2;
     int actualNumberOfBlackOwnedRestaurantsStored = ds.prepare(new Query(DATABASE_NAME)).countEntities();
