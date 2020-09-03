@@ -143,7 +143,6 @@ function callback(results, status) {
       const place = results[i];
       fetch('/get-details?placeId='+place.place_id).then((response) =>
         response.json()).then((place) => {
-          console.log(place);
           const location = place.geometry.location;
           const openStatus = place.openingHours.openNow;
           addToDisplayPanel(place, openStatus, location);
@@ -313,6 +312,7 @@ function manualSearch(keyword, filter) {
     return fetch('/small-restaurants?keyword='+keyword).then((response) =>
       response.json()).then((restaurantResults) => {
       restaurantResults.forEach((place) => {
+
         const location = new google.maps.LatLng(place.lat, place.lng);
         const openStatus = place.openStatus;
         addToDisplayPanel(place, openStatus, location);
